@@ -14,7 +14,7 @@
 #' y <- iris[,5]
 #' pipeline_results <- fit_and_evaluate_pipelines(X_train = X, y_train = y)
 #' compare_gene_lists(input_list = pipeline_results)
-#' @importFrom GeneOverlap modOverlaps
+#' importFrom GeneOverlap modOverlaps
 #' @importFrom tmod modOverlaps
 #' @importFrom ggplot2 ggplot aes geom_tile geom_text scale_fill_gradientn theme_minimal theme labs coord_fixed
 #' @importFrom reshape2 melt
@@ -33,7 +33,7 @@ compare_gene_lists <- function(input_list, save_plot = FALSE, filename = NULL, .
   print(gene.lists)
   # Calculate the overlap coefficients and round to 2 decimal places
   calculate_coefficients <- function(stat) {
-    coefficients <- GeneOverlap::modOverlaps(modules = gene.lists, mset = NULL, stat = stat)
+    coefficients <- tmod::modOverlaps(modules = gene.lists, mset = NULL, stat = stat)
     round(coefficients, 2)
   }
 

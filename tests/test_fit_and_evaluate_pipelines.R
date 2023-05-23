@@ -20,7 +20,7 @@ test_that("fit_and_evaluate_pipelines returns expected output", {
   y = exp_subset[['label']]
 
   # Call the function
-  results <- fit_and_evaluate_pipelines(X_train = X, y_train = y, njobs = 4L)
+  results <- fit_and_evaluate_pipelines(X_train = X, y_train = y, njobs = 1L)
 
   # Check that the output is a list
   expect_is(results, "list")

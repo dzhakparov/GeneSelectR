@@ -10,10 +10,25 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    BiocManager
 Config/testthat/edition: 3
 Imports: 
-    dplyr
-    SummarizedExperiment
-URL: https://github.com/dzhakparov/FitSelect
-BugReports: https://github.com/dzhakparov/FitSelect/issues
+    AnnotationHub,
+    org.Hs.eg.db,
+    GeneOverlap,
+    RColorBrewer,
+    reticulate,
+    ViSEAGO,
+    cowplot,
+    dplyr,
+    ensembldb,
+    ggplot2,
+    reshape2,
+    stringr,
+    tmod,
+    topGO,
+    plotly,
+    glue
+URL: https://github.com/dzhakparov/GeneSelectR
+BugReports: https://github.com/dzhakparov/GeneSelectR/issues

@@ -7,6 +7,7 @@
 #' @return A list containing the selected feature names and their importances, or NULL
 #'         if the classifier is not a Gradient Boosting Classifier or the feature selector
 #'         doesn't have the 'get_support' method.
+#' @importFrom reticulate py_has_attr py_to_r
 #' @examples
 #' # Assuming you have a Scikit-learn pipeline 'my_pipeline' and training data 'X_train'
 #' feature_importances <- get_feature_importances(my_pipeline, X_train)
@@ -58,6 +59,7 @@ get_feature_importances <- function(pipeline, X_train) {
 #' @param selected_methods A vector of names of feature selection methods to use from the default set.
 #' @param classifier A Scikit-learn classifier to use as the final step in the pipelines.
 #' @return A list of Scikit-learn pipelines.
+#' @importFrom reticulate import tuple
 #' @export
 create_pipelines <- function(feature_selection_methods, preprocessing_steps, selected_methods, classifier) {
   sklearn <- reticulate::import('sklearn')
@@ -89,6 +91,7 @@ create_pipelines <- function(feature_selection_methods, preprocessing_steps, sel
 #' @description This function converts a list of steps to tuples for use in a Scikit-learn pipeline.
 #' @param steps A list of steps to convert to tuples.
 #' @return A list of tuples.
+#' @importFrom reticulate tuple
 #' @export
 steps_to_tuples <- function(steps) {
   tuple_steps <- c()

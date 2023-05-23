@@ -1,5 +1,7 @@
 #' @title Fit and Evaluate Pipelines with Hyperparameter Tuning
 #' @description This function fits a set of pipelines with hyperparameter tuning on a given training set and evaluates their performance using cross-validation.
+#' @importFrom reticulate import r_to_py
+#' @importFrom glue glue
 #' @param X_train A matrix or data frame of training data with features as columns and observations as rows.
 #' @param y_train A vector of training labels corresponding to the rows of X_train.
 #' @param pipelines An optional list of pre-defined pipelines to use for fitting and evaluation. If this argument is provided, the feature selection methods and preprocessing steps will be ignored.
