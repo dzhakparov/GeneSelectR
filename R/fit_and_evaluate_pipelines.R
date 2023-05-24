@@ -29,12 +29,7 @@ fit_and_evaluate_pipelines <- function(X_train, y_train, pipelines = NULL, featu
                                        njobs = -1L, n_splits = 2L) {
   # Import Python packages
   #reticulate::use_python(Sys.getenv("PYTHON_PATH"), required = TRUE)
-  sklearn <- reticulate::import("sklearn")
-  pandas <- reticulate::import('pandas')
-  np <- reticulate::import('numpy')
-  lightGBM <- reticulate::import('lightgbm')
-  xgboost <- reticulate::import('xgboost')
-  boruta <- reticulate::import('boruta')
+
   preprocessing <- sklearn$preprocessing
   model_selection <- sklearn$model_selection
   feature_selection <- sklearn$feature_selection
@@ -49,17 +44,6 @@ fit_and_evaluate_pipelines <- function(X_train, y_train, pipelines = NULL, featu
   anova_selection = sklearn$feature_selection$f_classif
 
   # Import custom script
-
-  # enable multiprocess
-  sys <- reticulate::import("sys")
-  exe <- file.path(sys$exec_prefix, "pythonw.exe")
-  sys$executable <- exe
-  sys$`_base_executable` <- exe
-
-  # update executable path in multiprocessing module
-  multiprocessing <- reticulate::import("multiprocessing")
-  multiprocessing$set_executable(exe)
-
 
   # Define preprocessing steps as a list
   preprocessing_steps <- list(
@@ -169,3 +153,4 @@ fit_and_evaluate_pipelines <- function(X_train, y_train, pipelines = NULL, featu
                          mean_feature_importances = mean_feature_importances))
 
 }
+
