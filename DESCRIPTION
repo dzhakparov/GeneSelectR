@@ -6,29 +6,29 @@ Authors@R:
            comment = c(ORCID = "0000-0001-7175-0843"))
 Description: TODO.
 License: MIT + file LICENSE
+URL: https://github.com/dzhakparov/GeneSelectR
+BugReports: https://github.com/dzhakparov/GeneSelectR/issues
+Imports: 
+    AnnotationHub (>= 3.6.0),
+    cowplot (>= 1.1.1),
+    dplyr (>= 1.1.0),
+    ensembldb (>= 2.22.0),
+    GeneOverlap (>= 1.34.0),
+    ggplot2 (>= 3.4.2),
+    glue (>= 1.6.2),
+    org.Hs.eg.db (>= 3.16.0),
+    plotly (>= 4.10.1),
+    RColorBrewer (>= 1.1.3),
+    reshape2 (>= 1.4.4),
+    reticulate (>= 1.28),
+    stringr (>= 1.5.0),
+    tmod (>= 0.50.13),
+    topGO (>= 2.50.0),
+    ViSEAGO (>= 1.12.0)
+Suggests: 
+    BiocManager (>= 1.30.20),
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-Suggests: 
-    testthat (>= 3.0.0),
-    BiocManager
-Config/testthat/edition: 3
-Imports: 
-    AnnotationHub,
-    org.Hs.eg.db,
-    GeneOverlap,
-    RColorBrewer,
-    reticulate,
-    ViSEAGO,
-    cowplot,
-    dplyr,
-    ensembldb,
-    ggplot2,
-    reshape2,
-    stringr,
-    tmod,
-    topGO,
-    plotly,
-    glue
-URL: https://github.com/dzhakparov/GeneSelectR
-BugReports: https://github.com/dzhakparov/GeneSelectR/issues

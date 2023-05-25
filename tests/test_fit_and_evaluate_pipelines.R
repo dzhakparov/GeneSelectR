@@ -1,7 +1,7 @@
 rm(list = ls())
 gc()
 library(testthat)
-#library(FitSelect)
+library(FitSelect)
 test_check("FitSelect")
 
 # Define a context for your tests
@@ -10,7 +10,6 @@ context("Testing fit_and_evaluate_pipelines")
 
 # Define a test
 test_that("fit_and_evaluate_pipelines returns expected output", {
-  reticulate::use_condaenv('feature_selection_env')
   work_dir = getwd()
   exp_subset = readRDS(file = file.path(work_dir, "exp_reduced.rds"))
   exp_subset = exp_subset[,900:1001]

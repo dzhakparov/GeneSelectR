@@ -28,7 +28,7 @@
 fit_and_evaluate_pipelines <- function(X_train, y_train, pipelines = NULL, feature_selection_methods = NULL, selected_methods = NULL,
                                        njobs = -1L, n_splits = 2L) {
   # Import Python packages
-  #reticulate::use_python(Sys.getenv("PYTHON_PATH"), required = TRUE)
+
 
   preprocessing <- sklearn$preprocessing
   model_selection <- sklearn$model_selection
@@ -56,7 +56,7 @@ fit_and_evaluate_pipelines <- function(X_train, y_train, pipelines = NULL, featu
     "Lasso" = select_model(lasso(penalty = 'l1', C = 0.1, solver = 'saga'), threshold = 'median'),
     'Univariate' = univariate(mode = 'percentile',param = 80L),
     "RFE" = rfe(lightGBM$LGBMClassifier(), n_features_to_select = 0.2),
-    'boruta'= boruta$BorutaPy(forest(), n_estimators = 'auto', verbose =2L, random_state = 999L,perc = 90L)
+    'boruta'= boruta$BorutaPy(forest(), n_estimators = 'auto', verbose =0, random_state = 999L,perc = 90L)
   )
 
   # convert R objects to Py

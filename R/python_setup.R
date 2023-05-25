@@ -10,52 +10,64 @@
 
   # Check if Conda is installed
   if (is.null(reticulate::conda_version())) {
-    stop("Conda is not installed on your system. Please install Conda before proceeding.")
+    stop(paste0("😿 Conda is not installed on your system. Please install Conda before proceeding."))
   } else {
-    message("Conda is installed.")
+    message(paste0("😺 Conda is installed."))
 
     # Check if the Conda environment already exists
     if (!conda_env %in% reticulate::conda_list()$name) {
       # Create the Conda environment
-      message("Creating Conda environment: ", conda_env)
+      message(paste0("Creating Conda environment: ", conda_env, " ... 😸"))
       reticulate::conda_create(envname = conda_env)
+      message(paste0("😻 Created Conda environment: ", conda_env))
     } else {
-      message("Conda environment ", conda_env, " already exists.")
+      message(paste0("😽 Conda environment ", conda_env, " already exists."))
     }
 
-    # Get the path of the Python interpreter in the Conda environment
-    python_path <- system2("conda", c("env", "list"), stdout = TRUE)
-    python_path <- sub(".*\\s", "", python_path[grepl(conda_env, python_path)])
+    # List of Python packages to be installed
+    python_packages <- c("scikit-learn", "pandas", "numpy", "lightgbm", "xgboost", "boruta")
 
-    # Check if the RETICULATE_PYTHON environment variable is set to the Python interpreter in the Conda environment
-    if (Sys.getenv("RETICULATE_PYTHON") != python_path) {
-      # Set the RETICULATE_PYTHON environment variable
-      Sys.setenv(RETICULATE_PYTHON = python_path)
+    # Check if the Python packages are already installed
+    packages_to_install <- python_packages[!sapply(python_packages, reticulate::py_module_available)]
 
-      # Use the Conda environment in the R session
-      message("Setting R session to use Conda environment: ", conda_env)
+    if (length(packages_to_install) > 0) {
+      # Install the necessary Python packages in the Conda environment
+      message(paste0("Installing Python packages in Conda environment: ", conda_env, " ... 😼"))
+      reticulate::conda_install(envname = conda_env, packages = packages_to_install)
+      message(paste0("😹 Installed Python packages in Conda environment: ", conda_env))
+    } else {
+      message(paste0("😾 All necessary Python packages are already installed in Conda environment: ", conda_env))
+    }
+
+    # Use the Conda environment in the R session
+    message(paste0("Setting R session to use Conda environment: ", conda_env, " ... 😿"))
+    if (is.null(Sys.getenv("RETICULATE_PYTHON"))) {
       reticulate::use_condaenv(conda_env, required = TRUE)
-    } else {
-      message("R session is already using Conda environment: ", conda_env)
     }
+    message(paste0("😽 Set R session to use Conda environment: ", conda_env))
+
+    # Import the Python libraries
+    message(paste0("Importing Python libraries ... 😼"))
+    sklearn <- reticulate::import("sklearn")
+    pandas <- reticulate::import("pandas")
+    numpy <- reticulate::import("numpy")
+    lightgbm <- reticulate::import("lightgbm")
+    xgboost <- reticulate::import("xgboost")
+    boruta <- reticulate::import("boruta")
+
+    # enable multiprocess
+    sys <- reticulate::import("sys")
+    exe <- file.path(sys$exec_prefix, "pythonw.exe")
+    sys$executable <- exe
+    sys$`_base_executable` <- exe
+
+    # update executable path in multiprocessing module
+    multiprocessing <- reticulate::import("multiprocessing")
+    multiprocessing$set_executable(exe)
+
+    message(paste0("😻 Imported Python libraries"))
   }
-
-  # Import the Python libraries
-  message("Importing Python libraries.")
-  sklearn <- reticulate::import("sklearn")
-  pandas <- reticulate::import("pandas")
-  numpy <- reticulate::import("numpy")
-  lightgbm <- reticulate::import("lightgbm")
-  xgboost <- reticulate::import("xgboost")
-  boruta <- reticulate::import("boruta")
-
-  # enable multiprocess
-  sys <- reticulate::import("sys")
-  exe <- file.path(sys$exec_prefix, "pythonw.exe")
-  sys$executable <- exe
-  sys$`_base_executable` <- exe
-
-  # update executable path in multiprocessing module
-  multiprocessing <- reticulate::import("multiprocessing")
-  multiprocessing$set_executable(exe)
 }
+
+
+
