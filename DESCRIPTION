@@ -8,6 +8,8 @@ Description: TODO.
 License: MIT + file LICENSE
 URL: https://github.com/dzhakparov/GeneSelectR
 BugReports: https://github.com/dzhakparov/GeneSelectR/issues
+Depends: 
+biocViews:
 Imports: 
     AnnotationHub (>= 3.6.0),
     cowplot (>= 1.1.1),
