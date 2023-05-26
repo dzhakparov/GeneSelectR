@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# FitSelect
+# GeneSelectR
 
 <!-- badges: start -->
 <!-- badges: end -->
