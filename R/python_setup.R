@@ -5,6 +5,10 @@
 #' @param pkgname The path to the library where the package is installed.
 #' @details The name of the Conda environment is obtained from the "FitSelect.conda_env" option or the "FITSELECT_CONDA_ENV" environment variable. If neither of these is set, a default name of "FitSelectEnv" is used. The Conda environment is created if it doesn't already exist. The R session is set to use the Conda environment if the "RETICULATE_PYTHON" environment variable is not set to the Python interpreter in the Conda environment. The Python libraries "sklearn", "pandas", "numpy", "lightgbm", "xgboost", and "boruta" are imported.
 .onLoad <- function(libname, pkgname) {
+  if (!interactive()) {
+    return()
+  }
+
   # Get the name of the Conda environment from an option or environment variable, or use a default name
   conda_env <- getOption("FitSelect.conda_env", Sys.getenv("FITSELECT_CONDA_ENV", "FitSelectEnv"))
 
@@ -22,7 +26,7 @@
       message(paste0("😻 Created Conda environment: ", conda_env))
 
       # List of Python packages to be installed
-      python_packages <- c("scikit-learn", "pandas", "numpy", "lightgbm", "xgboost", "boruta")
+      python_packages <- c("scikit-learn", "pandas", "numpy", "lightgbm", "xgboost", "boruta_py")
 
       # Install the necessary Python packages in the Conda environment
       message(paste0("Installing Python packages in Conda environment: ", conda_env, " ... 😼"))
@@ -59,6 +63,4 @@
     message(paste0("😻 Imported Python libraries"))
   }
 }
-
-
 
