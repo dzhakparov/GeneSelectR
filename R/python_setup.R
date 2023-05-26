@@ -20,30 +20,21 @@
       message(paste0("Creating Conda environment: ", conda_env, " ... 😸"))
       reticulate::conda_create(envname = conda_env)
       message(paste0("😻 Created Conda environment: ", conda_env))
+
+      # List of Python packages to be installed
+      python_packages <- c("scikit-learn", "pandas", "numpy", "lightgbm", "xgboost", "boruta")
+
+      # Install the necessary Python packages in the Conda environment
+      message(paste0("Installing Python packages in Conda environment: ", conda_env, " ... 😼"))
+      reticulate::conda_install(envname = conda_env, packages = python_packages)
+      message(paste0("😹 Installed Python packages in Conda environment: ", conda_env))
     } else {
       message(paste0("😽 Conda environment ", conda_env, " already exists."))
     }
 
-    # List of Python packages to be installed
-    python_packages <- c("scikit-learn", "pandas", "numpy", "lightgbm", "xgboost", "boruta")
-
-    # Check if the Python packages are already installed
-    packages_to_install <- python_packages[!sapply(python_packages, reticulate::py_module_available)]
-
-    if (length(packages_to_install) > 0) {
-      # Install the necessary Python packages in the Conda environment
-      message(paste0("Installing Python packages in Conda environment: ", conda_env, " ... 😼"))
-      reticulate::conda_install(envname = conda_env, packages = packages_to_install)
-      message(paste0("😹 Installed Python packages in Conda environment: ", conda_env))
-    } else {
-      message(paste0("😾 All necessary Python packages are already installed in Conda environment: ", conda_env))
-    }
-
     # Use the Conda environment in the R session
     message(paste0("Setting R session to use Conda environment: ", conda_env, " ... 😿"))
-    if (is.null(Sys.getenv("RETICULATE_PYTHON"))) {
-      reticulate::use_condaenv(conda_env, required = TRUE)
-    }
+    reticulate::use_condaenv(conda_env, required = TRUE)
     message(paste0("😽 Set R session to use Conda environment: ", conda_env))
 
     # Import the Python libraries
