@@ -6,34 +6,58 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of FitSelect is to …
+`GeneSelectR` is a machine learning-based R package developed to enhance
+feature selection and biological assessment in RNAseq analysis of
+complex biological datasets. Traditional RNAseq datasets can be
+challenging to analyze due to their high dimensionality. The standard
+differential gene expression analysis approach has been found to have
+limitations such as a high false-positive rate and limited gene
+coverage. The `GeneSelectR` package aims to overcome these limitations
+using machine learning techniques.
 
 ## Installation
 
-You can install the development version of FitSelect from
+You can install the development version of GeneSelectR from
 [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("dzhakparov/FitSelect")
+devtools::install_github("dzhakparov/GeneSelectR")
 ```
+
+## Usage
+
+The `GeneSelectR` package uses four machine learning methods for feature
+selection:
+
+1.  Recursive Feature Elimination
+2.  Boruta
+3.  Lasso Regression
+4.  Univariate Filtering
+
+In addition, the package also performs Gene Ontology (GO) enrichment to
+assess the biological relevance of gene lists. Semantic similarity
+analysis of the GO lists is performed using Wang distance and binary cut
+clustering. The package then selects the best list based on
+cross-validation mean metrics scores.
 
 ## Example
 
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(FitSelect)
-#> 
-#> Warning: replacing previous import 'data.table::set' by 'dendextend::set' when
-#> loading 'ViSEAGO'
-#> 😺 Conda is installed.
-#> 😽 Conda environment FitSelectEnv already exists.
-#> Setting R session to use Conda environment: FitSelectEnv ... 😿
-#> 😽 Set R session to use Conda environment: FitSelectEnv
-#> Importing Python libraries ... 😼
-#> 😻 Imported Python libraries
-## basic example code
+# An example of usage:
+#library(GeneSelectR)
+# load your data
+#data <- read.csv("YourData.csv")
+# perform feature selection
+#selected_features <- feature_select(data, method = "lasso")
+# perform GO enrichment analysis
+#go_enrichment <- go_enrich(selected_features)
+# perform semantic similarity analysis
+#semantic_analysis <- semantic_sim(go_enrichment)
+# select the best list
+#best_list <- select_best(semantic_analysis)
 ```
 
 What is special about using `README.Rmd` instead of just `README.md`?
@@ -62,5 +86,3 @@ You can also embed plots, for example:
 
 In that case, don’t forget to commit and push the resulting figure
 files, so they display on GitHub and CRAN.
-
-knitr::knit(input = “README.Rmd”, output = “README.md”)
