@@ -27,9 +27,26 @@
 #' @export
 fit_and_evaluate_pipelines <- function(X_train, y_train, pipelines = NULL, feature_selection_methods = NULL, selected_methods = NULL,
                                        njobs = -1L, n_splits = 2L) {
+
+  python_packages <- import_python_packages()
+  sklearn <- python_packages$sklearn
+  pandas <- python_packages$pandas
+  numpy <- python_packages$numpy
+  lightgbm <- python_packages$lightgbm
+  xgboost <- python_packages$xgboost
+  boruta <- python_packages$boruta
+
+  # enable multiprocess
+  sys <- reticulate::import("sys")
+  exe <- file.path(sys$exec_prefix, "pythonw.exe")
+  sys$executable <- exe
+  sys$`_base_executable` <- exe
+
+  # update executable path in multiprocessing module
+  multiprocessing <- reticulate::import("multiprocessing")
+  multiprocessing$set_executable(exe)
+
   # Import Python packages
-
-
   preprocessing <- sklearn$preprocessing
   model_selection <- sklearn$model_selection
   feature_selection <- sklearn$feature_selection
@@ -55,7 +72,7 @@ fit_and_evaluate_pipelines <- function(X_train, y_train, pipelines = NULL, featu
   default_feature_selection_methods <- list(
     "Lasso" = select_model(lasso(penalty = 'l1', C = 0.1, solver = 'saga'), threshold = 'median'),
     'Univariate' = univariate(mode = 'percentile',param = 80L),
-    "RFE" = rfe(lightGBM$LGBMClassifier(), n_features_to_select = 0.2),
+    "RFE" = rfe(lightgbm$LGBMClassifier(), n_features_to_select = 0.2),
     'boruta'= boruta$BorutaPy(forest(), n_estimators = 'auto', verbose =0, random_state = 999L,perc = 90L)
   )
 
@@ -79,7 +96,7 @@ fit_and_evaluate_pipelines <- function(X_train, y_train, pipelines = NULL, featu
   } else {
     # Define the default pipelines using the selected feature selection methods
     selected_pipelines <- create_pipelines(feature_selection_methods, preprocessing_steps,
-                                           classifier = lightGBM$LGBMClassifier())
+                                           classifier = lightgbm$LGBMClassifier())
   }
 
   fitted_pipelines <- list()
@@ -90,7 +107,7 @@ fit_and_evaluate_pipelines <- function(X_train, y_train, pipelines = NULL, featu
 
   # Repeated train-test splitting
   for (split_idx in 1:n_splits) {
-    message("Split", split_idx, "\n")
+    message(glue::glue("Split {split_idx} \n"))
     split_data <- model_selection$train_test_split(X_train, y_train, test_size = 0.2)
     X_train_split <- reticulate::r_to_py(split_data[[1]])
     X_test_split <- reticulate::r_to_py(split_data[[2]])
@@ -103,7 +120,7 @@ fit_and_evaluate_pipelines <- function(X_train, y_train, pipelines = NULL, featu
     split_mean_performances <- list()
 
     for (i in seq_along(names(selected_pipelines))) {
-      message("Fitting", names(selected_pipelines)[[i]], "\n")
+      message(glue("Fitting {names(selected_pipelines)[[i]]} \n"))
 
       # Create the parameter grid with the 'classifier' prefix
       params <- setNames(

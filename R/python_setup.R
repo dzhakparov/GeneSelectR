@@ -43,12 +43,13 @@
 
     # Import the Python libraries
     message(paste0("Importing Python libraries ... 😼"))
-    sklearn <- reticulate::import("sklearn")
-    pandas <- reticulate::import("pandas")
-    numpy <- reticulate::import("numpy")
-    lightgbm <- reticulate::import("lightgbm")
-    xgboost <- reticulate::import("xgboost")
-    boruta <- reticulate::import("boruta")
+    python_packages <- import_python_packages()
+    sklearn <- python_packages$sklearn
+    pandas <- python_packages$pandas
+    numpy <- python_packages$numpy
+    lightgbm <- python_packages$lightgbm
+    xgboost <- python_packages$xgboost
+    boruta <- python_packages$boruta
 
     # enable multiprocess
     sys <- reticulate::import("sys")
