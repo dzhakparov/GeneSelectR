@@ -24,6 +24,15 @@ knitr::opts_chunk$set(
 
 You can install the development version of GeneSelectR from [GitHub](https://github.com/) with:
 
+NB! Prior to installation you should run this: 
+
+```{r}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("ViSEAGO")
+```
+
 ``` r
 # install.packages("devtools")
 devtools::install_github("dzhakparov/GeneSelectR")

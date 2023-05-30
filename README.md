@@ -20,6 +20,26 @@ using machine learning techniques.
 You can install the development version of GeneSelectR from
 [GitHub](https://github.com/) with:
 
+NB! Prior to installation you should run this:
+
+``` r
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+#> Bioconductor version '3.16' is out-of-date; the current release version '3.17'
+#>   is available with R version '4.3'; see https://bioconductor.org/install
+
+BiocManager::install("ViSEAGO")
+#> Bioconductor version 3.16 (BiocManager 1.30.20), R 4.2.2 (2022-10-31 ucrt)
+#> Warning: package(s) not installed when version(s) same as or greater than current; use
+#>   `force = TRUE` to re-install: 'ViSEAGO'
+#> Old packages: 'areaplot', 'cachem', 'class', 'cli', 'clock', 'DiagrammeR',
+#>   'dplyr', 'DT', 'fs', 'future.apply', 'ggnewscale', 'graphlayouts', 'httpuv',
+#>   'httr2', 'igraph', 'influenceR', 'KernSmooth', 'later', 'lattice', 'lme4',
+#>   'MASS', 'Matrix', 'nnet', 'parallelly', 'pROC', 'profvis', 'RcppArmadillo',
+#>   'recipes', 'rlang', 'scatterpie', 'testthat', 'tibble', 'tidymodels', 'tzdb',
+#>   'viridis', 'vroom', 'waldo', 'XML', 'xml2', 'yardstick'
+```
+
 ``` r
 # install.packages("devtools")
 devtools::install_github("dzhakparov/GeneSelectR")
