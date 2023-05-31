@@ -35,15 +35,15 @@ fit_and_evaluate_pipelines <- function(X_train, y_train, pipelines = NULL, featu
   lightgbm <- python_packages$lightgbm
   xgboost <- python_packages$xgboost
   boruta <- python_packages$boruta
+  sys <- python_packages$sys
+  multiprocessing <- python_packages$multiprocessing
 
   # enable multiprocess
-  sys <- reticulate::import("sys")
   exe <- file.path(sys$exec_prefix, "pythonw.exe")
   sys$executable <- exe
   sys$`_base_executable` <- exe
 
   # update executable path in multiprocessing module
-  multiprocessing <- reticulate::import("multiprocessing")
   multiprocessing$set_executable(exe)
 
   # Import Python packages

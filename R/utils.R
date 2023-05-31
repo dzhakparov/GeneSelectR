@@ -101,3 +101,49 @@ steps_to_tuples <- function(steps) {
   }
   return(tuple_steps)
 }
+
+
+#' Aggregate Feature Importances
+#'
+#' This function aggregates the feature importances for each method across all splits.
+#'
+#' @param selected_features A list of selected features. Each element of the list represents a split and should be a named list where the names are the methods and the values are data frames containing the feature importances for that method in that split.
+#'
+#' @return A list of aggregated feature importances for each method. Each element of the list is a data frame that contains the mean and standard deviation of the feature importances for a particular method across all splits.
+#'
+#' @importFrom dplyr group_by summarize filter
+#' @importFrom stats sd
+#' @examples
+#' \dontrun{
+#'   # Assuming selected_features is a list of selected features for each split
+#'   aggregated_importances <- aggregate_feature_importances(selected_features)
+#' }
+#' @export
+aggregate_feature_importances <- function(selected_features) {
+  aggregated_importances <- list()
+
+  # Assuming the first split has the same methods as the others
+  for (method in names(selected_features[[1]])) {
+    # Extract feature importances for the current method across all splits
+    feature_importances <- lapply(selected_features, function(split) {
+      as.data.frame(split[[method]])
+    })
+
+    # Combine the feature importances from all splits
+    combined_importances <- do.call(rbind, feature_importances)
+
+    importances_df <- combined_importances %>%
+      dplyr::group_by(feature) %>%
+      dplyr::summarize(mean_importance = mean(importance, na.rm = TRUE),
+                       std = stats::sd(importance, na.rm = TRUE))
+
+    importances_df <- importances_df %>%
+      dplyr::filter(mean_importance > 0)
+
+    # Add the aggregated importances for the current method to the results list
+    aggregated_importances[[method]] <- importances_df
+  }
+
+  return(aggregated_importances)
+}
+

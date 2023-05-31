@@ -4,12 +4,13 @@ library(GeneSelectR)
 context("Testing fit_and_evaluate_pipelines")
 
 
-# Define a test
-test_that("fit_and_evaluate_pipelines returns expected output", {
-  # not a good practice to explicitly load it in the test
-  # as for now leave like this
-  library(GeneSelectR)
-  # Load your data here
+# # Define a test
+ test_that("fit_and_evaluate_pipelines returns expected output", {
+#   # not a good practice to explicitly load it in the test
+#   # as for now leave like this
+#   #library(GeneSelectR)
+#   # Load your data here
+  skip_if_no_modules(names(import_python_packages()))
   work_dir = getwd()
   exp_subset = readRDS(file = file.path(work_dir, "exp_reduced.rds"))
   exp_subset = exp_subset[,900:1001]
@@ -28,6 +29,7 @@ test_that("fit_and_evaluate_pipelines returns expected output", {
 
 # Define a test for each feature selection method
 test_that("fit_and_evaluate_pipelines works with Lasso feature selection", {
+  skip_if_no_modules(names(import_python_packages()))
   work_dir = getwd()
   exp_subset = readRDS(file = file.path(work_dir, "exp_reduced.rds"))
   exp_subset = exp_subset[,900:1001]
@@ -43,6 +45,7 @@ test_that("fit_and_evaluate_pipelines works with Lasso feature selection", {
 })
 
 test_that("fit_and_evaluate_pipelines works with Univariate feature selection", {
+  skip_if_no_modules(names(import_python_packages()))
   fs_methods <- 'Univariate'
   results <- fit_and_evaluate_pipelines(X_train = X,
                                         y_train = y,
@@ -53,6 +56,7 @@ test_that("fit_and_evaluate_pipelines works with Univariate feature selection", 
 })
 
 test_that("fit_and_evaluate_pipelines works with RFE feature selection", {
+  skip_if_no_modules(names(import_python_packages()))
   work_dir = getwd()
   exp_subset = readRDS(file = file.path(work_dir, "exp_reduced.rds"))
   exp_subset = exp_subset[,900:1001]
@@ -68,6 +72,7 @@ test_that("fit_and_evaluate_pipelines works with RFE feature selection", {
 })
 
 test_that("fit_and_evaluate_pipelines works with Boruta feature selection", {
+  skip_if_no_modules(names(import_python_packages()))
   work_dir = getwd()
   exp_subset = readRDS(file = file.path(work_dir, "exp_reduced.rds"))
   exp_subset = exp_subset[,900:1001]
@@ -84,6 +89,7 @@ test_that("fit_and_evaluate_pipelines works with Boruta feature selection", {
 
 # Define a test for a feature selection method imported from sklearn
 test_that("fit_and_evaluate_pipelines works with sklearn's SelectKBest (not included in default set) feature selection", {
+  skip_if_no_modules(names(import_python_packages()))
   work_dir = getwd()
   exp_subset = readRDS(file = file.path(work_dir, "exp_reduced.rds"))
   exp_subset = exp_subset[,900:1001]

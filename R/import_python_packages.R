@@ -4,12 +4,14 @@
 #' @importFrom reticulate import
 #' @export
 import_python_packages <- function() {
-  sklearn <- reticulate::import("sklearn")
-  pandas <- reticulate::import("pandas")
-  numpy <- reticulate::import("numpy")
-  lightgbm <- reticulate::import("lightgbm")
-  xgboost <- reticulate::import("xgboost")
-  boruta <- reticulate::import("boruta")
+  sklearn <- reticulate::import("sklearn", delay_load = TRUE)
+  pandas <- reticulate::import("pandas", delay_load = TRUE)
+  numpy <- reticulate::import("numpy", delay_load = TRUE)
+  lightgbm <- reticulate::import("lightgbm", delay_load = TRUE)
+  xgboost <- reticulate::import("xgboost", delay_load = TRUE)
+  boruta <- reticulate::import("boruta", delay_load = TRUE)
+  sys <- reticulate::import("sys", delay_load = TRUE)
+  multiprocessing <- reticulate::import('multiprocessing', delay_load = TRUE)
 
   list(
     sklearn = sklearn,
@@ -17,6 +19,8 @@ import_python_packages <- function() {
     numpy = numpy,
     lightgbm = lightgbm,
     xgboost = xgboost,
-    boruta = boruta
+    boruta = boruta,
+    sys = sys,
+    multiprocessing = multiprocessing
   )
 }

@@ -9,4 +9,4 @@
 library(testthat)
 library(FitSelect)
 
-test_check("FitSelect")
+test_check("GeneSelectR")
