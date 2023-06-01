@@ -15,8 +15,7 @@ limitations such as a high false-positive rate and limited gene
 coverage. The `GeneSelectR` package aims to overcome these limitations
 using machine learning techniques.
 
-![Alt
-text](C:/Users/dzhakparov/Documents/Projects/FitSelect/vignettes/images/package-scheme.png)
+![Alt text](./vignettes/images/package-scheme.png)
 
 ## Installation
 
@@ -86,12 +85,9 @@ This is a basic example which shows you how to solve a common problem:
 What is special about using `README.Rmd` instead of just `README.md`?
 You can include R chunks like so:
 
-![Alt
-text](C:/Users/dzhakparov/Documents/Projects/FitSelect/vignettes/images/hmap_jaccard_GO.png)
-![Alt
-text](C:/Users/dzhakparov/Documents/Projects/FitSelect/vignettes/images/union_0_feature_selection_mean_cv.png)
-![Alt
-text](C:/Users/dzhakparov/Documents/Projects/FitSelect/vignettes/images/hmap_GO_clusters.png)
+![Alt text](./vignettes/images/hmap_jaccard_GO.png) ![Alt
+text](./vignettes/images/union_0_feature_selection_mean_cv.png) ![Alt
+text](./vignettes/images/hmap_GO_clusters.png)
 
 You’ll still need to render `README.Rmd` regularly, to keep `README.md`
 up-to-date. `devtools::build_readme()` is handy for this. You could also
