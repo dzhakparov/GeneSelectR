@@ -8,7 +8,6 @@ Description: TODO.
 License: MIT + file LICENSE
 URL: https://github.com/dzhakparov/GeneSelectR
 BugReports: https://github.com/dzhakparov/GeneSelectR/issues
-Depends: 
 biocViews:
 Imports: 
     AnnotationHub (>= 3.6.0),
@@ -29,8 +28,11 @@ Imports:
     ViSEAGO (>= 1.12.0)
 Suggests: 
     BiocManager (>= 1.30.20),
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
+VignetteBuilder: knitr

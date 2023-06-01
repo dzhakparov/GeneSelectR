@@ -20,6 +20,8 @@ knitr::opts_chunk$set(
 
 `GeneSelectR` is a machine learning-based R package developed to enhance feature selection and biological assessment in RNAseq analysis of complex biological datasets. Traditional RNAseq datasets can be challenging to analyze due to their high dimensionality. The standard differential gene expression analysis approach has been found to have limitations such as a high false-positive rate and limited gene coverage. The `GeneSelectR` package aims to overcome these limitations using machine learning techniques.
 
+![Alt text](C:/Users/dzhakparov/Documents/Projects/FitSelect/vignettes/images/package-scheme.png)
+
 ## Installation
 
 You can install the development version of GeneSelectR from [GitHub](https://github.com/) with:
@@ -69,16 +71,10 @@ This is a basic example which shows you how to solve a common problem:
 
 What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
 
-```{r cars}
-summary(cars)
-```
+![Alt text](C:/Users/dzhakparov/Documents/Projects/FitSelect/vignettes/images/hmap_jaccard_GO.png)
+![Alt text](C:/Users/dzhakparov/Documents/Projects/FitSelect/vignettes/images/union_0_feature_selection_mean_cv.png)
+![Alt text](C:/Users/dzhakparov/Documents/Projects/FitSelect/vignettes/images/hmap_GO_clusters.png)
+
+
 
 You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/v1/examples>.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
