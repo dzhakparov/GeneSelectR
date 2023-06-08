@@ -72,7 +72,7 @@ fit_and_evaluate_pipelines <- function(X_train, y_train, pipelines = NULL, featu
   default_feature_selection_methods <- list(
     "Lasso" = select_model(lasso(penalty = 'l1', C = 0.1, solver = 'saga'), threshold = 'median'),
     'Univariate' = univariate(mode = 'percentile',param = 80L),
-    "RFE" = rfe(lightgbm$LGBMClassifier(), n_features_to_select = 0.2),
+    #"RFE" = rfe(lightgbm$LGBMClassifier(), n_features_to_select = 0.2),
     'boruta'= boruta$BorutaPy(forest(), n_estimators = 'auto', verbose =0, random_state = 999L,perc = 90L)
   )
 
