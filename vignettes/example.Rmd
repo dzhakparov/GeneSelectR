@@ -10,10 +10,76 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
-)
+  comment = "#>", 
+  #eval = FALSE this makes so that chunks are not rerun 
+  cache = TRUE,
+  warning = FALSE)
 ```
 
 ```{r setup}
 library(GeneSelectR)
 ```
+
+# Introduction
+
+# Installation
+
+## Python requirements 
+The feature selection procedure 
+
+You can install the development version of GeneSelectR from [GitHub](%5Bhttps://github.com/)](<https://github.com/>)) with:
+
+NB! Prior to installation you should run this:
+
+```{r}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("ViSEAGO")
+```
+
+And then you can install the development version of the package from here:
+
+```{r}
+# install.packages("devtools")
+devtools::install_github("dzhakparov/GeneSelectR")
+
+```
+
+
+
+# Basic Example
+
+## Input Data Requirements
+The data matrix should be a data frame with samples as rows and features as columns. Example dataset can be accessed via: 
+```{r}
+data("UrbanRandomSubset")
+head(exp_labeled[,1:10])
+```
+
+
+## Feature Selection Procedure
+By calling the package, it will create the conda environment and install all the necessary Python packages for it. Conda installation should be present prior to the installation of the package. 
+
+```{r}
+library(GeneSelectR)
+library(dplyr)
+```
+Prior to running the feature selection function, let's prepare the data to have a suitable format: 
+```{r}
+X <- exp_labeled %>% dplyr::select(-treatment) # get the feature matrix
+y <- exp_labeled['treatment'] # store the data point label in a separate vector
+```
+
+To run the feature selection procedure, you should run the fit_and_evaluate_pipelines() function: 
+```{r}
+selection_results <- fit_and_evaluate_pipelines(X_train = X, 
+                                                y_train = y,
+                                                njobs = 2L)
+selection_results
+```
+
+
+## Overlap Between Gene Lists
+
+## Conversion to ENTREZIDs
