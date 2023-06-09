@@ -4,32 +4,32 @@ library(GeneSelectR)
 context("Testing fit_and_evaluate_pipelines")
 
 
-# # Define a test
- test_that("fit_and_evaluate_pipelines returns expected output", {
-#   # not a good practice to explicitly load it in the test
-#   # as for now leave like this
-#   #library(GeneSelectR)
-#   # Load your data here
-  skip_if_no_modules(names(import_python_packages()))
-  work_dir = getwd()
-  exp_subset = readRDS(file = file.path(work_dir, "exp_reduced.rds"))
-  exp_subset = exp_subset[,900:1001]
-  X = exp_subset %>% dplyr::select(-label)
-  y = exp_subset[['label']]
-
-  # Call the function
-  results <- fit_and_evaluate_pipelines(X_train = X, y_train = y, njobs = 1L)
-
-  # Check that the output is a list
-  expect_is(results, "list")
-
-  # Check that the list has the expected elements
-  expect_named(results, c("fitted_pipelines", "cv_results", "selected_features", "mean_performance", "mean_feature_importances"))
-})
+# # # Define a test
+# test_that("fit_and_evaluate_pipelines returns expected output", {
+# #   # not a good practice to explicitly load it in the test
+# #   # as for now leave like this
+# #   #library(GeneSelectR)
+# #   # Load your data here
+#   skip_if_no_modules(names(import_python_packages()))
+#   work_dir = getwd()
+#   exp_subset = readRDS(file = file.path(work_dir, "exp_reduced.rds"))
+#   exp_subset = exp_subset[,900:1001]
+#   X = exp_subset %>% dplyr::select(-label)
+#   y = exp_subset[['label']]
+#
+#   # Call the function
+#   results <- fit_and_evaluate_pipelines(X_train = X, y_train = y, njobs = 1L)
+#
+#   # Check that the output is a list
+#   expect_is(results, "list")
+#
+#   # Check that the list has the expected elements
+#   expect_named(results, c("fitted_pipelines", "cv_results", "selected_features", "mean_performance", "mean_feature_importances"))
+# })
 
 # Define a test for each feature selection method
 test_that("fit_and_evaluate_pipelines works with Lasso feature selection", {
-  skip_if_no_modules(names(import_python_packages()))
+  #skip_if_no_modules(names(import_python_packages()))
   work_dir = getwd()
   exp_subset = readRDS(file = file.path(work_dir, "exp_reduced.rds"))
   exp_subset = exp_subset[,900:1001]

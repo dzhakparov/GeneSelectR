@@ -118,7 +118,7 @@ steps_to_tuples <- function(steps) {
 #'   # Assuming selected_features is a list of selected features for each split
 #'   aggregated_importances <- aggregate_feature_importances(selected_features)
 #' }
-#' @export
+#'
 aggregate_feature_importances <- function(selected_features) {
   aggregated_importances <- list()
 

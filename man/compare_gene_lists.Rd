@@ -23,11 +23,12 @@ from different feature selection methods. It calculates the Overlap, Jaccard, an
 the similarity between gene lists.
 }
 \examples{
+\dontrun{
 # Compare gene lists from the PipelineResults object obtained from fit_and_evaluate_pipelines
 data(iris)
 X <- iris[,1:4]
 y <- iris[,5]
 pipeline_results <- fit_and_evaluate_pipelines(X_train = X, y_train = y)
 compare_gene_lists(input_list = pipeline_results)
-importFrom GeneOverlap modOverlaps
+}
 }

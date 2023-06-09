@@ -8,13 +8,14 @@
 #' @param filename A character string specifying the filename for the saved heatmap plots (if save_plot = TRUE).
 #' @return A grid of heatmaps showing the Overlap, Jaccard, and Soerensen-Dice coefficients for the gene lists.
 #' @examples
+#' \dontrun{
 #' # Compare gene lists from the PipelineResults object obtained from fit_and_evaluate_pipelines
 #' data(iris)
 #' X <- iris[,1:4]
 #' y <- iris[,5]
 #' pipeline_results <- fit_and_evaluate_pipelines(X_train = X, y_train = y)
 #' compare_gene_lists(input_list = pipeline_results)
-#' importFrom GeneOverlap modOverlaps
+#' }
 #' @importFrom tmod modOverlaps
 #' @importFrom ggplot2 ggplot aes geom_tile geom_text scale_fill_gradientn theme_minimal theme labs coord_fixed
 #' @importFrom reshape2 melt

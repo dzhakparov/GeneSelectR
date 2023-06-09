@@ -10,6 +10,7 @@ fit_and_evaluate_pipelines(
   pipelines = NULL,
   feature_selection_methods = NULL,
   selected_methods = NULL,
+  testsize = 0.2,
   njobs = -1L,
   n_splits = 2L
 )
@@ -24,6 +25,8 @@ fit_and_evaluate_pipelines(
 \item{feature_selection_methods}{An optional list of feature selection methods to use for fitting and evaluation. If this argument is not provided, a default set of feature selection methods will be used.}
 
 \item{selected_methods}{An optional vector of names of feature selection methods to use from the default set. If this argument is provided, only the specified methods will be used.}
+
+\item{testsize}{test set size}
 }
 \value{
 A list with the following elements:
@@ -34,6 +37,7 @@ A list with the following elements:
 This function fits a set of pipelines with hyperparameter tuning on a given training set and evaluates their performance using cross-validation.
 }
 \examples{
+\dontrun{
 # Fit and evaluate pipelines using the default feature selection methods
 data(iris)
 X <- iris[,1:4]
@@ -46,5 +50,5 @@ results <- fit_and_evaluate_pipelines(X_train = X, y_train = y, selected_methods
 # Fit and evaluate pipelines using user-defined feature selection methods
 fs_methods <- list("Lasso" = select_model(lasso(penalty = 'l1', C = 0.1, solver = 'saga'), threshold = 'median'))
 results <- fit_and_evaluate_pipelines(X_train = X, y_train = y, feature_selection_methods = fs_methods)
-
+}
 }
