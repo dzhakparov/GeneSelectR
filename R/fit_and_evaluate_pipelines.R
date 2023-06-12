@@ -55,6 +55,13 @@ fit_and_evaluate_pipelines <- function(X_train,
   # sys <- python_packages$sys
   # multiprocessing <- python_packages$multiprocessing
 
+  if (Sys.info()["sysname"] == "Windows") {
+    exe <- file.path(sys$exec_prefix, "pythonw.exe")
+    sys$executable <- exe
+    sys$`_base_executable` <- exe
+    multiprocessing$set_executable(exe)
+  }
+
 
   # define Python modules and sklearn submodules
   preprocessing <- sklearn$preprocessing
@@ -68,9 +75,10 @@ fit_and_evaluate_pipelines <- function(X_train,
   grid <- sklearn$model_selection$RandomizedSearchCV
   lasso <- sklearn$linear_model$LogisticRegression
   univariate <- sklearn$feature_selection$GenericUnivariateSelect
+  select_model <- sklearn$feature_selection$SelectFromModel
 
   # define a classifier for the accuracy estimation
-  xbgclassifier <- xgboost$XGBClassifier
+  GradBoost <- ensemble$GradientBoostingClassifier
 
   # Define preprocessing steps as a list
   preprocessing_steps <- list(
@@ -106,7 +114,7 @@ fit_and_evaluate_pipelines <- function(X_train,
     # Define the default pipelines using the selected feature selection methods
     selected_pipelines <- create_pipelines(feature_selection_methods,
                                            preprocessing_steps,
-                                           classifier = xgbclassifier())
+                                           classifier = GradBoost())
   }
 
   fitted_pipelines <- list()
@@ -134,8 +142,8 @@ fit_and_evaluate_pipelines <- function(X_train,
 
       # Create the parameter grid with the 'classifier' prefix
       params <- setNames(
-        list(seq(50L, 200L, 50L), seq(3L, 7L, 2L), seq(2L, 6L, 2L)),
-        c("classifier__n_estimators", "classifier__max_depth", "classifier__min_data_in_leaf")
+        list(seq(50L, 200L, 50L), seq(3L, 7L, 2L)),
+        c("classifier__n_estimators", "classifier__max_depth")
       )
 
       # Hyperparameter tuning using GridSearchCV
@@ -173,11 +181,13 @@ fit_and_evaluate_pipelines <- function(X_train,
   mean_feature_importances <- aggregate_feature_importances(selected_features)
 
 
-  return(PipelineResults(fitted_pipelines = split_results,
-                         cv_results = cv_results,
-                         selected_features = selected_features,
-                         mean_performance = mean_performance_df,
-                         mean_feature_importances = mean_feature_importances))
+  return(new("PipelineResults",
+             fitted_pipelines = split_results,
+             cv_results = cv_results,
+             selected_features = selected_features,
+             mean_performance = mean_performance_df,
+             mean_feature_importances = mean_feature_importances))
+
 
 }
 

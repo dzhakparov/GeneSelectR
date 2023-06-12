@@ -95,13 +95,13 @@ multiprocessing <- NULL
   sys <<- reticulate::import("sys", delay_load = TRUE)
   multiprocessing <<- reticulate::import("multiprocessing", delay_load = TRUE)
 
-  # Update executable path in multiprocessing module only if the operating system is Windows
-  if (Sys.info()["sysname"] == "Windows") {
-    exe <- file.path(sys$exec_prefix, "pythonw.exe")
-    sys$executable <- exe
-    sys$`_base_executable` <- exe
-    multiprocessing$set_executable(exe)
-  }
+  # # Update executable path in multiprocessing module only if the operating system is Windows
+  # if (Sys.info()["sysname"] == "Windows") {
+  #   exe <- file.path(sys$exec_prefix, "pythonw.exe")
+  #   sys$executable <- exe
+  #   sys$`_base_executable` <- exe
+  #   multiprocessing$set_executable(exe)
+  # }
   message("Imported Python libraries with delay_load = TRUE")
 }
 
