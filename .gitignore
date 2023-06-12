@@ -6,3 +6,4 @@
 .rds 
 /results
 inst/doc
+/vignettes/example_cache
