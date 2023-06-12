@@ -2,10 +2,10 @@
 % Please edit documentation in R/zzz.R
 \name{onLoad}
 \alias{onLoad}
-\alias{.onLoad}
+\alias{load_python_packages}
 \title{Load Python Modules}
 \usage{
-.onLoad(libname, pkgname)
+load_python_packages()
 }
 \arguments{
 \item{libname}{The name of the library.}
