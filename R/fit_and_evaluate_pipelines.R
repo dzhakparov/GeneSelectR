@@ -37,23 +37,7 @@ fit_and_evaluate_pipelines <- function(X_train,
                                        #condaenv,
                                        njobs = -1L,
                                        n_splits = 2L) {
-  # if (is.null(condaenv)) {
-  #   stop('No conda environment for the feature selection procedure is provided.
-  #        Please use create_conda_env() and install_python_packages() to create one
-  #        and install the dependencies')
-  # } else {
-  #   reticulate::use_condaenv(condaenv, required = TRUE)
-  # }
 
-  # python_packages <- import_python_packages()
-  # sklearn <- python_packages$sklearn
-  # pandas <- python_packages$pandas
-  # numpy <- python_packages$numpy
-  # lightgbm <- python_packages$lightgbm
-  # xgboost <- python_packages$xgboost
-  # boruta <- python_packages$boruta
-  # sys <- python_packages$sys
-  # multiprocessing <- python_packages$multiprocessing
 
   if (Sys.info()["sysname"] == "Windows") {
     exe <- file.path(sys$exec_prefix, "pythonw.exe")
@@ -96,6 +80,7 @@ fit_and_evaluate_pipelines <- function(X_train,
   # convert R objects to Py
   X_train <- reticulate::r_to_py(X_train)
   y_train <- reticulate::r_to_py(y_train)
+  y_train <- y_train$values$ravel()
 
   # Use the default feature selection methods if none are provided
   if (is.null(feature_selection_methods)) {
