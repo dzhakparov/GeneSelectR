@@ -25,7 +25,7 @@ library(GeneSelectR)
 # Installation
 
 ## Python requirements 
-The feature selection procedure 
+The feature selection procedure is implemented with Python's scikit-learn library. The package requires an Anaconda installation to work properly. Upon first launch of the package you will be prompted if you would like to initiate the package Python working environment "GeneSelectR_env". After that you will be asked whether you would like the necessary Python packages to be installed. The Python requirements are listed in the requirements.txt file. 
 
 You can install the development version of GeneSelectR from [GitHub](%5Bhttps://github.com/)](<https://github.com/>)) with:
 
@@ -46,40 +46,91 @@ devtools::install_github("dzhakparov/GeneSelectR")
 
 ```
 
+# Before you begin 
+GeneSelectR is based on usage of Python for feature selection via reticulate. When you install the library and launch it for the first time, it is necessary to create the working environment for the package. 
+To do this there is a convenience function: 
+```{r}
+GeneSelectR::configure_environment() 
+```
+By running it you will be prompted to install a new conda environment with the default name 'GeneSelectR_env' that will be used in your future GeneSelectR sessions. After that you will be asked if you want necessary Python packages to be installed in this working environment. 
+
+Due to restrictions the reticulate package has after this initial step is done, it is necessary to start every of your GeneSelectR session with setting up the correct conda working environment: 
+
+```{r}
+GeneSelectR::set_reticulate_python()
+library(GeneSelectR)
+# rest of your code 
+```
 
 
 # Basic Example
-
 ## Input Data Requirements
 The data matrix should be a data frame with samples as rows and features as columns. Example dataset can be accessed via: 
 ```{r}
 data("UrbanRandomSubset")
-head(exp_labeled[,1:10])
+head(UrbanRandomSubset[,1:10])
 ```
-
+This dataset represents: TODO 
 
 ## Feature Selection Procedure
 By calling the package, it will create the conda environment and install all the necessary Python packages for it. Conda installation should be present prior to the installation of the package. 
 
 ```{r}
+GeneSelectR::set_reticulate_python()
 library(GeneSelectR)
 library(dplyr)
 ```
 Prior to running the feature selection function, let's prepare the data to have a suitable format: 
 ```{r}
-X <- exp_labeled %>% dplyr::select(-treatment) # get the feature matrix
-y <- exp_labeled['treatment'] # store the data point label in a separate vector
+X <- UrbanRandomSubset %>% dplyr::select(-treatment) # get the feature matrix
+y <- UrbanRandomSubset['treatment'] # store the data point label in a separate vector
 ```
 
 To run the feature selection procedure, you should run the fit_and_evaluate_pipelines() function: 
 ```{r}
+library(GeneSelectR)
 selection_results <- fit_and_evaluate_pipelines(X_train = X, 
                                                 y_train = y,
-                                                njobs = 2L)
+                                                njobs = 1L)
+selection_results
+```
+This will run a feature selection procedure for the specified dataset. By default there are three methods implemented to select the features: Univariate (sklearn ref), Logistic regression with L1 penalty (sklearn-ref) and boruta (link to the github page). 
+If you wish to add any other methods from sklearn, you should pass it as a named list like here: 
+```{r}
+# import the sklearn module
+sklearn <- reticulate::import('sklearn')
+# define the feature selection submodule and wanted methods with an estimator
+feature_selection <- sklearn$feature_selection
+select_from_model <- feature_selection$SelectFromModel
+RFE <- feature_selection$RFE
+rf <- sklearn$ensemble$RandomForestClassifier
+
+my_methods <- list('RFE' = RFE(estimator = rf(), n_features_to_select = 100L),
+                   'SelectFromModel' = select_from_model(estimator = rf()))
+```
+
+And then we can pass it as an argument to fit_and_evaluate_pipelines function: 
+```{r}
+selection_results <- fit_and_evaluate_pipelines(X_train = X, 
+                                                y_train = y,
+                                                njobs = 1L,
+                                                feature_selection_methods = my_methods)
+```
+After that the feature selection is performed in a following manner: 
+(Block scheme here from pipeline html report with sklearn)
+You can specify your estimator of choice as well as parameter grid. 
+For the sake of computational time the RandomizedSearchCV is used. 
+
+```{r}
 selection_results
 ```
 
-
+The selection_results object belongs to the PipelineResults class and contains the following fields: 
+1. Fitted Pipelines 
+2. cv_results
+3. selected_features 
+4. mean_performance (to be removed)
+5. mean_feature_importances 
 ## Overlap Between Gene Lists
 
 ## Conversion to ENTREZIDs
