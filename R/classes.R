@@ -4,9 +4,8 @@
 #'
 #' @slot fitted_pipelines A list of the fitted pipelines.
 #' @slot cv_results A list of the cross-validation results for each pipeline.
-#' @slot selected_features A list of the selected features for each pipeline.
-#' @slot mean_performance A data frame of the mean performance for each feature selection method across all splits.
 #' @slot mean_feature_importances A list of the mean feature importances for each method across all splits.
+#' @slot test_metrics A data.frame containing metrics (F1, accuracy, precision and recall) calculated on the unseen test set. Contains mean values across splits as well as standard deviation.
 #' @exportClass PipelineResults
 setClass("PipelineResults",
          slots = list(

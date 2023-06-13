@@ -150,6 +150,7 @@ fit_and_evaluate_pipelines <- function(X_train,
       precision <- sklearn$metrics$precision_score(y_test_split, y_pred, average = "weighted")
       recall <- sklearn$metrics$recall_score(y_test_split, y_pred, average = "weighted")
       f1 <- sklearn$metrics$f1_score(y_test_split, y_pred, average = "weighted")
+      accuracy <- sklearn$metrics$accuracy_score(y_test_split, y_pred)
 
       # Save the mean test score for the current split
       # This mean test score refers to the mean test score during cross validation
@@ -160,7 +161,7 @@ fit_and_evaluate_pipelines <- function(X_train,
       split_cv_results[[names(selected_pipelines)[[i]]]] <- grid_search_cv$cv_results_
       split_selected_features[[names(selected_pipelines)[[i]]]] <- get_feature_importances(split_fitted_pipelines[[i]], X_train_split)
       split_mean_performances[[names(selected_pipelines)[[i]]]] <- mean_test_score
-      split_test_metrics[[names(selected_pipelines)[[i]]]] <- list(precision = precision, recall = recall, f1 = f1) # save the other metrics for the current split
+      split_test_metrics[[names(selected_pipelines)[[i]]]] <- list(precision = precision, recall = recall, f1 = f1, accuracy = accuracy) # save the other metrics for the current split
     }
 
 
@@ -181,8 +182,10 @@ fit_and_evaluate_pipelines <- function(X_train,
   # Compute means and standard deviations
   test_metrics_df <- test_metrics_df %>%
     dplyr::group_by(method) %>%
-    dplyr::summarise(across(dplyr::starts_with("f1"):dplyr::starts_with("precision"),
+    dplyr::summarise(across(c(dplyr::starts_with("f1"), dplyr::starts_with("recall"),
+                              dplyr::starts_with("precision"), dplyr::starts_with("accuracy")),
                             list(mean = mean, sd = sd), .names = "{.col}_{.fn}"))
+
 
   # Print the summary data frame
   print(test_metrics_df)
