@@ -12,8 +12,6 @@ setClass("PipelineResults",
          slots = list(
            fitted_pipelines = "list",
            cv_results = "list",
-           selected_features = "list",
-           mean_performance = "data.frame",
            mean_feature_importances = "list",
            test_metrics = 'data.frame'
          ))

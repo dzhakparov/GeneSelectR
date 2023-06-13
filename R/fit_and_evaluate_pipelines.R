@@ -172,30 +172,6 @@ fit_and_evaluate_pipelines <- function(X_train,
     test_metrics[[glue::glue('split_{split_idx}')]] <- split_test_metrics
   }
 
-
-  # Calculate the mean and standard deviation of the performance metrics for each method across all splits
-  print(test_metrics)
-  # Calculate the mean and standard deviation of the performance metrics for each feature selection method across all splits
-  # mean_test_metrics <- lapply(test_metrics, function(x) sapply(x, function(y) mean(unlist(y), na.rm = TRUE), USE.NAMES = TRUE))
-  # names(mean_test_metrics) <- names(test_metrics)
-
-  # sd_test_metrics <- lapply(test_metrics, function(x) sapply(x, function(y) sd(unlist(y), na.rm = TRUE), USE.NAMES = TRUE))
-  # names(sd_test_metrics) <- names(test_metrics)
-
-  # print(mean_test_metrics)
-  # print(sd_test_metrics)
-  # test_metrics_df <- do.call(rbind, lapply(names(mean_test_metrics), function(method) {
-  #   print(paste("Method:", method))  # print the method name
-  #   print(paste("Metrics:", mean_test_metrics[[method]]))  # print the metrics for this method
-  #   data.frame(Method = method,
-  #              Mean_Precision = mean_test_metrics[[method]]["precision"],
-  #              SD_Precision = sd_test_metrics[[method]]["precision"],
-  #              Mean_Recall = mean_test_metrics[[method]]["recall"],
-  #              SD_Recall = sd_test_metrics[[method]]["recall"],
-  #              Mean_F1 = mean_test_metrics[[method]]["f1"],
-  #              SD_F1 = sd_test_metrics[[method]]["f1"])
-  #   }))
-
   # Convert the nested list into a data frame
   test_metrics_df <- test_metrics %>%
     tibble::enframe(name = "split", value = "methods") %>%
@@ -223,8 +199,6 @@ fit_and_evaluate_pipelines <- function(X_train,
   return(new("PipelineResults",
              fitted_pipelines = split_results,
              cv_results = cv_results,
-             selected_features = selected_features,
-             mean_performance = mean_performance_df,
              mean_feature_importances = mean_feature_importances,
              test_metrics = test_metrics_df))
 
