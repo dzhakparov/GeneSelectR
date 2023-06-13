@@ -2,6 +2,7 @@
 #' @description This function fits a set of pipelines with hyperparameter tuning on a given training set and evaluates their performance using cross-validation.
 #' @importFrom reticulate import r_to_py
 #' @importFrom glue glue
+#' @importFrom dplyr bind_rows
 #' @param X_train A matrix or data frame of training data with features as columns and observations as rows.
 #' @param y_train A vector of training labels corresponding to the rows of X_train.
 #' @param pipelines An optional list of pre-defined pipelines to use for fitting and evaluation. If this argument is provided, the feature selection methods and preprocessing steps will be ignored.
@@ -38,7 +39,7 @@ fit_and_evaluate_pipelines <- function(X_train,
                                        njobs = -1L,
                                        n_splits = 2L) {
 
-
+  # enable multiprocess on Windows machines
   if (Sys.info()["sysname"] == "Windows") {
     exe <- file.path(sys$exec_prefix, "pythonw.exe")
     sys$executable <- exe
@@ -107,6 +108,7 @@ fit_and_evaluate_pipelines <- function(X_train,
   selected_features <- list()
   split_results <- list()
   mean_performances <- list()
+  test_metrics <- list()
 
   # Repeated train-test splitting
   for (split_idx in 1:n_splits) {
@@ -121,6 +123,7 @@ fit_and_evaluate_pipelines <- function(X_train,
     split_cv_results <- list()
     split_selected_features <- list()
     split_mean_performances <- list()
+    split_test_metrics <- list()
 
     for (i in seq_along(names(selected_pipelines))) {
       message(glue("Fitting {names(selected_pipelines)[[i]]} \n"))
@@ -140,8 +143,16 @@ fit_and_evaluate_pipelines <- function(X_train,
         verbose = 2L)
       grid_search_cv$fit(X_train_split, y_train_split)
 
+
+      # Evaluate the best model on the test set
+      best_model <- grid_search_cv$best_estimator_
+      y_pred <- best_model$predict(X_test_split)
+      precision <- sklearn$metrics$precision_score(y_test_split, y_pred, average = "weighted")
+      recall <- sklearn$metrics$recall_score(y_test_split, y_pred, average = "weighted")
+      f1 <- sklearn$metrics$f1_score(y_test_split, y_pred, average = "weighted")
+
       # Save the mean test score for the current split
-      # mean of the all classifier configurations or just the best performer and the mean over splits?
+      # This mean test score refers to the mean test score during cross validation
       mean_test_score <- mean(grid_search_cv$cv_results_$mean_test_score, na.rm = TRUE)
 
       # Save the fitted pipeline and results for the current split
@@ -149,6 +160,7 @@ fit_and_evaluate_pipelines <- function(X_train,
       split_cv_results[[names(selected_pipelines)[[i]]]] <- grid_search_cv$cv_results_
       split_selected_features[[names(selected_pipelines)[[i]]]] <- get_feature_importances(split_fitted_pipelines[[i]], X_train_split)
       split_mean_performances[[names(selected_pipelines)[[i]]]] <- mean_test_score
+      split_test_metrics[[names(selected_pipelines)[[i]]]] <- list(precision = precision, recall = recall, f1 = f1) # save the other metrics for the current split
     }
 
 
@@ -157,7 +169,49 @@ fit_and_evaluate_pipelines <- function(X_train,
     selected_features[[glue::glue('split_{split_idx}')]] <- split_selected_features
     cv_results[[glue::glue('split_{split_idx}')]] <- split_cv_results
     mean_performances[[glue::glue('split_{split_idx}')]] <- split_mean_performances
+    test_metrics[[glue::glue('split_{split_idx}')]] <- split_test_metrics
   }
+
+
+  # Calculate the mean and standard deviation of the performance metrics for each method across all splits
+  print(test_metrics)
+  # Calculate the mean and standard deviation of the performance metrics for each feature selection method across all splits
+  # mean_test_metrics <- lapply(test_metrics, function(x) sapply(x, function(y) mean(unlist(y), na.rm = TRUE), USE.NAMES = TRUE))
+  # names(mean_test_metrics) <- names(test_metrics)
+
+  # sd_test_metrics <- lapply(test_metrics, function(x) sapply(x, function(y) sd(unlist(y), na.rm = TRUE), USE.NAMES = TRUE))
+  # names(sd_test_metrics) <- names(test_metrics)
+
+  # print(mean_test_metrics)
+  # print(sd_test_metrics)
+  # test_metrics_df <- do.call(rbind, lapply(names(mean_test_metrics), function(method) {
+  #   print(paste("Method:", method))  # print the method name
+  #   print(paste("Metrics:", mean_test_metrics[[method]]))  # print the metrics for this method
+  #   data.frame(Method = method,
+  #              Mean_Precision = mean_test_metrics[[method]]["precision"],
+  #              SD_Precision = sd_test_metrics[[method]]["precision"],
+  #              Mean_Recall = mean_test_metrics[[method]]["recall"],
+  #              SD_Recall = sd_test_metrics[[method]]["recall"],
+  #              Mean_F1 = mean_test_metrics[[method]]["f1"],
+  #              SD_F1 = sd_test_metrics[[method]]["f1"])
+  #   }))
+
+  # Convert the nested list into a data frame
+  test_metrics_df <- test_metrics %>%
+    tibble::enframe(name = "split", value = "methods") %>%
+    tidyr::unnest_longer(methods, indices_to = "method") %>%
+    tidyr::unnest_wider(methods)
+
+  # Compute means and standard deviations
+  test_metrics_df <- test_metrics_df %>%
+    dplyr::group_by(method) %>%
+    dplyr::summarise(across(dplyr::starts_with("f1"):dplyr::starts_with("precision"),
+                            list(mean = mean, sd = sd), .names = "{.col}_{.fn}"))
+
+  # Print the summary data frame
+  print(test_metrics_df)
+  # Bind the data frames together
+  # test_metrics_df
 
   # Calculate the mean performance for each feature selection method across all splits
   mean_performance_df <- do.call(rbind, lapply(mean_performances, as.data.frame))
@@ -171,7 +225,8 @@ fit_and_evaluate_pipelines <- function(X_train,
              cv_results = cv_results,
              selected_features = selected_features,
              mean_performance = mean_performance_df,
-             mean_feature_importances = mean_feature_importances))
+             mean_feature_importances = mean_feature_importances,
+             test_metrics = test_metrics_df))
 
 
 }

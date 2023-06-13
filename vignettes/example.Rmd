@@ -16,16 +16,12 @@ knitr::opts_chunk$set(
   warning = FALSE)
 ```
 
-```{r setup}
-library(GeneSelectR)
-```
-
 # Introduction
 
 # Installation
 
 ## Python requirements 
-The feature selection procedure is implemented with Python's scikit-learn library. The package requires an Anaconda installation to work properly. Upon first launch of the package you will be prompted if you would like to initiate the package Python working environment "GeneSelectR_env". After that you will be asked whether you would like the necessary Python packages to be installed. The Python requirements are listed in the requirements.txt file. 
+The feature selection procedure is implemented with Python's scikit-learn library. The package requires an Anaconda installation to work properly. The Python requirements are listed in the requirements.txt file. 
 
 You can install the development version of GeneSelectR from [GitHub](%5Bhttps://github.com/)](<https://github.com/>)) with:
 
@@ -42,7 +38,7 @@ And then you can install the development version of the package from here:
 
 ```{r}
 # install.packages("devtools")
-devtools::install_github("dzhakparov/GeneSelectR")
+devtools::install_github("dzhakparov/GeneSelectR", build_vignettes = FALSE)
 
 ```
 
@@ -61,6 +57,13 @@ GeneSelectR::set_reticulate_python()
 library(GeneSelectR)
 # rest of your code 
 ```
+Additionally, number arguments in fit_and_evaluate_pipelines function should be passed as literal integers with an L suffix, e.g: 
+
+```{r}
+fit_and_evaluate_pipelines(X_train, 
+                           y_train,
+                           njobs = 3L) # number of cores to be used for the feature selection process 
+```
 
 
 # Basic Example
@@ -70,15 +73,18 @@ The data matrix should be a data frame with samples as rows and features as colu
 data("UrbanRandomSubset")
 head(UrbanRandomSubset[,1:10])
 ```
-This dataset represents: TODO 
+This dataset is a bulk RNAseq dataset that was obtained from blood samples of the 149 African children that were stratified into ones having Atopic Dermatitis (AD) and healthy controls (HC). Additionally, the whole dataset contains the stratification variable by the childrens' location (Urban and Rural). This data snippet contains the Urban samples only. The columns represent the genes and samples are in rows. The column treatment contains diangosis label.
 
-## Feature Selection Procedure
-By calling the package, it will create the conda environment and install all the necessary Python packages for it. Conda installation should be present prior to the installation of the package. 
+This data subset was used in the PharML 2022 workshop within ECML-PKDD 2022 conference. The whole paper is available with the doi: 
+
+## Feature Selection Procedure Basic Usage
+As noted before every new session in which you use GeneSelectR should start with the following line, that would allow you to set the correct conda environment:
 
 ```{r}
 GeneSelectR::set_reticulate_python()
 library(GeneSelectR)
 library(dplyr)
+# the rest of the code
 ```
 Prior to running the feature selection function, let's prepare the data to have a suitable format: 
 ```{r}
@@ -88,7 +94,6 @@ y <- UrbanRandomSubset['treatment'] # store the data point label in a separate v
 
 To run the feature selection procedure, you should run the fit_and_evaluate_pipelines() function: 
 ```{r}
-library(GeneSelectR)
 selection_results <- fit_and_evaluate_pipelines(X_train = X, 
                                                 y_train = y,
                                                 njobs = 1L)
@@ -113,7 +118,7 @@ And then we can pass it as an argument to fit_and_evaluate_pipelines function:
 ```{r}
 selection_results <- fit_and_evaluate_pipelines(X_train = X, 
                                                 y_train = y,
-                                                njobs = 1L,
+                                                njobs = -1L,
                                                 feature_selection_methods = my_methods)
 ```
 After that the feature selection is performed in a following manner: 
@@ -121,7 +126,7 @@ After that the feature selection is performed in a following manner:
 You can specify your estimator of choice as well as parameter grid. 
 For the sake of computational time the RandomizedSearchCV is used. 
 
-```{r}
+```{r eval=TRUE}
 selection_results
 ```
 
@@ -130,7 +135,11 @@ The selection_results object belongs to the PipelineResults class and contains t
 2. cv_results
 3. selected_features 
 4. mean_performance (to be removed)
-5. mean_feature_importances 
+5. mean_feature_importances
+6. Gene set stability score (to be added)
+
+## ML Performance Metrics
 ## Overlap Between Gene Lists
 
+## Go Enrichment analysis
 ## Conversion to ENTREZIDs
