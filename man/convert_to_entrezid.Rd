@@ -4,12 +4,24 @@
 \alias{convert_to_entrezid}
 \title{Convert to ENTREZIDs}
 \usage{
-convert_to_entrezid(pipeline_results, custom_lists = NULL)
+convert_to_entrezid(
+  pipeline_results,
+  custom_lists = NULL,
+  annotations_ahb,
+  format = c("ensembl_gene_name", "ensembl_id", "gene_name"),
+  separator = "__"
+)
 }
 \arguments{
 \item{pipeline_results}{A PipelineResults object containing a named list of data frames.}
 
 \item{custom_lists}{(optional) A named list of character vectors containing additional user-defined gene sets.}
+
+\item{annotations_ahb}{A data.frame object containing gene annotations with columns 'gene_id', 'gene_name', and 'entrezid'.}
+
+\item{format}{The format of the gene list in 'pipeline_results' and 'custom_lists'. This should be one of "ensembl_gene_name", "ensembl_id", or "gene_name".}
+
+\item{separator}{(optional) A character indicating the separator between ensembl_id and gene_name when format is "ensembl_gene_name".}
 }
 \value{
 A list of gene sets converted to ENTREZIDs.

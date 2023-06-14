@@ -1,44 +1,42 @@
 #' Perform gene set enrichment analysis using ViSEAGO and topGO
 #'
-#' This function takes a PipelineResults object containing selected_features
-#' as a named list of data frames with a "features" column, a background gene set,
-#' GO annotations, and optionally additional gene sets provided by the user.
-#' It performs gene set enrichment analysis for each gene set and returns the merged results.
+#' @description This function performs gene set enrichment analysis using ViSEAGO and topGO.
+#' The function is heavily dependent on the ViSEAGO package.
 #'
-#' @param pipeline_results A PipelineResults object containing a named list of data frames
-#'                         with a "features" column as gene sets.
+#' @param gene_sets A list of named character vectors containing gene sets.
 #' @param background A character vector representing the background gene set.
-#' @param myGENE2GO A data frame containing GO annotations from Bioconductor.
-#' @param additional_gene_sets (optional) A named list of character vectors containing
-#'                              additional user-defined gene sets.
-#'
+#' @param organism A character string corresponding to the organism of interest. Default: "org.Hs.eg.db" (for human).
+#' @param ont A character string representing GO term ontology. Default: "BP" (for Biological Process).
+#' @param nodeSize An integer representing the minimum number of annotated genes for a GO term. Default: 5.
+#' @param algorithm A character string specifying the algorithm to use in topGO. Default: "elim".
+#' @param statistic A character string specifying the statistical test to use in topGO. Default: "fisher".
+#' @param cutOff A numeric value specifying the significance cutoff in topGO. Default: 0.01.
+#' @param mergeCutOff A numeric value specifying the significance cutoff for merging results in ViSEAGO. Default: 0.05.
 #' @return A data frame containing the merged enrichment results for all gene sets.
-#'
 #' @importFrom ViSEAGO Bioconductor2GO annotate create_topGOdata merge_enrich_terms
 #' @importFrom topGO runTest
 #' @importFrom dplyr setdiff
+#' @references To use ViSEAGO in published research, please cite:
+#'             [citation]
 #' @examples
-#' # Assuming all.genes, PipelineResults, and myGENE2GO are defined
+#' \dontrun{
+#' # Assuming all.genes and gene_sets are defined
 #' background = as.character(all.genes$entrezid)
-#' BP_sResults <- perform_analysis(PipelineResults, background, myGENE2GO)
-#'
-#'
-# Assuming 'pipeline_results' is an instance of the PipelineResults class
-# The perform_GO_enrichment_analysis function takes a list of gene_sets and a background gene set
-# as input and returns the results of a Gene Ontology (GO) enrichment analysis.
-perform_GO_enrichment_analysis <- function(gene_sets, background) {
+#' BP_sResults <- perform_GO_enrichment_analysis(gene_sets, background, organism = "org.Hs.eg.db")
+#'}
+perform_GO_enrichment_analysis <- function(gene_sets, background, organism = "org.Hs.eg.db", ont = "BP", nodeSize = 5, algorithm = "elim", statistic = "fisher", cutOff = 0.01, mergeCutOff = 0.05) {
   # Check if gene_sets is a list of named vectors. If not, raise an error.
   if (!is.list(gene_sets) || any(!sapply(gene_sets, is.vector)) || any(is.na(names(gene_sets)))) {
-    stop("gene_sets must be a list of named vectors.")
+    stop("gene_sets must be a list of named character vectors.")
   }
 
   # Connect to Bioconductor and retrieve the GO annotations.
   Bioconductor <- ViSEAGO::Bioconductor2GO()
 
-  # Load GO annotations from Bioconductor using the org.Hs.eg.db package.
+  # Load GO annotations from Bioconductor using the provided organism.
   myGENE2GO <- ViSEAGO::annotate(
-    "org.Hs.eg.db",
-    Bioconductor
+    id = organism,
+    object = Bioconductor
   )
 
   input_list <- list()
@@ -47,7 +45,7 @@ perform_GO_enrichment_analysis <- function(gene_sets, background) {
   gene_set_names <- dplyr::setdiff(names(gene_sets), "background")
   for (gene_set_name in gene_set_names) {
     # Print the name of the current gene set for debugging purposes.
-    print(gene_set_name)
+    message(paste0('Performing GO Enrichment analysis for the:', gene_set_name))
 
     # Extract the gene set using its name.
     gene_set <- gene_sets[[gene_set_name]]
@@ -57,16 +55,16 @@ perform_GO_enrichment_analysis <- function(gene_sets, background) {
       geneSel = gene_set,        # Selected gene set
       allGenes = background,     # Background gene set
       gene2GO = myGENE2GO,       # GO annotations
-      ont = "BP",                # GO term ontology (Biological Process)
-      nodeSize = 5               # Minimum number of annotated genes for a GO term
+      ont = ont,                 # GO term ontology
+      nodeSize = nodeSize        # Minimum number of annotated genes for a GO term
     )
 
-    # Run the enrichment test using the topGO package with the "elim" algorithm and Fisher's test.
+    # Run the enrichment test using the topGO package.
     elim_test <- topGO::runTest(
       BP_data,                   # Input topGOdata object
-      algorithm = "elim",        # Algorithm to use (Elim)
-      statistic = "fisher",      # Statistical test to use (Fisher's test)
-      cutOff = 0.01              # Significance cutoff
+      algorithm = algorithm,     # Algorithm to use
+      statistic = statistic,     # Statistical test to use
+      cutOff = cutOff            # Significance cutoff
     )
 
     # Assign the BP_data and elim_test results to the function's environment
@@ -83,10 +81,11 @@ perform_GO_enrichment_analysis <- function(gene_sets, background) {
 
   # Merge the topGO results using the ViSEAGO package.
   BP_sResults <- ViSEAGO::merge_enrich_terms(
-    cutoff = 0.05,              # Significance cutoff for merging results
+    cutoff = mergeCutOff,       # Significance cutoff for merging results
     Input = input_list,
     envir = environment())
 
   # Return the results of the GO enrichment analysis.
   return(BP_sResults)
 }
+

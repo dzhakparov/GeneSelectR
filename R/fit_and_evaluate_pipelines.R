@@ -2,7 +2,13 @@
 #' @description This function fits a set of pipelines with hyperparameter tuning on a given training set and evaluates their performance using cross-validation.
 #' @importFrom reticulate import r_to_py
 #' @importFrom glue glue
-#' @importFrom dplyr bind_rows
+#' @importFrom dplyr bind_rows group_by summarise across starts_with
+#' @importFrom tibble enframe
+#' @importFrom tidyr unnest_longer unnest_wider
+#' @importFrom stats setNames
+#' @importFrom magrittr '%>%'
+#' @importFrom methods new
+#' @importFrom rlang .data
 #' @param X_train A matrix or data frame of training data with features as columns and observations as rows.
 #' @param y_train A vector of training labels corresponding to the rows of X_train.
 #' @param pipelines An optional list of pre-defined pipelines to use for fitting and evaluation. If this argument is provided, the feature selection methods and preprocessing steps will be ignored.
@@ -35,7 +41,6 @@ fit_and_evaluate_pipelines <- function(X_train,
                                        feature_selection_methods = NULL,
                                        selected_methods = NULL,
                                        testsize = 0.2,
-                                       #condaenv,
                                        njobs = -1L,
                                        n_splits = 2L) {
 
@@ -129,7 +134,7 @@ fit_and_evaluate_pipelines <- function(X_train,
       message(glue("Fitting {names(selected_pipelines)[[i]]} \n"))
 
       # Create the parameter grid with the 'classifier' prefix
-      params <- setNames(
+      params <- stats::setNames(
         list(seq(50L, 200L, 50L), seq(3L, 7L, 2L)),
         c("classifier__n_estimators", "classifier__max_depth")
       )
@@ -154,13 +159,14 @@ fit_and_evaluate_pipelines <- function(X_train,
 
       # Save the mean test score for the current split
       # This mean test score refers to the mean test score during cross validation
-      mean_test_score <- mean(grid_search_cv$cv_results_$mean_test_score, na.rm = TRUE)
+      # not actually used later
+      #mean_test_score <- mean(grid_search_cv$cv_results_$mean_test_score, na.rm = TRUE)
 
       # Save the fitted pipeline and results for the current split
       split_fitted_pipelines[[names(selected_pipelines)[[i]]]] <- grid_search_cv$best_estimator_
       split_cv_results[[names(selected_pipelines)[[i]]]] <- grid_search_cv$cv_results_
       split_selected_features[[names(selected_pipelines)[[i]]]] <- get_feature_importances(split_fitted_pipelines[[i]], X_train_split)
-      split_mean_performances[[names(selected_pipelines)[[i]]]] <- mean_test_score
+      #split_mean_performances[[names(selected_pipelines)[[i]]]] <- mean_test_score
       split_test_metrics[[names(selected_pipelines)[[i]]]] <- list(precision = precision, recall = recall, f1 = f1, accuracy = accuracy) # save the other metrics for the current split
     }
 
@@ -169,37 +175,37 @@ fit_and_evaluate_pipelines <- function(X_train,
     split_results[[glue::glue('split_{split_idx}')]] <- split_fitted_pipelines
     selected_features[[glue::glue('split_{split_idx}')]] <- split_selected_features
     cv_results[[glue::glue('split_{split_idx}')]] <- split_cv_results
-    mean_performances[[glue::glue('split_{split_idx}')]] <- split_mean_performances
+    #mean_performances[[glue::glue('split_{split_idx}')]] <- split_mean_performances
     test_metrics[[glue::glue('split_{split_idx}')]] <- split_test_metrics
   }
 
-  # Convert the nested list into a data frame
   test_metrics_df <- test_metrics %>%
-    tibble::enframe(name = "split", value = "methods") %>%
-    tidyr::unnest_longer(methods, indices_to = "method") %>%
-    tidyr::unnest_wider(methods)
+    tibble::enframe(name = "split", value = .data$methods) %>%
+    tidyr::unnest_longer(.data$methods, indices_to = .data$method) %>%
+    tidyr::unnest_wider(.data$methods)
 
-  # Compute means and standard deviations
   test_metrics_df <- test_metrics_df %>%
-    dplyr::group_by(method) %>%
-    dplyr::summarise(across(c(dplyr::starts_with("f1"), dplyr::starts_with("recall"),
-                              dplyr::starts_with("precision"), dplyr::starts_with("accuracy")),
-                            list(mean = mean, sd = sd), .names = "{.col}_{.fn}"))
+    dplyr::group_by(.data$method) %>%
+    dplyr::summarise(dplyr::across(c(dplyr::starts_with("f1"), dplyr::starts_with("recall"),
+                                     dplyr::starts_with("precision"), dplyr::starts_with("accuracy")),
+                                   list(mean = mean, sd = sd), .names = "{.col}_{.fn}"))
+
+
 
 
   # Print the summary data frame
-  print(test_metrics_df)
+  #print(test_metrics_df)
   # Bind the data frames together
   # test_metrics_df
 
   # Calculate the mean performance for each feature selection method across all splits
-  mean_performance_df <- do.call(rbind, lapply(mean_performances, as.data.frame))
+  #mean_performance_df <- do.call(rbind, lapply(mean_performances, as.data.frame))
 
   # Calculate the mean feature importance for each method across all splits
   mean_feature_importances <- aggregate_feature_importances(selected_features)
 
 
-  return(new("PipelineResults",
+  return(methods::new("PipelineResults",
              fitted_pipelines = split_results,
              cv_results = cv_results,
              mean_feature_importances = mean_feature_importances,

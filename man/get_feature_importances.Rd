@@ -22,9 +22,11 @@ This function extracts feature importances from a Scikit-learn pipeline
 that has a Gradient Boosting Classifier as the final step.
 }
 \examples{
+\dontrun{
 # Assuming you have a Scikit-learn pipeline 'my_pipeline' and training data 'X_train'
 feature_importances <- get_feature_importances(my_pipeline, X_train)
 # Extract the selected feature names and their importances
 selected_features <- feature_importances$selected_features
 importances <- feature_importances$importances
+}
 }

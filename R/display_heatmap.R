@@ -6,6 +6,7 @@
 #' @param output_file A character string specifying the file path for the output PNG image when save_plot is set to TRUE. If save_plot is FALSE, this parameter is ignored.
 #' @return If save_plot is FALSE, displays the interactive heatmap. If save_plot is TRUE, saves the heatmap as a static PNG image at the specified output_file path.
 #' @importFrom plotly plotly_IMAGE
+#' @importFrom graphics layout
 #' @examples
 #' \dontrun{
 #' results <- # Load results from a previous step
@@ -52,7 +53,7 @@ display_heatmap <- function(heatmap_object, heatmap_type, save_plot=FALSE, outpu
       if (rowlen > 10000) { rowlen <- 10000 }
 
       # Adjust heatmap size
-      heatmap_data <- layout(heatmap_data, height = rowlen)
+      heatmap_data <- graphics::layout(heatmap_data, height = rowlen)
     }
 
     # Save the heatmap as a static PNG image

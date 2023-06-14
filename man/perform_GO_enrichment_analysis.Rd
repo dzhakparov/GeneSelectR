@@ -4,32 +4,52 @@
 \alias{perform_GO_enrichment_analysis}
 \title{Perform gene set enrichment analysis using ViSEAGO and topGO}
 \usage{
-perform_GO_enrichment_analysis(gene_sets, background)
+perform_GO_enrichment_analysis(
+  gene_sets,
+  background,
+  organism = "org.Hs.eg.db",
+  ont = "BP",
+  nodeSize = 5,
+  algorithm = "elim",
+  statistic = "fisher",
+  cutOff = 0.01,
+  mergeCutOff = 0.05
+)
 }
 \arguments{
+\item{gene_sets}{A list of named character vectors containing gene sets.}
+
 \item{background}{A character vector representing the background gene set.}
 
-\item{pipeline_results}{A PipelineResults object containing a named list of data frames
-with a "features" column as gene sets.}
+\item{organism}{A character string corresponding to the organism of interest. Default: "org.Hs.eg.db" (for human).}
 
-\item{myGENE2GO}{A data frame containing GO annotations from Bioconductor.}
+\item{ont}{A character string representing GO term ontology. Default: "BP" (for Biological Process).}
 
-\item{additional_gene_sets}{(optional) A named list of character vectors containing
-additional user-defined gene sets.}
+\item{nodeSize}{An integer representing the minimum number of annotated genes for a GO term. Default: 5.}
+
+\item{algorithm}{A character string specifying the algorithm to use in topGO. Default: "elim".}
+
+\item{statistic}{A character string specifying the statistical test to use in topGO. Default: "fisher".}
+
+\item{cutOff}{A numeric value specifying the significance cutoff in topGO. Default: 0.01.}
+
+\item{mergeCutOff}{A numeric value specifying the significance cutoff for merging results in ViSEAGO. Default: 0.05.}
 }
 \value{
 A data frame containing the merged enrichment results for all gene sets.
 }
 \description{
-This function takes a PipelineResults object containing selected_features
-as a named list of data frames with a "features" column, a background gene set,
-GO annotations, and optionally additional gene sets provided by the user.
-It performs gene set enrichment analysis for each gene set and returns the merged results.
+This function performs gene set enrichment analysis using ViSEAGO and topGO.
+The function is heavily dependent on the ViSEAGO package.
 }
 \examples{
-# Assuming all.genes, PipelineResults, and myGENE2GO are defined
+\dontrun{
+# Assuming all.genes and gene_sets are defined
 background = as.character(all.genes$entrezid)
-BP_sResults <- perform_analysis(PipelineResults, background, myGENE2GO)
-
-
+BP_sResults <- perform_GO_enrichment_analysis(gene_sets, background, organism = "org.Hs.eg.db")
+}
+}
+\references{
+To use ViSEAGO in published research, please cite:
+\link{citation}
 }

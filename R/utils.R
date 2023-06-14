@@ -9,11 +9,13 @@
 #'         doesn't have the 'get_support' method.
 #' @importFrom reticulate py_has_attr py_to_r
 #' @examples
+#' \dontrun{
 #' # Assuming you have a Scikit-learn pipeline 'my_pipeline' and training data 'X_train'
 #' feature_importances <- get_feature_importances(my_pipeline, X_train)
 #' # Extract the selected feature names and their importances
 #' selected_features <- feature_importances$selected_features
 #' importances <- feature_importances$importances
+#' }
 #' @export
 get_feature_importances <- function(pipeline, X_train) {
   classifier <- pipeline$named_steps[['classifier']]
@@ -111,8 +113,10 @@ steps_to_tuples <- function(steps) {
 #'
 #' @return A list of aggregated feature importances for each method. Each element of the list is a data frame that contains the mean and standard deviation of the feature importances for a particular method across all splits.
 #'
+#' @importFrom magrittr %>%
 #' @importFrom dplyr group_by summarize filter
 #' @importFrom stats sd
+#' @importFrom rlang .data
 #' @examples
 #' \dontrun{
 #'   # Assuming selected_features is a list of selected features for each split
@@ -133,12 +137,12 @@ aggregate_feature_importances <- function(selected_features) {
     combined_importances <- do.call(rbind, feature_importances)
 
     importances_df <- combined_importances %>%
-      dplyr::group_by(feature) %>%
-      dplyr::summarize(mean_importance = mean(importance, na.rm = TRUE),
-                       std = stats::sd(importance, na.rm = TRUE))
+      dplyr::group_by(.data$feature) %>%
+      dplyr::summarize(mean_importance = mean(.data$importance, na.rm = TRUE),
+                       std = stats::sd(.data$importance, na.rm = TRUE))
 
     importances_df <- importances_df %>%
-      dplyr::filter(mean_importance > 0)
+      dplyr::filter(.data$mean_importance > 0)
 
     # Add the aggregated importances for the current method to the results list
     aggregated_importances[[method]] <- importances_df
