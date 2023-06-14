@@ -4,10 +4,10 @@
 \alias{compare_gene_lists}
 \title{Compare gene lists obtained from the PipelineResults object}
 \usage{
-compare_gene_lists(input_list, save_plot = FALSE, filename = NULL, ...)
+compare_gene_lists(pipeline_results, save_plot = FALSE, filename = NULL, ...)
 }
 \arguments{
-\item{input_list}{A PipelineResults object containing the fitted pipelines, cross-validation results, selected features,
+\item{pipeline_results}{A PipelineResults object containing the fitted pipelines, cross-validation results, selected features,
 mean performance, and mean feature importances.}
 
 \item{save_plot}{A logical value indicating whether to save the heatmap plots to a file or not. Default is FALSE.}

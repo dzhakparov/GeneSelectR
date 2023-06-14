@@ -2,7 +2,7 @@
 #' @description This function takes a PipelineResults object and creates heatmaps to visualize the overlap between the gene lists obtained
 #' from different feature selection methods. It calculates the Overlap, Jaccard, and Soerensen-Dice coefficients to quantify
 #' the similarity between gene lists.
-#' @param input_list A PipelineResults object containing the fitted pipelines, cross-validation results, selected features,
+#' @param pipeline_results A PipelineResults object containing the fitted pipelines, cross-validation results, selected features,
 #'   mean performance, and mean feature importances.
 #' @param save_plot A logical value indicating whether to save the heatmap plots to a file or not. Default is FALSE.
 #' @param filename A character string specifying the filename for the saved heatmap plots (if save_plot = TRUE).
@@ -21,16 +21,17 @@
 #' @importFrom reshape2 melt
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom cowplot plot_grid
+#' @importFrom rlang .data
 #' @export
-compare_gene_lists <- function(input_list, save_plot = FALSE, filename = NULL, ...) {
+compare_gene_lists <- function(pipeline_results, save_plot = FALSE, filename = NULL, ...) {
   # Check if input object belongs to the PipelineResults class
-  if (!inherits(input_list, "PipelineResults")) {
+  if (!inherits(pipeline_results, "PipelineResults")) {
     stop("The input object does not belong to the PipelineResults class.")
   }
 
   # Create gene lists
-  gene.lists <- lapply(input_list$mean_feature_importances, function(df) df$feature)
-  names(gene.lists) <- names(input_list$mean_feature_importances)
+  gene.lists <- lapply(pipeline_results@mean_feature_importances, function(df) df$feature)
+  names(gene.lists) <- names(pipeline_results@mean_feature_importances)
   print(gene.lists)
   # Calculate the overlap coefficients and round to 2 decimal places
   calculate_coefficients <- function(stat) {
@@ -50,10 +51,10 @@ compare_gene_lists <- function(input_list, save_plot = FALSE, filename = NULL, .
     data_melt <- reshape2::melt(data)
     colnames(data_melt) <- c("Row", "Column", "Value")
 
-    plot <- ggplot2::ggplot(data = data_melt, aes(x = Column, y = Row, fill = Value)) +
+    plot <- ggplot2::ggplot(data = data_melt, ggplot2::aes(x = .data$Column, y = .data$Row, fill = .data$Value)) +
       ggplot2::geom_tile(color = "white", size = 0.5) +
-      ggplot2::geom_text(aes(label = Value), color = "black", size = 3) +
-      ggplot2::scale_fill_gradientn(colors = colors, limits = c(0, max(data_melt$Value))) +
+      ggplot2::geom_text(aes(label = .data$Value), color = "black", size = 3) +
+      ggplot2::scale_fill_gradientn(colors = colors, limits = c(0, max(data_melt$.data$Value))) +
       ggplot2::theme_minimal(base_size = 10) +
       ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
                      axis.title.x = ggplot2::element_blank(),
