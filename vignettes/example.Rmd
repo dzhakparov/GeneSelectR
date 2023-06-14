@@ -139,7 +139,33 @@ The selection_results object belongs to the PipelineResults class and contains t
 6. Gene set stability score (to be added)
 
 ## ML Performance Metrics
+You can plot the feature selection procedure metrics with the following function: 
+```{r}
+plot_metrics(selection_results)
+```
+Or access it as a dataframe: 
+```{r}
+selection_results$test_metrics
+```
+
 ## Overlap Between Gene Lists
+Additionally, you can inspect whether genes in your feature selection lists have overlapping features. To do that use the following: 
+```{r}
+compare_gene_lists(selection_results)
+```
 
 ## Go Enrichment analysis
 ## Conversion to ENTREZIDs
+GO Enrichment function only accepts ENTRZIDs to run the analysis. There is a convenience function that will convert your ENSEMBL IDs or Gene names to ENTREZ IDs: 
+```{r}
+# Get the annotations for the genes in the analysis 
+# The example dataset contains sequencing from humans 
+ah <- AnnotationHub::AnnotationHub()
+human_ens <- AnnotationHub::query(ah, c("Homo sapiens", "EnsDb"))
+human_ens <- human_ens[['AH98047']]
+annotations_ahb <- ensembldb::genes(human_ens, return.type = "data.frame") %>%
+ dplyr::select(gene_id,gene_name,entrezid,gene_biotype)
+
+entrez_list <- convert_to_entrezid(pipeline_results = selection_results, ens = annotations_ahb)
+```
+The conversion functions accepts ENSEMBLIDs, gene names or a combination of both with a separator e.g ENSGXXXXXXXXX_genename. Separator should be specified by the user as a function argument.
