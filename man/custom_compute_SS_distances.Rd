@@ -4,7 +4,7 @@
 \alias{custom_compute_SS_distances}
 \title{Visualize Results of ViSEAGO Analysis}
 \usage{
-custom_compute_SS_distances(GO_SS, distance, ...)
+custom_compute_SS_distances(GO_SS, distance)
 }
 \arguments{
 \item{results}{A data frame of enriched GO terms.}
@@ -35,7 +35,7 @@ This function creates and returns heatmaps of Gene Ontology (GO) terms and clust
 }
 \examples{
 \dontrun{
-library(ViSEAGOplus)
+library(GeneSelectR)
 result_list <- visualize_results(results)
 }
 
