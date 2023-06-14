@@ -5,8 +5,8 @@
 #'
 #' @format A data frame with 60 rows and 1001 columns:
 #' \describe{
-#'   \item{var1}{Description of var1}
-#'   \item{var2}{Description of var2}
+#'   \item{ENSG<number>__*}{gene IDs}
+#'   \item{treatment}{diagnosis label}
 #'   ...
 #' }
 "UrbanRandomSubset"
