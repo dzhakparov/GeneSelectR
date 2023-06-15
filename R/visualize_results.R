@@ -9,9 +9,6 @@
 #' @param tree_aggreg_method The agglomeration method for hierarchical clustering of GO terms and clusters (default: "ward.D2").
 #' @param heatmap_dynamic_deepSplit The deepSplit argument for dynamicTreeCut::cutreeDynamic (default: 2).
 #' @param heatmap_dynamic_minClusterSize The minimum cluster size for dynamicTreeCut::cutreeDynamic (default: 10).
-#' @param compute_SS_distances_args A list of additional arguments to be passed to custom_compute_SS_distances().
-#' @param GOterms_heatmap_args A list of additional arguments to be passed to custom_GOterms_heatmap().
-#' @param GOclusters_heatmap_args A list of additional arguments to be passed to custom_GOclusters_heatmap().
 #'
 #' @return A list containing two elements: "GO_terms_heatmap" and "GO_clusters_heatmap", which are objects of class 'GOTermsHeatmap' and 'GOClustersHeatmap' respectively.
 #' @export
@@ -22,7 +19,11 @@
 #' library(GeneSelectR)
 #' result_list <- visualize_results(results)
 #' }
+#' @references
+#' See ViSEAGO for more information on the underlying functions used:
+#' Lemoine F, Labedan B, Froidevaux C (2018). “ViSEAGO: a Bioconductor package for clustering biological functions using Gene Ontology and semantic similarity.” BioData Mining, 11, 24. doi: 10.1186/s13040-018-0181-9.
 #'
+
 
 # Custom wrapper functions
 # custom_compute_SS_distances <- function(GO_SS, distance, ...) {
@@ -103,20 +104,13 @@
 #   return(list(GO_terms_heatmap = GO_terms_heatmap, GO_clusters_heatmap = GO_clusters_heatmap))
 # }
 
-custom_compute_SS_distances <- function(GO_SS, distance) {
-  ViSEAGO::compute_SS_distances(GO_SS, distance = distance)
-}
-
-custom_GOterms_heatmap <- function(GO_SS, showIC, showGOlabels, GO_tree, samples_tree) {
-  ViSEAGO::GOterms_heatmap(GO_SS, showIC = showIC, showGOlabels = showGOlabels,
-                           GO.tree = GO_tree, samples.tree = samples_tree)
-}
-
-custom_GOclusters_heatmap <- function(GO_cluster_SS, tree) {
-  ViSEAGO::GOclusters_heatmap(GO_cluster_SS, tree = tree)
-}
-
-visualize_results <- function(results) {
+visualize_results <- function(results,
+                              distance_GO_SS = "Wang",
+                              distance_GO_cluster_SS = "BMA",
+                              tree_distance = "Wang",
+                              tree_aggreg_method = "ward.D2",
+                              heatmap_dynamic_deepSplit = 2,
+                              heatmap_dynamic_minClusterSize = 10) {
 
   # Retrieve GO annotations
   Bioconductor <- ViSEAGO::Bioconductor2GO()
@@ -124,50 +118,44 @@ visualize_results <- function(results) {
 
   # Semantic similarity analysis
   GO_SS <- ViSEAGO::build_GO_SS(gene2GO = myGENE2GO, enrich_GO_terms = results)
-  print(GO_SS)
+  GO_SS <- ViSEAGO::compute_SS_distances(GO_SS, distance = distance_GO_SS)
 
-  # Compute semantic similarity distances
-  GO_SS <- custom_compute_SS_distances(GO_SS, distance = "Wang")
-
-  # Create heatmap of GO terms
-  GO_terms_heatmap <- custom_GOterms_heatmap(
-    GO_SS = GO_SS,
-    showIC = TRUE,
-    showGOlabels = FALSE,
-    GO_tree = list(
-      tree = list(
-        distance = "Wang",
-        aggreg.method = "ward.D2"
-      ),
-      cut = list(
-        dynamic = list(
-          pamStage = TRUE,
-          pamRespectsDendro = TRUE,
-          deepSplit = 2,
-          minClusterSize = 10
-        )
-      )
-    ),
-    samples_tree = NULL
-  )
+  # heatmap of GO terms
+  GO_terms_heatmap <- ViSEAGO::GOterms_heatmap(GO_SS,
+                                               showIC = TRUE,
+                                               showGOlabels = F,
+                                               GO_tree = list(
+                                                 tree = list(
+                                                   distance = tree_distance,
+                                                   aggreg.method = tree_aggreg_method
+                                                 ),
+                                                 cut = list(
+                                                   dynamic = list(
+                                                     pamStage = TRUE,
+                                                     pamRespectsDendro = TRUE,
+                                                     deepSplit = heatmap_dynamic_deepSplit,
+                                                     minClusterSize = heatmap_dynamic_minClusterSize
+                                                   )
+                                                 )
+                                               ),
+                                               samples_tree = NULL)
 
   # Add class attribute
   class(GO_terms_heatmap) <- "GOTermsHeatmap"
 
-  # Compute semantic similarity distances between clusters
-  GO_cluster_SS <- custom_compute_SS_distances(GO_SS = GO_terms_heatmap, distance = "BMA")
+  # Semantic similarity between clusters
+  GO_cluster_SS <- ViSEAGO::compute_SS_distances(GO_terms_heatmap,
+                                                 distance = distance_GO_cluster_SS)
 
-  # Create heatmap of GO clusters
-  GO_clusters_heatmap <- custom_GOclusters_heatmap(
-    GO_cluster_SS = GO_cluster_SS,
-    tree = list(
-      distance = "BMA",
-      aggreg.method = "ward.D2"
-    )
-  )
+  # Heatmap of GO clusters
+  GO_clusters_heatmap <- ViSEAGO::GOclusters_heatmap(GO_cluster_SS,
+                                                     tree = list(
+                                                       distance = distance_GO_cluster_SS,
+                                                       aggreg.method = tree_aggreg_method))
 
   # Add class attribute
   class(GO_clusters_heatmap) <- "GOClustersHeatmap"
 
   return(list(GO_terms_heatmap = GO_terms_heatmap, GO_clusters_heatmap = GO_clusters_heatmap))
 }
+

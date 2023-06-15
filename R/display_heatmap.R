@@ -18,18 +18,34 @@
 display_heatmap <- function(heatmap_object, heatmap_type, save_plot=FALSE, output_file=NULL) {
   # Check that the heatmap type is valid
   if (!heatmap_type %in% c("GOterms", "GOclusters")) {
-    stop("Invalid heatmap_type. Must be 'GOterms' or 'GOclusters'.")
+    stop("Invalid heatmap_type. Must be 'GO_terms_heatmap' or 'GO_clusters_heatmap'.")
   }
 
-  # Check that the input object is of the correct class
-  if (!inherits(heatmap_object, heatmap_type)) {
-    stop(sprintf("heatmap_object must be of class '%s'", heatmap_type))
-  }
+  # if (!inherits(heatmap_object, "GO_clusters")) {
+  #   stop("heatmap_object must be of class 'GO_clusters'")
+  # }
 
   # Extract the heatmap data based on the heatmap_type
-  heatmap_data <- switch(heatmap_type,
-                         GOterms = heatmap_object@heatmap$GOterms,
-                         GOclusters = heatmap_object@heatmap$GOclusters)
+  # Initialize variable
+  heatmap_data <- NULL
+
+  # Check the value of heatmap_type
+  if (heatmap_type == "GOterms") {
+
+    # If heatmap_type is "GOterms", assign the corresponding data to heatmap_data
+    heatmap_data <- heatmap_object$GO_terms_heatmap@heatmap$GOterms
+
+  } else if (heatmap_type == "GOclusters") {
+
+    # If heatmap_type is "GOclusters", assign the corresponding data to heatmap_data
+    heatmap_data <- heatmap_object$GO_clusters_heatmap@heatmap$GOclusters
+
+  } else {
+
+    # If heatmap_type is anything else, return an error
+    stop(sprintf("Invalid heatmap_type. Must be 'GOterms' or 'GOclusters', not '%s'.", heatmap_type))
+
+  }
 
   if (!save_plot) {
     # Display the interactive heatmap
