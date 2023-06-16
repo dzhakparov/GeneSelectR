@@ -2,55 +2,46 @@
 % Please edit documentation in R/GO_enrichment_analysis.R
 \name{GO_enrichment_analysis}
 \alias{GO_enrichment_analysis}
-\title{Perform gene set enrichment analysis using ViSEAGO and topGO}
+\title{Perform gene set enrichment analysis using clusterProfiler}
 \usage{
 GO_enrichment_analysis(
-  gene_sets,
+  annotated_gene_lists,
   background,
   organism = "org.Hs.eg.db",
+  keyType = "ENTREZID",
   ont = "BP",
-  nodeSize = 5,
-  algorithm = "elim",
-  statistic = "fisher",
-  cutOff = 0.01,
-  mergeCutOff = 0.05
+  pvalueCutoff = 0.05,
+  qvalueCutoff = 0.2
 )
 }
 \arguments{
-\item{gene_sets}{A list of named character vectors containing gene sets.}
+\item{annotated_gene_lists}{An AnnotatedGeneLists object containing a list of GeneList objects.}
 
 \item{background}{A character vector representing the background gene set.}
 
 \item{organism}{A character string corresponding to the organism of interest. Default: "org.Hs.eg.db" (for human).}
 
+\item{keyType}{A character string indicating the type of gene identifiers. Default: "ENTREZID".}
+
 \item{ont}{A character string representing GO term ontology. Default: "BP" (for Biological Process).}
 
-\item{nodeSize}{An integer representing the minimum number of annotated genes for a GO term. Default: 5.}
+\item{pvalueCutoff}{A numeric value specifying the significance cutoff. Default: 0.05.}
 
-\item{algorithm}{A character string specifying the algorithm to use in topGO. Default: "elim".}
-
-\item{statistic}{A character string specifying the statistical test to use in topGO. Default: "fisher".}
-
-\item{cutOff}{A numeric value specifying the significance cutoff in topGO. Default: 0.01.}
-
-\item{mergeCutOff}{A numeric value specifying the significance cutoff for merging results in ViSEAGO. Default: 0.05.}
+\item{qvalueCutoff}{A numeric value specifying the q-value cutoff. Default: 0.2.}
 }
 \value{
-A data frame containing the merged enrichment results for all gene sets.
+A list containing the enrichment results for all gene sets (excluding "background").
 }
 \description{
-This function performs gene set enrichment analysis using ViSEAGO and topGO.
-The functionality is largely based on methods from the ViSEAGO package by the following authors:
-Amélie L. F. Gaudin, Marie Chabaud, Bruno Spataro, Christophe Klopp, Thibaut Jombart, Stéphanie Sidibé-Bocs.
+This function performs gene set enrichment analysis on a list of gene sets extracted from an AnnotatedGeneLists object.
 }
 \examples{
 \dontrun{
-# Assuming all.genes and gene_sets are defined
-background = as.character(all.genes$entrezid)
-BP_sResults <- perform_GO_enrichment_analysis(gene_sets, background, organism = "org.Hs.eg.db")
+# Assuming annotated_gene_lists and background are defined
+results <- GO_enrichment_analysis(annotated_gene_lists, background, organism = "org.Hs.eg.db", keyType = "ENTREZID")
 }
 }
 \references{
-To use ViSEAGO in published research, please cite:
-\link{citation}
+To use clusterProfiler in published research, please cite:
+Yu G, Wang LG, Han Y, He QY. clusterProfiler: an R package for comparing biological themes among gene clusters. OMICS: A Journal of Integrative Biology. 2012;16(5):284-287. doi:10.1089/omi.2011.0118.
 }

@@ -14,3 +14,27 @@ setClass("PipelineResults",
            mean_feature_importances = "list",
            test_metrics = 'data.frame'
          ))
+
+#' @title GeneList class
+#' @description A class to hold annotated gene list for a single method.
+#' @slot gene_name A character vector of gene names.
+#' @slot ensembl_id A character vector of Ensembl IDs.
+#' @slot entrezid A character vector of Entrez IDs.
+#' @exportClass GeneList
+setClass("GeneList",
+         slots = list(
+           SYMBOL = "character",
+           ENSEMBL = "character",
+           ENTREZID = "character"
+         ))
+
+
+#'
+#' @title AnootatedGeneLists class
+#' @description A class to hold a list of GeneList objects, each representing a method.
+#' @slot gene_lists A list of GeneList objects.
+#' @exportClass AnnotatedGeneLists
+setClass("AnnotatedGeneLists",
+         slots = list(
+           annotated_lists = "list"
+         ))
