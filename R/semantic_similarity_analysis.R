@@ -1,5 +1,5 @@
 #' Calculate Semantic Similarity Distances
-#'
+#' Old ViSEAGO asset
 #' This function calculates semantic similarity distances between Gene Ontology (GO) terms using the ViSEAGO package.
 #'
 #' @param enriched_results A data frame of enriched GO terms.
@@ -11,7 +11,7 @@
 #'             [citation]
 #'
 #' @importFrom ViSEAGO Bioconductor2GO annotate build_GO_SS compute_SS_distances
-#' @export
+#' @keywords hidden
 #' @examples
 #' \dontrun{
 #' GO_SS_and_clusters <- compute_GO_SS_distances(enriched_results)

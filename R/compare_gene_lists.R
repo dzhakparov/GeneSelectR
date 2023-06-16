@@ -22,7 +22,7 @@
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom cowplot plot_grid
 #' @importFrom rlang .data
-#' @export
+#' @keywords hidden internal
 compare_gene_lists <- function(pipeline_results, save_plot = FALSE, filename = NULL, ...) {
   # Check if input object belongs to the PipelineResults class
   if (!inherits(pipeline_results, "PipelineResults")) {

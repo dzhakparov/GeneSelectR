@@ -3,7 +3,7 @@
 #' @description This function creates a Conda environment if it doesn't already exist.
 #' @param conda_env The name of the Conda environment to create.
 #' @importFrom reticulate conda_create conda_list
-#' @export
+#' @keywords hidden
 create_conda_env <- function(conda_env = "GeneSelectR_env") {
   # Check if the Conda environment already exists
   if (!conda_env %in% reticulate::conda_list()$name) {

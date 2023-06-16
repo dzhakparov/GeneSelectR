@@ -1,5 +1,5 @@
 #' Generate Heatmaps for Semantic Similarity Analysis
-#'
+#' old ViSEAGO asset
 #' This function creates and returns heatmaps of Gene Ontology (GO) terms and clusters using the ViSEAGO package.
 #'
 #' @param GO_SS_and_clusters A list containing "GO_SS" and "GO_cluster_SS", which are objects containing semantic similarity distances.
@@ -17,6 +17,7 @@
 #' \dontrun{
 #' results_heatmap <- generate_GO_heatmaps(GO_SS_and_clusters)
 #' }
+#' @keywords hidden internal
 generate_GO_heatmaps <- function(GO_SS_and_clusters,
                                  tree_distance = "Wang",
                                  tree_aggreg_method = "ward.D2",

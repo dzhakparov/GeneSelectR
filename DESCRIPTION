@@ -11,6 +11,7 @@ BugReports: https://github.com/dzhakparov/GeneSelectR/issues
 biocViews:
 Imports: 
     AnnotationHub (>= 3.6.0),
+    clusterProfiler (>= 4.6.2),
     cowplot (>= 1.1.1),
     dplyr (>= 1.1.0),
     ensembldb (>= 2.22.0),
@@ -23,6 +24,7 @@ Imports:
     reshape2 (>= 1.4.4),
     reticulate (>= 1.28),
     rlang (>= 1.1.1),
+    simplifyEnrichment (>= 1.8.0),
     stringr (>= 1.5.0),
     testthat (>= 3.0.0),
     tibble (>= 3.2.1),

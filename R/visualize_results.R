@@ -1,5 +1,5 @@
 #' Visualize Results of ViSEAGO Analysis
-#'
+#' old ViSEAGO asset
 #' This function creates and returns heatmaps of Gene Ontology (GO) terms and clusters using the ViSEAGO package.
 #'
 #' @param results A data frame of enriched GO terms.
@@ -22,7 +22,7 @@
 #' @references
 #' See ViSEAGO for more information on the underlying functions used:
 #' Lemoine F, Labedan B, Froidevaux C (2018). “ViSEAGO: a Bioconductor package for clustering biological functions using Gene Ontology and semantic similarity.” BioData Mining, 11, 24. doi: 10.1186/s13040-018-0181-9.
-#'
+#' @keywords hidden
 
 
 # Custom wrapper functions
