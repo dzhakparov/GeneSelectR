@@ -3,6 +3,7 @@
 #' @param module_names A vector of names of the Python modules to check.
 #' @importFrom reticulate py_module_available
 #' @importFrom testthat skip
+#' @export
 skip_if_no_modules <- function(module_names) {
   lapply(module_names, function(module_name) {
     have_module <- reticulate::py_module_available(module_name)

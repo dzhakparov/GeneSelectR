@@ -179,14 +179,14 @@ GeneSelectR <- function(X_train,
     #mean_performances[[glue::glue('split_{split_idx}')]] <- split_mean_performances
     test_metrics[[glue::glue('split_{split_idx}')]] <- split_test_metrics
   }
-
+  print(test_metrics)
   test_metrics_df <- test_metrics %>%
-    tibble::enframe(name = "split", value = .data$methods) %>%
-    tidyr::unnest_longer(.data$methods, indices_to = .data$method) %>%
-    tidyr::unnest_wider(.data$methods)
+    tibble::enframe(name = "split", value = 'methods') %>%
+    tidyr::unnest_longer(methods, indices_to = 'method') %>%
+    tidyr::unnest_wider(methods)
 
   test_metrics_df <- test_metrics_df %>%
-    dplyr::group_by(.data$method) %>%
+    dplyr::group_by(method) %>%
     dplyr::summarise(dplyr::across(c(dplyr::starts_with("f1"), dplyr::starts_with("recall"),
                                      dplyr::starts_with("precision"), dplyr::starts_with("accuracy")),
                                    list(mean = mean, sd = sd), .names = "{.col}_{.fn}"))

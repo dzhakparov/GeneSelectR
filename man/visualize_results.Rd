@@ -2,7 +2,9 @@
 % Please edit documentation in R/visualize_results.R
 \name{visualize_results}
 \alias{visualize_results}
-\title{Visualize Results of ViSEAGO Analysis}
+\title{Visualize Results of ViSEAGO Analysis
+old ViSEAGO asset
+This function creates and returns heatmaps of Gene Ontology (GO) terms and clusters using the ViSEAGO package.}
 \usage{
 visualize_results(
   results,
@@ -33,6 +35,8 @@ visualize_results(
 A list containing two elements: "GO_terms_heatmap" and "GO_clusters_heatmap", which are objects of class 'GOTermsHeatmap' and 'GOClustersHeatmap' respectively.
 }
 \description{
+Visualize Results of ViSEAGO Analysis
+old ViSEAGO asset
 This function creates and returns heatmaps of Gene Ontology (GO) terms and clusters using the ViSEAGO package.
 }
 \examples{
@@ -45,3 +49,4 @@ result_list <- visualize_results(results)
 See ViSEAGO for more information on the underlying functions used:
 Lemoine F, Labedan B, Froidevaux C (2018). “ViSEAGO: a Bioconductor package for clustering biological functions using Gene Ontology and semantic similarity.” BioData Mining, 11, 24. doi: 10.1186/s13040-018-0181-9.
 }
+\keyword{hidden}

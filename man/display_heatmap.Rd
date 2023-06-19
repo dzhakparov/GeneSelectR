@@ -2,7 +2,8 @@
 % Please edit documentation in R/display_heatmap.R
 \name{display_heatmap}
 \alias{display_heatmap}
-\title{Display a heatmap for GO terms or GO clusters}
+\title{Display a heatmap for GO terms or GO clusters
+old ViSEAGO asset}
 \usage{
 display_heatmap(
   heatmap_object,
@@ -25,6 +26,7 @@ If save_plot is FALSE, displays the interactive heatmap. If save_plot is TRUE, s
 }
 \description{
 Display a heatmap for GO terms or GO clusters
+old ViSEAGO asset
 }
 \examples{
 \dontrun{
@@ -34,3 +36,5 @@ display_heatmap(visualized_results$GO_terms_heatmap, "GOterms")
 display_heatmap(visualized_results$GO_clusters_heatmap, "GOclusters", save_plot = TRUE, output_file = "GOclusters_heatmap.png")
 }
 }
+\keyword{hidden}
+\keyword{internal}

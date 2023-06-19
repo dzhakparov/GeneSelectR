@@ -2,7 +2,9 @@
 % Please edit documentation in R/semantic_similarity_analysis.R
 \name{semantic_similarity_analysis}
 \alias{semantic_similarity_analysis}
-\title{Calculate Semantic Similarity Distances}
+\title{Calculate Semantic Similarity Distances
+Old ViSEAGO asset
+This function calculates semantic similarity distances between Gene Ontology (GO) terms using the ViSEAGO package.}
 \usage{
 semantic_similarity_analysis(
   enriched_results,
@@ -24,6 +26,8 @@ semantic_similarity_analysis(
 A list containing two elements: "GO_SS" and "GO_cluster_SS", which are objects containing semantic similarity distances.
 }
 \description{
+Calculate Semantic Similarity Distances
+Old ViSEAGO asset
 This function calculates semantic similarity distances between Gene Ontology (GO) terms using the ViSEAGO package.
 }
 \examples{
@@ -35,3 +39,4 @@ GO_SS_and_clusters <- compute_GO_SS_distances(enriched_results)
 To use ViSEAGO in published research, please cite:
 \link{citation}
 }
+\keyword{hidden}

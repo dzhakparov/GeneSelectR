@@ -1,0 +1,40 @@
+#' @title Draft for functions testing
+#' @keywords internal hidden
+#'
+#'
+#'
+#'
+#'
+#'
+
+GeneSelectR::set_reticulate_python()
+library(GeneSelectR)
+library(dplyr)
+
+data("UrbanRandomSubset")
+X <- UrbanRandomSubset %>% select(-treatment)
+y <- UrbanRandomSubset %>% select(treatment)
+
+# read in the fixtures
+#work_dir <- getwd()
+
+
+################################################################################
+#3. GO Enrichment Analysis
+################################################################################
+# made with and old function
+str(entrez_ids_with_background)
+# new function
+# Get the annotations
+ah <- AnnotationHub::AnnotationHub()
+human_ens <- AnnotationHub::query(ah, c("Homo sapiens", "EnsDb"))
+human_ens <- human_ens[['AH98047']]
+annotations_ahb <- ensembldb::genes(human_ens, return.type = "data.frame") %>%
+  dplyr::select(.data$gene_id, .data$gene_name, .data$entrezid, .data$gene_biotype)
+
+background <- list(background = background)
+annotated_list <- annotate_gene_lists(pipelineresults,
+                                      custom_lists = background,
+                                      annotations_ahb = annotations_ahb,
+                                      format = 'ensembl_gene_name')
+GO_enrichment_analysis(annotated_list, background = annotated_list@annotated_lists$background@ENSEMBL, keyType = 'ENSEMBL')

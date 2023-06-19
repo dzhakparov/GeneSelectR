@@ -2,7 +2,9 @@
 % Please edit documentation in R/generate_GO_heatmaps.R
 \name{generate_GO_heatmaps}
 \alias{generate_GO_heatmaps}
-\title{Generate Heatmaps for Semantic Similarity Analysis}
+\title{Generate Heatmaps for Semantic Similarity Analysis
+old ViSEAGO asset
+This function creates and returns heatmaps of Gene Ontology (GO) terms and clusters using the ViSEAGO package.}
 \usage{
 generate_GO_heatmaps(
   GO_SS_and_clusters,
@@ -29,6 +31,8 @@ generate_GO_heatmaps(
 A list containing two elements: "GO_terms_heatmap" and "GO_clusters_heatmap", which are objects of class 'GOTermsHeatmap' and 'GOClustersHeatmap' respectively.
 }
 \description{
+Generate Heatmaps for Semantic Similarity Analysis
+old ViSEAGO asset
 This function creates and returns heatmaps of Gene Ontology (GO) terms and clusters using the ViSEAGO package.
 }
 \examples{
@@ -40,3 +44,5 @@ results_heatmap <- generate_GO_heatmaps(GO_SS_and_clusters)
 To use ViSEAGO in published research, please cite:
 \link{citation}
 }
+\keyword{hidden}
+\keyword{internal}

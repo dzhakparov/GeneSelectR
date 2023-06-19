@@ -2,7 +2,8 @@
 % Please edit documentation in R/Viseago_enrichment_analysis.R
 \name{viseaGO_enrichment_analysis}
 \alias{viseaGO_enrichment_analysis}
-\title{Perform gene set enrichment analysis using ViSEAGO and topGO}
+\title{Perform gene set enrichment analysis using ViSEAGO and topGO
+Old ViSEAGO asset}
 \usage{
 viseaGO_enrichment_analysis(
   gene_sets,
@@ -46,10 +47,23 @@ Amélie L. F. Gaudin, Marie Chabaud, Bruno Spataro, Christophe Klopp, Thibaut Jo
 \references{
 To use ViSEAGO in published research, please cite:
 \link{citation}
-
-\dontrun{
-# Assuming all.genes and gene_sets are defined
-background = as.character(all.genes$entrezid)
-BP_sResults <- perform_GO_enrichment_analysis(gene_sets, background, organism = "org.Hs.eg.db")
 }
-}
+\keyword{"org.Hs.eg.db")}
+\keyword{#}
+\keyword{<-}
+\keyword{=}
+\keyword{Assuming}
+\keyword{BP_sResults}
+\keyword{\dontrun{}
+\keyword{all.genes}
+\keyword{and}
+\keyword{are}
+\keyword{as.character(all.genes$entrezid)}
+\keyword{background}
+\keyword{background,}
+\keyword{defined}
+\keyword{gene_sets}
+\keyword{hidden}
+\keyword{organism}
+\keyword{perform_GO_enrichment_analysis(gene_sets,}
+\keyword{}}
