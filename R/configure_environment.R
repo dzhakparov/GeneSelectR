@@ -48,8 +48,8 @@ configure_environment <- function(env_name = "GeneSelectR_env") {
     }
 
     # Install the necessary Python packages
-    python_packages = c("scikit-learn",
-                        "pandas",
+    python_packages = c("scikit-learn <= 0.22.1",
+                        "pandas <= 1.2.3",
                         "numpy <= 1.19",
                         "lightgbm",
                         "py-xgboost",

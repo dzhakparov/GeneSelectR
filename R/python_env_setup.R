@@ -25,8 +25,8 @@ create_conda_env <- function(conda_env = "GeneSelectR_env") {
 #'
 install_python_packages <- function(conda_env = "GeneSelectR_env") {
   # List of Python packages to be installed
-  python_packages <- c("scikit-learn",
-                       "pandas",
+  python_packages <- c("scikit-learn <= 0.22.1",
+                       "pandas <= 1.2.3",
                        "numpy <= 1.19",
                        "lightgbm",
                        "xgboost",
