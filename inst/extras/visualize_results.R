@@ -11,7 +11,7 @@
 #' @param heatmap_dynamic_minClusterSize The minimum cluster size for dynamicTreeCut::cutreeDynamic (default: 10).
 #'
 #' @return A list containing two elements: "GO_terms_heatmap" and "GO_clusters_heatmap", which are objects of class 'GOTermsHeatmap' and 'GOClustersHeatmap' respectively.
-#' @export
+#'
 #'
 #' @importFrom ViSEAGO Bioconductor2GO annotate build_GO_SS compute_SS_distances GOterms_heatmap GOclusters_heatmap
 #' @examples
