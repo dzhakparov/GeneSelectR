@@ -17,6 +17,7 @@
 #' @param testsize The size of the test set used in the evaluation.
 #' @param njobs Number of jobs to run in parallel.
 #' @param n_splits Number of train/test splits.
+#' @param fs_param_grids An optional list of hyperparameter grids for the feature selection methods. Each element of the list should be a named list of parameters for a specific feature selection method. The names of the elements should match the names of the feature selection methods. If this argument is provided, the function will perform hyperparameter tuning for the specified feature selection methods in addition to the final estimator.
 #' @return A list with the following elements:
 #' \item{fitted_pipelines}{A list of the fitted pipelines.}
 #' \item{cv_results}{A list of the cross-validation results for each pipeline.}
@@ -33,7 +34,8 @@
 #'
 #' # Perform gene selection and evaluation using user-defined methods
 #' fs_methods <- list("Lasso" = select_model(lasso(penalty = 'l1', C = 0.1, solver = 'saga'), threshold = 'median'))
-#' results <- GeneSelectR(X_train = X, y_train = y, feature_selection_methods = fs_methods)
+#' fs_param_grids <- list("Lasso" = list('C' = c(0.1, 1, 10)))
+#' results <- GeneSelectR(X_train = X, y_train = y, feature_selection_methods = fs_methods, fs_param_grids = fs_param_grids)
 #'}
 #' @export
 GeneSelectR <- function(X_train,
@@ -41,6 +43,7 @@ GeneSelectR <- function(X_train,
                         pipelines = NULL,
                         feature_selection_methods = NULL,
                         selected_methods = NULL,
+                        fs_param_grids = NULL,
                         testsize = 0.2,
                         njobs = -1L,
                         n_splits = 2L) {
@@ -79,9 +82,9 @@ GeneSelectR <- function(X_train,
 
   # Create a list of default feature selection methods
   default_feature_selection_methods <- list(
-    "Lasso" = select_model(lasso(penalty = 'l1', C = 0.1, solver = 'saga'), threshold = 'median'),
-    'Univariate' = univariate(mode = 'percentile',param = 80L),
-    'boruta'= boruta$BorutaPy(forest(), n_estimators = 'auto', verbose =0, random_state = 999L,perc = 90L)
+    "Lasso" = select_model(lasso(penalty = 'l1', C = 0.1, solver = 'saga'), threshold = 'median', max_features = 200L),
+    'Univariate' = univariate(mode = 'k_best',param = 200L),
+    'boruta'= boruta$BorutaPy(forest(), n_estimators = 'auto', verbose =0, random_state = 999L,perc = 95L)
   )
 
   # convert R objects to Py
@@ -140,6 +143,17 @@ GeneSelectR <- function(X_train,
         c("classifier__n_estimators", "classifier__max_depth")
       )
 
+      # Add feature selection parameters to the grid if they are provided
+      if (!is.null(fs_param_grids)) {
+        for (fs_name in names(fs_param_grids)) {
+          if (fs_name %in% names(feature_selection_methods)) {
+            fs_params <- fs_param_grids[[fs_name]]
+            fs_params <- stats::setNames(fs_params, paste0(fs_name, "__", names(fs_params)))
+            params <- c(params, fs_params)
+          }
+        }
+      }
+
       # Hyperparameter tuning using GridSearchCV
       grid_search_cv <- grid(
         estimator = selected_pipelines[[i]],
@@ -179,7 +193,7 @@ GeneSelectR <- function(X_train,
     #mean_performances[[glue::glue('split_{split_idx}')]] <- split_mean_performances
     test_metrics[[glue::glue('split_{split_idx}')]] <- split_test_metrics
   }
-  print(test_metrics)
+
   test_metrics_df <- test_metrics %>%
     tibble::enframe(name = "split", value = 'methods') %>%
     tidyr::unnest_longer(methods, indices_to = 'method') %>%
@@ -203,13 +217,18 @@ GeneSelectR <- function(X_train,
   #mean_performance_df <- do.call(rbind, lapply(mean_performances, as.data.frame))
 
   # Calculate the mean feature importance for each method across all splits
+  #print(names(selected_features[[1]]))
   mean_feature_importances <- aggregate_feature_importances(selected_features)
+
+  # Calculate the gene set stability for each method
+  gene_set_stability <- calculate_gene_set_stability(selected_features, X_train)
 
 
   return(methods::new("PipelineResults",
              fitted_pipelines = split_results,
              cv_results = cv_results,
              mean_feature_importances = mean_feature_importances,
+             gene_set_stability = gene_set_stability,
              test_metrics = test_metrics_df))
 
 
