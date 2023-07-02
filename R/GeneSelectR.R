@@ -77,7 +77,7 @@ GeneSelectR <- function(X_train,
 
   # Define preprocessing steps as a list
   preprocessing_steps <- list(
-    "VarianceThreshold" = sklearn$feature_selection$VarianceThreshold(),
+    "VarianceThreshold" = sklearn$feature_selection$VarianceThreshold(0.85),
     "MinMaxScaler" = sklearn$preprocessing$MinMaxScaler()
   )
 
@@ -101,7 +101,8 @@ GeneSelectR <- function(X_train,
         "feature_selector__param" = seq(50L, 200L, by = 50L)
       ),
       "boruta" = list(
-        "feature_selector__perc" = seq(80L, 100L, by = 10L)
+        "feature_selector__perc" = seq(80L, 100L, by = 10L),
+        'feature_selector__n_estimators' = c('auto', 50L, 100L, 250L, 500L)
 
       ),
       "RandomForest" = list(
@@ -181,6 +182,16 @@ GeneSelectR <- function(X_train,
           "classifier__subsample"
         )
       )
+
+      if (!is.null(fs_param_grids)) {
+        fs_name <- names(selected_pipelines)[i]
+        if (fs_name %in% names(fs_param_grids)) {
+          fs_params <- fs_param_grids[[fs_name]]
+          params <- c(params, fs_params)
+        }
+      }
+
+
       print(selected_pipelines[[i]])
 
       # # Add feature selection parameters to the grid if they are provided

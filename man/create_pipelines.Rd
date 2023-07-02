@@ -21,7 +21,7 @@ create_pipelines(
 
 \item{classifier}{A Scikit-learn classifier to use as the final step in the pipelines.}
 
-\item{fs_param_grids}{A list of hyperparameter grids for the feature selection methods.}
+\item{fs_param_grids}{param grid}
 }
 \value{
 A list of Scikit-learn pipelines.

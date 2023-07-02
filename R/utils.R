@@ -60,7 +60,7 @@ get_feature_importances <- function(pipeline, X_train) {
 #' @param preprocessing_steps A list of preprocessing steps to use for the pipelines.
 #' @param selected_methods A vector of names of feature selection methods to use from the default set.
 #' @param classifier A Scikit-learn classifier to use as the final step in the pipelines.
-#' @param fs_param_grids A list of hyperparameter grids for the feature selection methods.
+#' @param fs_param_grids param grid
 #' @return A list of Scikit-learn pipelines.
 #' @importFrom reticulate import tuple
 #' @export
@@ -84,17 +84,6 @@ create_pipelines <- function(feature_selection_methods, preprocessing_steps, sel
       if (feature_selector_name %in% names(fs_param_grids)) {
         fs_params <- fs_param_grids[[feature_selector_name]]
 
-        # Get the names of the parameters in fs_params
-        param_names <- names(fs_params)
-
-        # Exclude the name of the feature selection method
-        param_names <- param_names[param_names != feature_selector_name]
-
-        # Add the prefix to the parameter names
-        fs_params <- stats::setNames(fs_params, ifelse(grepl("^feature_selector__", param_names), param_names, paste0("feature_selector__", param_names)))
-
-        #print(paste("Adding parameters for", feature_selector_name, ":"))
-        #print(fs_params)
         # Incorporate the parameters from fs_params into the appropriate estimator objects
         for (i in seq_along(tuple_steps)) {
           if (tuple_steps[[i]][[1]] == "feature_selector") {
@@ -111,6 +100,9 @@ create_pipelines <- function(feature_selection_methods, preprocessing_steps, sel
 
   return(named_pipelines)
 }
+
+
+
 
 
 
