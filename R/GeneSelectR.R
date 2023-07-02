@@ -66,7 +66,8 @@ GeneSelectR <- function(X_train,
 
   # define default models for the feature selection process
   forest <- sklearn$ensemble$RandomForestClassifier
-  grid <- sklearn$model_selection$RandomizedSearchCV
+  randomized_grid <- sklearn$model_selection$RandomizedSearchCV
+  grid <- sklearn$model_selection$GridSearchCV
   lasso <- sklearn$linear_model$LogisticRegression
   univariate <- sklearn$feature_selection$GenericUnivariateSelect
   select_model <- sklearn$feature_selection$SelectFromModel
@@ -84,8 +85,34 @@ GeneSelectR <- function(X_train,
   default_feature_selection_methods <- list(
     "Lasso" = select_model(lasso(penalty = 'l1', C = 0.1, solver = 'saga'), threshold = 'median', max_features = 200L),
     'Univariate' = univariate(mode = 'k_best',param = 200L),
-    'boruta'= boruta$BorutaPy(forest(), n_estimators = 'auto', verbose =0, random_state = 999L,perc = 95L)
+    'RandomForest' = select_model(forest(n_estimators=100L, random_state=42L), threshold = 'median', max_features = 200L),
+    'boruta'= boruta$BorutaPy(forest(), n_estimators = 'auto', verbose = 0,perc = 100L)
   )
+
+  # Define default parameter grids if none are provided
+  if (is.null(fs_param_grids)) {
+    fs_param_grids <- list(
+      "Lasso" = list(
+        "feature_selector__estimator__C" = c(0.001, 0.01, 0.1, 1L, 10L, 100L, 1000L),
+        "feature_selector__estimator__penalty" = c('l1', 'l2'),
+        "feature_selector__estimator__solver" = c('liblinear','saga')
+      ),
+      "Univariate" = list(
+        "feature_selector__param" = seq(50L, 200L, by = 50L)
+      ),
+      "boruta" = list(
+        "feature_selector__perc" = seq(80L, 100L, by = 10L)
+
+      ),
+      "RandomForest" = list(
+        "feature_selector__estimator__n_estimators" = seq(100L, 500L,by = 50L),
+        "feature_selector__estimator__max_depth" = c(10L, 20L, 30L),
+        "feature_selector__estimator__min_samples_split" = c(2L, 5L, 10L),
+        "feature_selector__estimator__min_samples_leaf" = c(1L, 2L, 4L),
+        "feature_selector__estimator__bootstrap" = c(TRUE, FALSE)
+      )
+    )
+  }
 
   # convert R objects to Py
   X_train <- reticulate::r_to_py(X_train)
@@ -109,6 +136,7 @@ GeneSelectR <- function(X_train,
     # Define the default pipelines using the selected feature selection methods
     selected_pipelines <- create_pipelines(feature_selection_methods,
                                            preprocessing_steps,
+                                           fs_param_grids = fs_param_grids,
                                            classifier = GradBoost())
   }
 
@@ -136,33 +164,52 @@ GeneSelectR <- function(X_train,
 
     for (i in seq_along(names(selected_pipelines))) {
       message(glue("Fitting {names(selected_pipelines)[[i]]} \n"))
+      #print(selected_pipelines[[i]])
 
       # Create the parameter grid with the 'classifier' prefix
       params <- stats::setNames(
-        list(seq(50L, 200L, 50L), seq(3L, 7L, 2L)),
-        c("classifier__n_estimators", "classifier__max_depth")
+        list(
+          seq(50L, 200L, 50L), # n_estimators
+          seq(3L, 7L, 2L), # max_depth
+          c(0.01, 0.1, 0.2), # learning_rate
+          c(0.5, 0.75, 1.0) # subsample
+        ),
+        c(
+          "classifier__n_estimators",
+          "classifier__max_depth",
+          "classifier__learning_rate",
+          "classifier__subsample"
+        )
       )
+      print(selected_pipelines[[i]])
 
-      # Add feature selection parameters to the grid if they are provided
-      if (!is.null(fs_param_grids)) {
-        for (fs_name in names(fs_param_grids)) {
-          if (fs_name %in% names(feature_selection_methods)) {
-            fs_params <- fs_param_grids[[fs_name]]
-            fs_params <- stats::setNames(fs_params, paste0(fs_name, "__", names(fs_params)))
-            params <- c(params, fs_params)
-          }
-        }
-      }
-
+      # # Add feature selection parameters to the grid if they are provided
+      # if (!is.null(fs_param_grids)) {
+      #   for (fs_name in names(fs_param_grids)) {
+      #     if (fs_name %in% names(feature_selection_methods)) {
+      #       fs_params <- fs_param_grids[[fs_name]]
+      #       fs_params <- stats::setNames(fs_params, paste0(fs_name, "__", names(fs_params)))
+      #       params <- c(params, fs_params)
+      #     }
+      #   }
+      # }
+      # print(selected_pipelines[[i]])
       # Hyperparameter tuning using GridSearchCV
+      # grid_search_cv <- randomized_grid(
+      #   estimator = selected_pipelines[[i]],
+      #   param_distributions = params,
+      #   cv=5L,
+      #   n_jobs = njobs,
+      #   verbose = 2L)
+      # grid_search_cv$fit(X_train_split, y_train_split)
+
       grid_search_cv <- grid(
         estimator = selected_pipelines[[i]],
-        param_distributions = params,
+        param_grid = params,
         cv=5L,
         n_jobs = njobs,
         verbose = 2L)
       grid_search_cv$fit(X_train_split, y_train_split)
-
 
       # Evaluate the best model on the test set
       best_model <- grid_search_cv$best_estimator_
@@ -228,7 +275,7 @@ GeneSelectR <- function(X_train,
              fitted_pipelines = split_results,
              cv_results = cv_results,
              mean_feature_importances = mean_feature_importances,
-             gene_set_stability = gene_set_stability,
+            # gene_set_stability = gene_set_stability,
              test_metrics = test_metrics_df))
 
 
