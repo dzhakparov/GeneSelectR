@@ -12,8 +12,13 @@ GeneSelectR(
   selected_methods = NULL,
   fs_param_grids = NULL,
   testsize = 0.2,
+  validsize = 0.2,
   njobs = -1L,
-  n_splits = 2L
+  n_splits = 2L,
+  search_type = "random",
+  n_iter = 10L,
+  max_features = 50L,
+  calculate_permutation_importance = FALSE
 )
 }
 \arguments{
@@ -31,17 +36,33 @@ GeneSelectR(
 
 \item{testsize}{The size of the test set used in the evaluation.}
 
+\item{validsize}{The size of the validation set used in the evaluation.}
+
 \item{njobs}{Number of jobs to run in parallel.}
 
 \item{n_splits}{Number of train/test splits.}
+
+\item{search_type}{A string indicating the type of search to use. 'grid' for GridSearchCV and 'random' for RandomizedSearchCV. Default is 'random'.}
+
+\item{n_iter}{An integer indicating the number of parameter settings that are sampled in RandomizedSearchCV. Only applies when search_type is 'random'.}
+
+\item{max_features}{Maximum number of features to be selected by default feature selection methods}
+
+\item{calculate_permutation_importance}{A boolean indicating whether to calculate permutation feature importance. Default is FALSE.}
 }
 \value{
 A list with the following elements:
 \item{fitted_pipelines}{A list of the fitted pipelines.}
 \item{cv_results}{A list of the cross-validation results for each pipeline.}
+\item{mean_feature_importances}{A list of the mean feature importances for each pipeline.}
+\item{gene_set_stability}{A list of the gene set stability for each pipeline.}
+\item{test_metrics}{A data frame of test metrics for each pipeline.}
+\item{permutation_importances}{A list of the permutation importances for each pipeline (if calculate_permutation_importance is TRUE).}
 }
 \description{
-This function performs gene selection using different methods on a given training set and evaluates their performance using cross-validation.
+This function performs gene selection using different methods on a given
+training set and evaluates their performance using cross-validation. Optionally, it
+also calculates permutation feature importances.
 }
 \examples{
 \dontrun{
