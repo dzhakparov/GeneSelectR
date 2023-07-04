@@ -54,6 +54,42 @@ get_feature_importances <- function(pipeline, X_train) {
   return(NULL)
 }
 
+#' @title Calculate Permutation Feature Importance
+#' @description This function calculates permutation feature importance for a Scikit-learn
+#' pipeline with a trained classifier as the final step.
+#' @param pipeline A Scikit-learn pipeline object with a trained classifier as the final step.
+#' @param X_train A DataFrame containing the training data.
+#' @param y_train A DataFrame containing the training labels.
+#' @param n_repeats An integer specifying the number of times to permute each feature.
+#' @param random_state An integer specifying the seed for the random number generator.
+#' @return A list containing the feature names and their importance scores.
+#' @importFrom reticulate import py_to_r
+#' @examples
+#' \dontrun{
+#' # Assuming you have a Scikit-learn pipeline 'my_pipeline' and training data 'X_train'
+#' permutation_importances <- calculate_permutation_feature_importance(my_pipeline, X_train, y_train)
+#' }
+#' @export
+calculate_permutation_feature_importance <- function(pipeline, X_train, y_train, n_repeats=10L, random_state=0L) {
+  # Import the required function
+  permutation_importance <- reticulate::import("sklearn.inspection", convert = FALSE)$permutation_importance
+
+  # Compute the permutation feature importance
+  perm_importance <- permutation_importance(pipeline, X_train, y_train, n_repeats = n_repeats, random_state = random_state)
+
+  # Extract the importances and feature names
+  importances <- reticulate::py_to_r(perm_importance$importances_mean)
+  feature_names <- colnames(reticulate::py_to_r(X_train))
+
+
+  # Create a data frame
+  importance_df <- data.frame(feature=feature_names, importance=importances)
+  importance_df <- importance_df[order(-importance_df$importance),]
+
+  return(importance_df)
+}
+
+
 #' @title Create Pipelines
 #' @description This function creates a list of Scikit-learn pipelines using the specified feature selection methods, preprocessing steps, and classifier.
 #' @param feature_selection_methods A list of feature selection methods to use for the pipelines.
@@ -100,12 +136,6 @@ create_pipelines <- function(feature_selection_methods, preprocessing_steps, sel
 
   return(named_pipelines)
 }
-
-
-
-
-
-
 
 
 #' @title Convert Steps to Tuples
