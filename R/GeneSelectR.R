@@ -67,6 +67,8 @@ GeneSelectR <- function(X_train,
                         max_features = 50L,
                         calculate_permutation_importance = FALSE) {
 
+  message('Performing feature selection')
+
   # enable multiprocess on Windows machines
   if (Sys.info()["sysname"] == "Windows") {
     exe <- file.path(sys$exec_prefix, "pythonw.exe")
@@ -111,7 +113,7 @@ GeneSelectR <- function(X_train,
   if (is.null(fs_param_grids)) {
     fs_param_grids <- list(
       "Lasso" = list(
-        "feature_selector__estimator__C" = c(0.001, 0.01, 0.1, 1L, 10L, 100L, 1000L),
+        "feature_selector__estimator__C" = c(0.01, 0.1, 1L, 10L),
         "feature_selector__estimator__solver" = c('liblinear','saga')
       ),
       "Univariate" = list(
@@ -251,6 +253,7 @@ GeneSelectR <- function(X_train,
       split_test_metrics[[names(selected_pipelines)[[i]]]] <- list(precision = precision, recall = recall, f1 = f1, accuracy = accuracy) # save the other metrics for the current split
 
       if (calculate_permutation_importance) {
+        message('Performing Permuation Importance calculation')
         split_permutation_importances[[names(selected_pipelines)[[i]]]] <-
           calculate_permutation_feature_importance(best_model, X_valid_split, y_valid_split)
       }
@@ -290,7 +293,9 @@ GeneSelectR <- function(X_train,
   #print(names(selected_features[[1]]))
   mean_feature_importances <- aggregate_feature_importances(selected_features)
   # Calculate the mean and standard deviation of the permutation importances for each feature across all splits
-  mean_permutation_importances <- aggregate_feature_importances(permutation_importances)
+  if (calculate_permutation_importance) {
+    mean_permutation_importances <- aggregate_feature_importances(permutation_importances)
+  }
 
   # Calculate the gene set stability for each method
   #gene_set_stability <- calculate_gene_set_stability(selected_features, X_train)
@@ -300,9 +305,8 @@ GeneSelectR <- function(X_train,
                       fitted_pipelines = split_results,
                       cv_results = cv_results,
                       mean_feature_importances = mean_feature_importances,
-                     # gene_set_stability = gene_set_stability,
                       test_metrics = test_metrics_df,
-                      permutation_importances = mean_permutation_importances)) # Add the permutation importances here
+                      permutation_importances = if (calculate_permutation_importance) mean_permutation_importances else list())) #Add the permutation importances here
 }
 
 
