@@ -60,9 +60,9 @@ library(GeneSelectR)
 Additionally, number arguments in fit_and_evaluate_pipelines function should be passed as literal integers with an L suffix, e.g: 
 
 ```{r}
-fit_and_evaluate_pipelines(X_train, 
-                           y_train,
-                           njobs = 3L) # number of cores to be used for the feature selection process 
+GeneSelectR::GeneSelectR(X_train, 
+            y_train,
+            njobs = 3L) # number of cores to be used for the feature selection process 
 ```
 
 
@@ -94,12 +94,12 @@ y <- UrbanRandomSubset['treatment'] # store the data point label in a separate v
 
 To run the feature selection procedure, you should run the fit_and_evaluate_pipelines() function: 
 ```{r}
-selection_results <- fit_and_evaluate_pipelines(X_train = X, 
+selection_results <- GeneSelectR::GeneSelectR(X_train = X, 
                                                 y_train = y,
                                                 njobs = 1L)
 selection_results
 ```
-This will run a feature selection procedure for the specified dataset. By default there are three methods implemented to select the features: Univariate (sklearn ref), Logistic regression with L1 penalty (sklearn-ref) and boruta (link to the github page). 
+This will run a feature selection procedure for the specified dataset. By default there are four methods implemented to select the features: Univariate (sklearn ref), Logistic regression with L1 penalty (sklearn-ref), boruta (link to the github page) and Random Forest (sklearn). 
 If you wish to add any other methods from sklearn, you should pass it as a named list like here: 
 ```{r}
 # import the sklearn module
@@ -126,7 +126,7 @@ After that the feature selection is performed in a following manner:
 You can specify your estimator of choice as well as parameter grid. 
 For the sake of computational time the RandomizedSearchCV is used. 
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 selection_results
 ```
 

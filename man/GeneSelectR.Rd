@@ -18,7 +18,8 @@ GeneSelectR(
   search_type = "random",
   n_iter = 10L,
   max_features = 50L,
-  calculate_permutation_importance = FALSE
+  calculate_permutation_importance = FALSE,
+  perform_split = TRUE
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ GeneSelectR(
 \item{max_features}{Maximum number of features to be selected by default feature selection methods}
 
 \item{calculate_permutation_importance}{A boolean indicating whether to calculate permutation feature importance. Default is FALSE.}
+
+\item{perform_split}{Whether to perform train and test split, to have an evaluation on unseen test set. The default value is set to TRUE}
 }
 \value{
 A list with the following elements:

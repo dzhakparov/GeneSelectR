@@ -14,6 +14,7 @@ setClass("PipelineResults",
            mean_feature_importances = "list",
            permutation_importances = 'list',
            #gene_set_stability = 'list',
+           cv_mean_score = 'data.frame',
            test_metrics = 'data.frame'
          ))
 
