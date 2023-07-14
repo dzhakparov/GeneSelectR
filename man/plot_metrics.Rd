@@ -10,7 +10,7 @@ plot_metrics(pipeline_results)
 \item{pipeline_results}{An object of class "PipelineResults" containing the performance metrics. This object is expected to contain a dataframe with the columns 'method', 'f1_mean', 'f1_sd', 'recall_mean', 'recall_sd', 'precision_mean', 'precision_sd', 'accuracy_mean', 'accuracy_sd'.}
 }
 \value{
-A combined ggplot object
+A combined ggplot object. If no test metrics provided, only CV performance plot is returned
 }
 \description{
 This function creates separate plots for f1_mean, recall_mean, precision_mean, and accuracy_mean from a given dataframe, then arranges these plots using cowplot::plot_grid. Requires ggplot2 and cowplot packages.
