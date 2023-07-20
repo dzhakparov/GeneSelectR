@@ -21,7 +21,6 @@
 sklearn <- NULL
 pandas <- NULL
 numpy <- NULL
-xgboost <- NULL
 boruta <- NULL
 sys <- NULL
 multiprocessing <- NULL
@@ -50,7 +49,6 @@ load_python_packages <- function() {
   sklearn <<- reticulate::import("sklearn", delay_load = TRUE)
   pandas <<- reticulate::import("pandas", delay_load = TRUE)
   numpy <<- reticulate::import("numpy", delay_load = TRUE)
-  xgboost <<- reticulate::import("xgboost", delay_load = TRUE)
   boruta <<- reticulate::import("boruta", delay_load = TRUE)
   sys <<- reticulate::import("sys", delay_load = TRUE)
   multiprocessing <<- reticulate::import("multiprocessing", delay_load = TRUE)
