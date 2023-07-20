@@ -11,7 +11,7 @@ calculate_overlap_coefficients(pipeline_results)
 mean performance, and mean feature importances.}
 }
 \value{
-A list of matrices showing the Overlap, Jaccard, and Soerensen-Dice coefficients for the feature lists.
+A list of matrices showing the Overlap, Jaccard, and Soerensen-Dice coefficients for the feature lists for feature importance and permutation importance scores if they are provided
 }
 \description{
 This function calculates the Overlap, Jaccard, and Soerensen-Dice coefficients to quantify
