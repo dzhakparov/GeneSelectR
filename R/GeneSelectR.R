@@ -69,7 +69,7 @@ GeneSelectR <- function(X_train,
                         calculate_permutation_importance = FALSE,
                         perform_split = TRUE) {
 
-  message('Performing feature selection')
+  message('Performing feature selection procedure. Be patient, it takes some time')
 
   # enable multiprocess on Windows machines
   if (Sys.info()["sysname"] == "Windows") {
@@ -172,7 +172,7 @@ GeneSelectR <- function(X_train,
 
   # Repeated train-test splitting
   for (split_idx in 1:n_splits) {
-    message(glue::glue("Split {split_idx} \n"))
+    message(glue::glue("Fitting the data split: {split_idx} \n"))
     if (perform_split) {
       split_data <- model_selection$train_test_split(X_train, y_train, test_size = testsize)
       X_train_split <- reticulate::r_to_py(split_data[[1]])
@@ -195,7 +195,7 @@ GeneSelectR <- function(X_train,
     split_permutation_importances <- list()
 
     for (i in seq_along(names(selected_pipelines))) {
-      message(glue("Fitting {names(selected_pipelines)[[i]]} \n"))
+      message(glue("Fitting pipeline for {names(selected_pipelines)[[i]]} feature selection method\n"))
 
       # Split training data further into training and validation sets
       train_valid_split <- model_selection$train_test_split(X_train_split, y_train_split, test_size = validsize)
