@@ -69,7 +69,7 @@ GeneSelectR <- function(X_train,
                         calculate_permutation_importance = FALSE,
                         perform_split = TRUE) {
 
-  message('Performing feature selection procedure. Be patient, it takes some time')
+  message('Performing feature selection procedure. Please wait, it takes some time')
 
   # enable multiprocess on Windows machines
   if (Sys.info()["sysname"] == "Windows") {
@@ -158,7 +158,7 @@ GeneSelectR <- function(X_train,
     selected_pipelines <- create_pipelines(feature_selection_methods,
                                            preprocessing_steps,
                                            fs_param_grids = fs_param_grids,
-                                           classifier = GradBoost())
+                                           classifier = forest())
   }
 
   fitted_pipelines <- list()
@@ -207,16 +207,18 @@ GeneSelectR <- function(X_train,
       # Create the parameter grid with the 'classifier' prefix
       params <- stats::setNames(
         list(
-          seq(50L, 200L, 50L), # n_estimators
-          seq(3L, 7L, 2L), # max_depth
-          c(0.01, 0.1, 0.2), # learning_rate
-          c(0.5, 0.75, 1.0) # subsample
+          seq(100L, 1000L, 400L), # n_estimators
+          c(10L, 20L, 30L, 40L, 50L), # max_depth
+          c(2L, 5L, 10L), # min_samples_split
+          c(1L, 2L, 4L), # min_samples_leaf
+          c('auto', 'sqrt') # max_features
         ),
         c(
           "classifier__n_estimators",
           "classifier__max_depth",
-          "classifier__learning_rate",
-          "classifier__subsample"
+          "classifier__min_samples_split",
+          "classifier__min_samples_leaf",
+          "classifier__max_features"
         )
       )
 
@@ -242,7 +244,7 @@ GeneSelectR <- function(X_train,
           cv=5L,
           n_iter = n_iter,
           n_jobs = njobs,
-          verbose = 2L)
+          verbose = 1L)
       } else {
         stop("Invalid search_type. Choose either 'grid' or 'random'.")
       }
@@ -265,12 +267,12 @@ GeneSelectR <- function(X_train,
       split_fitted_pipelines[[names(selected_pipelines)[[i]]]] <- search_cv$best_estimator_
       split_cv_results[[names(selected_pipelines)[[i]]]] <- search_cv$cv_results_
       split_best_score[[names(selected_pipelines)[[i]]]] <- search_cv$best_score_
-      split_selected_features[[names(selected_pipelines)[[i]]]] <- get_feature_importances(split_fitted_pipelines[[i]], X_train_sub_split)
+      split_selected_features[[names(selected_pipelines)[[i]]]] <- get_feature_importances(split_fitted_pipelines[[i]], X_train_sub_split, pipeline_name = names(selected_pipelines)[[i]], iter = split_idx)
 
       if (calculate_permutation_importance) {
-        message('Performing Permuation Importance calculation')
+        message('Performing Permuation Importance Calculation')
         split_permutation_importances[[names(selected_pipelines)[[i]]]] <-
-          calculate_permutation_feature_importance(best_model, X_valid_split, y_valid_split)
+          calculate_permutation_feature_importance(best_model, X_valid_split, y_valid_split, pipeline_name = names(selected_pipelines)[[i]], iter = split_idx)
       }
     }
 
@@ -285,6 +287,7 @@ GeneSelectR <- function(X_train,
     test_metrics[[glue::glue('split_{split_idx}')]] <- split_test_metrics
     permutation_importances[[glue::glue('split_{split_idx}')]] <- split_permutation_importances
   }
+
   if (perform_split) {
     test_metrics_df <- test_metrics %>%
       tibble::enframe(name = "split", value = 'methods') %>%
@@ -305,6 +308,7 @@ GeneSelectR <- function(X_train,
   if (calculate_permutation_importance) {
     mean_permutation_importances <- aggregate_feature_importances(permutation_importances)
   }
+
 
   # Calculate the gene set stability for each method
   #gene_set_stability <- calculate_gene_set_stability(selected_features, X_train)

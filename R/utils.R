@@ -17,7 +17,7 @@
 #' importances <- feature_importances$importances
 #' }
 #' @export
-get_feature_importances <- function(pipeline, X_train) {
+get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
   classifier <- pipeline$named_steps[['classifier']]
 
   if (reticulate::py_has_attr(classifier, "coef_")) {
@@ -39,6 +39,9 @@ get_feature_importances <- function(pipeline, X_train) {
 
     importances <- data.frame(feature=selected_feature_names, importance=feature_importances)
     importances <- importances[order(-importances$importance),]
+    importances$rank <- seq_len(nrow(importances))
+    column_name <- as.character(glue::glue('rank_{pipeline_name}_split_{iter}'))
+    colnames(importances)[colnames(importances) == 'rank'] <- column_name
     return(importances)
   }
   else if (reticulate::py_has_attr(feature_selector, "support_")) {
@@ -47,11 +50,15 @@ get_feature_importances <- function(pipeline, X_train) {
 
     importances <- data.frame(feature=selected_feature_names, importance=feature_importances)
     importances <- importances[order(-importances$importance),]
+    importances$rank <- seq_len(nrow(importances))
+    column_name <- as.character(glue::glue('rank_{pipeline_name}_split_{iter}'))
+    colnames(importances)[colnames(importances) == 'rank'] <- column_name
     return(importances)
   } else {
     cat("Feature selector doesn't have get_support() attribute")
   }
   return(NULL)
+
 }
 
 #' @title Calculate Permutation Feature Importance
@@ -70,7 +77,8 @@ get_feature_importances <- function(pipeline, X_train) {
 #' permutation_importances <- calculate_permutation_feature_importance(my_pipeline, X_train, y_train)
 #' }
 #' @export
-calculate_permutation_feature_importance <- function(pipeline, X_train, y_train, n_repeats=10L, random_state=0L) {
+calculate_permutation_feature_importance <- function(pipeline, X_train, y_train, n_repeats=10L, random_state=0L,
+                                                     pipeline_name, iter) {
   # Import the required function
   permutation_importance <- reticulate::import("sklearn.inspection", convert = FALSE)$permutation_importance
 
@@ -81,10 +89,16 @@ calculate_permutation_feature_importance <- function(pipeline, X_train, y_train,
   importances <- reticulate::py_to_r(perm_importance$importances_mean)
   feature_names <- colnames(reticulate::py_to_r(X_train))
 
-
   # Create a data frame
   importance_df <- data.frame(feature=feature_names, importance=importances)
   importance_df <- importance_df[order(-importance_df$importance),]
+
+  # Calculate the rank of the feature importances
+  importance_df$rank <- seq_len(nrow(importance_df))
+  # Get the pipeline name and append it to the rank column name
+  column_name <- as.character(glue::glue('rank_{pipeline_name}_split_{iter}'))
+  colnames(importance_df)[colnames(importance_df) == 'rank'] <- column_name
+
 
   return(importance_df)
 }
@@ -175,14 +189,16 @@ steps_to_tuples <- function(steps) {
 aggregate_feature_importances <- function(selected_features) {
   aggregated_importances <- list()
 
-  # Assuming the first split has the same methods as the others
   for (method in names(selected_features[[1]])) {
-    # Extract feature importances for the current method across all splits
     feature_importances <- lapply(selected_features, function(split) {
-      as.data.frame(split[[method]])
+      # Reshape the data from wide format to long format
+      split_df <- tidyr::pivot_longer(split[[method]],
+                                      cols = starts_with("rank_"),
+                                      names_to = "method",
+                                      values_to = "rank")
+      as.data.frame(split_df)
     })
 
-    # Combine the feature importances from all splits
     combined_importances <- do.call(rbind, feature_importances)
 
     importances_df <- combined_importances %>%
@@ -190,8 +206,17 @@ aggregate_feature_importances <- function(selected_features) {
       dplyr::summarize(mean_importance = mean(.data$importance, na.rm = TRUE),
                        std = stats::sd(.data$importance, na.rm = TRUE))
 
-    importances_df <- importances_df %>%
-      dplyr::filter(.data$mean_importance > 0)
+    # Add rank columns back
+    rank_df <- combined_importances %>%
+      dplyr::select(.data$feature, .data$method, .data$rank)
+
+    # Join importances_df with rank_df
+    importances_df <- dplyr::left_join(importances_df, rank_df, by = "feature")
+
+    # Reshape back to wide format
+    importances_df <- tidyr::pivot_wider(importances_df,
+                                         names_from = method,
+                                         values_from = rank)
 
     # Add the aggregated importances for the current method to the results list
     aggregated_importances[[method]] <- importances_df
@@ -199,4 +224,76 @@ aggregate_feature_importances <- function(selected_features) {
 
   return(aggregated_importances)
 }
+
+# aggregate_feature_importances <- function(selected_features) {
+#   aggregated_importances <- list()
+#
+#   for (method in names(selected_features[[1]])) {
+#     feature_importances <- lapply(selected_features, function(split) {
+#       # Reshape the data from wide format to long format
+#       split_df <- tidyr::pivot_longer(split[[method]],
+#                                       cols = starts_with("rank_"),
+#                                       names_to = "method",
+#                                       values_to = "rank")
+#       as.data.frame(split_df)
+#     })
+#
+#     combined_importances <- do.call(rbind, feature_importances)
+#
+#     importances_df <- combined_importances %>%
+#       dplyr::group_by(.data$feature) %>%
+#       dplyr::summarize(mean_importance = mean(.data$importance, na.rm = TRUE),
+#                        std = stats::sd(.data$importance, na.rm = TRUE))
+#
+#     # Add rank columns back
+#     rank_df <- combined_importances %>%
+#       dplyr::select(.data$feature, .data$method, .data$rank)
+#
+#     # Join importances_df with rank_df
+#     importances_df <- dplyr::left_join(importances_df, rank_df, by = "feature")
+#
+#     # Add the aggregated importances for the current method to the results list
+#     aggregated_importances[[method]] <- importances_df
+#   }
+#
+#   return(aggregated_importances)
+# }
+
+
+# aggregate_feature_importances <- function(selected_features) {
+#   aggregated_importances <- list()
+#
+#   # Assuming the first split has the same methods as the others
+#   for (method in names(selected_features[[1]])) {
+#     # Extract feature importances for the current method across all splits
+#     feature_importances <- lapply(selected_features, function(split) {
+#       as.data.frame(split[[method]])
+#     })
+#     print(str(feature_importances))
+#     # Combine the feature importances from all splits
+#     combined_importances <- do.call(rbind, feature_importances)
+#
+#     importances_df <- combined_importances %>%
+#       dplyr::group_by(.data$feature) %>%
+#       dplyr::summarize(mean_importance = mean(.data$importance, na.rm = TRUE),
+#                        std = stats::sd(.data$importance, na.rm = TRUE))
+#
+#     # # Find the rank column
+#     # rank_column <- grep("__feature_rank$", colnames(combined_importances), value = TRUE)
+#     #
+#     # # If a rank column exists, add it to the importances_df
+#     # if (length(rank_column) > 0) {
+#     #   importances_df[[rank_column]] <- combined_importances[[1, rank_column]]
+#     # }
+#
+#     importances_df <- importances_df %>%
+#       dplyr::filter(.data$mean_importance > 0)
+#
+#     # Add the aggregated importances for the current method to the results list
+#     aggregated_importances[[method]] <- importances_df
+#   }
+#
+#   return(aggregated_importances)
+# }
+
 
