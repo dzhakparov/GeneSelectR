@@ -217,6 +217,8 @@ aggregate_feature_importances <- function(selected_features) {
     importances_df <- tidyr::pivot_wider(importances_df,
                                          names_from = method,
                                          values_from = rank)
+    importances_df <- importances_df %>%
+      dplyr::filter(mean_importance > 0)
 
     # Add the aggregated importances for the current method to the results list
     aggregated_importances[[method]] <- importances_df
@@ -224,76 +226,3 @@ aggregate_feature_importances <- function(selected_features) {
 
   return(aggregated_importances)
 }
-
-# aggregate_feature_importances <- function(selected_features) {
-#   aggregated_importances <- list()
-#
-#   for (method in names(selected_features[[1]])) {
-#     feature_importances <- lapply(selected_features, function(split) {
-#       # Reshape the data from wide format to long format
-#       split_df <- tidyr::pivot_longer(split[[method]],
-#                                       cols = starts_with("rank_"),
-#                                       names_to = "method",
-#                                       values_to = "rank")
-#       as.data.frame(split_df)
-#     })
-#
-#     combined_importances <- do.call(rbind, feature_importances)
-#
-#     importances_df <- combined_importances %>%
-#       dplyr::group_by(.data$feature) %>%
-#       dplyr::summarize(mean_importance = mean(.data$importance, na.rm = TRUE),
-#                        std = stats::sd(.data$importance, na.rm = TRUE))
-#
-#     # Add rank columns back
-#     rank_df <- combined_importances %>%
-#       dplyr::select(.data$feature, .data$method, .data$rank)
-#
-#     # Join importances_df with rank_df
-#     importances_df <- dplyr::left_join(importances_df, rank_df, by = "feature")
-#
-#     # Add the aggregated importances for the current method to the results list
-#     aggregated_importances[[method]] <- importances_df
-#   }
-#
-#   return(aggregated_importances)
-# }
-
-
-# aggregate_feature_importances <- function(selected_features) {
-#   aggregated_importances <- list()
-#
-#   # Assuming the first split has the same methods as the others
-#   for (method in names(selected_features[[1]])) {
-#     # Extract feature importances for the current method across all splits
-#     feature_importances <- lapply(selected_features, function(split) {
-#       as.data.frame(split[[method]])
-#     })
-#     print(str(feature_importances))
-#     # Combine the feature importances from all splits
-#     combined_importances <- do.call(rbind, feature_importances)
-#
-#     importances_df <- combined_importances %>%
-#       dplyr::group_by(.data$feature) %>%
-#       dplyr::summarize(mean_importance = mean(.data$importance, na.rm = TRUE),
-#                        std = stats::sd(.data$importance, na.rm = TRUE))
-#
-#     # # Find the rank column
-#     # rank_column <- grep("__feature_rank$", colnames(combined_importances), value = TRUE)
-#     #
-#     # # If a rank column exists, add it to the importances_df
-#     # if (length(rank_column) > 0) {
-#     #   importances_df[[rank_column]] <- combined_importances[[1, rank_column]]
-#     # }
-#
-#     importances_df <- importances_df %>%
-#       dplyr::filter(.data$mean_importance > 0)
-#
-#     # Add the aggregated importances for the current method to the results list
-#     aggregated_importances[[method]] <- importances_df
-#   }
-#
-#   return(aggregated_importances)
-# }
-
-

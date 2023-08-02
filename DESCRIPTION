@@ -17,6 +17,7 @@ Imports:
     ensembldb (>= 2.22.0),
     ggplot2 (>= 3.4.2),
     glue (>= 1.6.2),
+    GOfuncR (>= 1.20.0),
     magrittr (>= 2.0.3),
     methods (>= 4.2.2),
     plotly (>= 4.10.1),

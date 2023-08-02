@@ -9,7 +9,9 @@ calculate_permutation_feature_importance(
   X_train,
   y_train,
   n_repeats = 10L,
-  random_state = 0L
+  random_state = 0L,
+  pipeline_name,
+  iter
 )
 }
 \arguments{

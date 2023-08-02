@@ -4,7 +4,7 @@
 \alias{get_feature_importances}
 \title{Get Feature Importances}
 \usage{
-get_feature_importances(pipeline, X_train)
+get_feature_importances(pipeline, X_train, pipeline_name, iter)
 }
 \arguments{
 \item{pipeline}{A Scikit-learn pipeline object with a Gradient Boosting Classifier
