@@ -27,4 +27,4 @@ jobs:
           conda create --name GeneSelectR_env
           conda activate GeneSelectR_env
           conda install -c conda-forge scikit-learn=0.22.1 pandas=1.2.3 numpy=1.19 lightgbm boruta_py
-      - uses: r-lib/actions/check@v1
+      - uses: r-lib/actions/check-standard@v1
