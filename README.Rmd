@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # GeneSelectR
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 `GeneSelectR` is a machine learning-based R package developed to enhance feature selection and biological assessment in RNAseq analysis of complex biological datasets. Traditional RNAseq datasets can be challenging to analyze due to their high dimensionality. The standard differential gene expression analysis approach has been found to have limitations such as a high false-positive rate and limited gene coverage. The `GeneSelectR` package aims to overcome these limitations using machine learning techniques.
