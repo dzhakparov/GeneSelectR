@@ -6,18 +6,21 @@ library(GeneSelectR)
 # # Define a test
 test_that("compare_gene_lists returns expected output", {
   GeneSelectR::skip_if_no_modules(names(import_python_packages()))
-  work_dir = getwd()
-  exp_subset = readRDS(file = file.path(work_dir, "exp_reduced.rds"))
-  exp_subset = exp_subset[,900:1001]
-  X = exp_subset %>% dplyr::select(-label)
-  y = exp_subset[['label']]
+  X <- UrbanRandomSubset %>% select(-treatment)
+  y <- UrbanRandomSubset %>% select(treatment)
+
+  selection_results <- GeneSelectR(X,
+                                   y,
+                                   njobs = -1L,
+                                   n_splits = 2L,
+                                   max_features = 50L,
+                                   calculate_permutation_importance = FALSE)
 
   # Call the function
-  results <- GeneSelectR(X_train = X, y_train = y, njobs = 1L)
 
   # Check that the output is a PipelineResults object
   expect_s4_class(results, "PipelineResults")
 
   # Check that the list has the expected elements
-  expect_named(selection_results, c("fitted_pipelines", "cv_results", "mean_feature_importances", 'test_metrics'))
+  expect_named(selection_results, c("fitted_pipelines", "cv_results", "mean_feature_importances", 'test_metrics','cv_mean_score'))
 })
