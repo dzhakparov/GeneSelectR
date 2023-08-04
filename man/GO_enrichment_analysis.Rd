@@ -6,6 +6,7 @@
 \usage{
 GO_enrichment_analysis(
   annotated_gene_lists,
+  list_type = "inbuilt",
   background,
   organism = "org.Hs.eg.db",
   keyType = "ENTREZID",
@@ -17,6 +18,8 @@ GO_enrichment_analysis(
 }
 \arguments{
 \item{annotated_gene_lists}{An AnnotatedGeneLists object containing a list of GeneList objects.}
+
+\item{list_type}{A type of AnnotatedGeneList from annotate_gene_lists function. Either 'inbuilt' or 'permutation'. (default: 'inbuilt')}
 
 \item{background}{A character vector representing the background gene set.}
 

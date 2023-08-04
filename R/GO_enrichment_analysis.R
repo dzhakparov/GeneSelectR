@@ -3,6 +3,7 @@
 #' @description This function performs gene set enrichment analysis on a list of gene sets extracted from an AnnotatedGeneLists object.
 #'
 #' @param annotated_gene_lists An AnnotatedGeneLists object containing a list of GeneList objects.
+#' @param list_type A type of AnnotatedGeneList from annotate_gene_lists function. Either 'inbuilt' or 'permutation'. (default: 'inbuilt')
 #' @param background A character vector representing the background gene set.
 #' @param organism A character string corresponding to the organism of interest. Default: "org.Hs.eg.db" (for human).
 #' @param keyType A character string indicating the type of gene identifiers. Default: "ENTREZID".
@@ -24,14 +25,19 @@
 #' results <- GO_enrichment_analysis(annotated_gene_lists, background, organism = "org.Hs.eg.db", keyType = "ENTREZID")
 #' }
 #' @export
-GO_enrichment_analysis <- function(annotated_gene_lists, background, organism = "org.Hs.eg.db", keyType = "ENTREZID", ont = "BP", pvalueCutoff = 0.05, qvalueCutoff = 0.2, pAdjMethod  = 'fdr') {
+GO_enrichment_analysis <- function(annotated_gene_lists, list_type = 'inbuilt', background, organism = "org.Hs.eg.db", keyType = "ENTREZID", ont = "BP", pvalueCutoff = 0.05, qvalueCutoff = 0.2, pAdjMethod  = 'fdr') {
 
-  # Check if annotated_gene_lists is an object of class AnnotatedGeneLists
-  if (!inherits(annotated_gene_lists, "AnnotatedGeneLists")) {
-    stop("annotated_gene_lists must be an object of class AnnotatedGeneLists.")
-  }
+  # # Check if annotated_gene_lists is an object of class AnnotatedGeneLists
+  # if (!inherits(annotated_gene_lists, "AnnotatedGeneLists")) {
+  #   stop("annotated_gene_lists must be an object of class AnnotatedGeneLists.")
+  # }
+  if (list_type == 'inbuilt'){
+   annotated_list <-  annotated_gene_lists@inbuilt
+  } else if (list_type == 'permutation'){
+    annotated_list <-  annotated_gene_lists@permutation
+  } else (stop("list_type should be 'inbuilt' or 'permutation'"))
 
-  gene_sets <- lapply(annotated_gene_lists@annotated_lists, function(gl) {
+  gene_sets <- lapply(annotated_list, function(gl) {
 
     # Check if gl is an object of class GeneList
     if (!inherits(gl, "GeneList")) {

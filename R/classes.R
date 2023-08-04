@@ -6,6 +6,7 @@
 #' @slot cv_results A list of the cross-validation results for each pipeline.
 #' @slot mean_feature_importances A list of the mean feature importances for each method across all splits.
 #' @slot test_metrics A data.frame containing metrics (F1, accuracy, precision and recall) calculated on the unseen test set. Contains mean values across splits as well as standard deviation.
+#' @importFrom methods representation
 #' @exportClass PipelineResults
 setClass("PipelineResults",
          slots = list(
@@ -38,6 +39,7 @@ setClass("GeneList",
 #' @slot gene_lists A list of GeneList objects.
 #' @exportClass AnnotatedGeneLists
 setClass("AnnotatedGeneLists",
-         slots = list(
-           annotated_lists = "list"
+         methods::representation(
+            inbuilt = "list",
+            permutation = 'list'
          ))
