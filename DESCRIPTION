@@ -16,7 +16,7 @@ Imports:
     ggplot2 (>= 3.4.2),
     glue (>= 1.6.2),
     GO.db (>= 3.17.0),
-    GOfuncR, 
+    GOfuncR (< 1.20), 
     magrittr (>= 2.0.3),
     methods (>= 4.2.2),
     RColorBrewer (>= 1.1.3),
