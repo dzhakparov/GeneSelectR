@@ -51,6 +51,7 @@
 #' @importFrom magrittr '%>%'
 #' @importFrom methods new
 #' @importFrom rlang .data
+#' @importFrom utils globalVariables
 #' @export
 #'
 GeneSelectR <- function(X_train,
@@ -289,6 +290,7 @@ GeneSelectR <- function(X_train,
   }
 
   if (perform_split) {
+    utils::globalVariables(c("split", "methods", "method"))
     test_metrics_df <- test_metrics %>%
       tibble::enframe(name = "split", value = 'methods') %>%
       tidyr::unnest_longer(methods, indices_to = 'method') %>%

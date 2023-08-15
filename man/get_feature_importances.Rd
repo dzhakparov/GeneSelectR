@@ -11,6 +11,10 @@ get_feature_importances(pipeline, X_train, pipeline_name, iter)
 as the final step.}
 
 \item{X_train}{A DataFrame containing the training data.}
+
+\item{pipeline_name}{Strings (names of the selected_pipelines list) representing pipeline names that were constructed for the feature selection}
+
+\item{iter}{An integer that is indicating current iteration of the train-test split}
 }
 \value{
 A list containing the selected feature names and their importances, or NULL

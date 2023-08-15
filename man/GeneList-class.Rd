@@ -10,10 +10,10 @@ A class to hold annotated gene list for a single method.
 \section{Slots}{
 
 \describe{
-\item{\code{gene_name}}{A character vector of gene names.}
+\item{\code{SYMBOL}}{A character vector of gene names.}
 
-\item{\code{ensembl_id}}{A character vector of Ensembl IDs.}
+\item{\code{ENSEMBL}}{A character vector of Ensembl IDs.}
 
-\item{\code{entrezid}}{A character vector of Entrez IDs.}
+\item{\code{ENTREZID}}{A character vector of Entrez IDs.}
 }}
 

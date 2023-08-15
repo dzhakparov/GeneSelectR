@@ -3,13 +3,15 @@
 \docType{class}
 \name{AnnotatedGeneLists-class}
 \alias{AnnotatedGeneLists-class}
-\title{AnootatedGeneLists class}
+\title{AnnotatedGeneLists class}
 \description{
 A class to hold a list of GeneList objects, each representing a method.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{gene_lists}}{A list of GeneList objects.}
+\item{\code{inbuilt}}{A list of GeneList objects containing annotations for genes selected with inbuilt, model-specific feature importance.}
+
+\item{\code{permutation}}{A list of GeneList objects containing annotations for genes selected with permutation importance.}
 }}
 

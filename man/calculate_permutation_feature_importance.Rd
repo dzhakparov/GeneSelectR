@@ -24,6 +24,10 @@ calculate_permutation_feature_importance(
 \item{n_repeats}{An integer specifying the number of times to permute each feature.}
 
 \item{random_state}{An integer specifying the seed for the random number generator.}
+
+\item{pipeline_name}{Strings (names of the selected_pipelines list) representing pipeline names that were constructed for the feature selection}
+
+\item{iter}{An integer that is indicating current iteration of the train-test split}
 }
 \value{
 A list containing the feature names and their importance scores.

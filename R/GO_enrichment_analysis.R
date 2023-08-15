@@ -15,6 +15,7 @@
 #'
 #' @importFrom clusterProfiler enrichGO
 #' @importFrom dplyr setdiff
+#' @importFrom methods as slot
 #'
 #' @references To use clusterProfiler in published research, please cite:
 #'             Yu G, Wang LG, Han Y, He QY. clusterProfiler: an R package for comparing biological themes among gene clusters. OMICS: A Journal of Integrative Biology. 2012;16(5):284-287. doi:10.1089/omi.2011.0118.
@@ -44,8 +45,8 @@ GO_enrichment_analysis <- function(annotated_gene_lists, list_type = 'inbuilt', 
       stop("Each element in annotated_gene_lists@annotated_lists must be an object of class GeneList.")
     }
 
-    gl <- as(gl, "GeneList")
-    slot(gl, keyType)
+    gl <- methods::as(gl, "GeneList")
+    methods::slot(gl, keyType)
   })
 
   results_list <- list()

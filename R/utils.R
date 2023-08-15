@@ -224,7 +224,7 @@ aggregate_feature_importances <- function(selected_features) {
                                          names_from = method,
                                          values_from = rank)
     importances_df <- importances_df %>%
-      dplyr::filter(mean_importance > 0)
+      dplyr::filter(.data$mean_importance > 0)
 
     # Add the aggregated importances for the current method to the results list
     aggregated_importances[[method]] <- importances_df
