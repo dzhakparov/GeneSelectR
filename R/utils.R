@@ -4,6 +4,8 @@
 #' @param pipeline A Scikit-learn pipeline object with a Gradient Boosting Classifier
 #'                 as the final step.
 #' @param X_train A DataFrame containing the training data.
+#' @param pipeline_name Strings (names of the selected_pipelines list) representing pipeline names that were constructed for the feature selection
+#' @param iter An integer that is indicating current iteration of the train-test split
 #' @return A list containing the selected feature names and their importances, or NULL
 #'         if the classifier is not a Gradient Boosting Classifier or the feature selector
 #'         doesn't have the 'get_support' method.
@@ -16,7 +18,6 @@
 #' selected_features <- feature_importances$selected_features
 #' importances <- feature_importances$importances
 #' }
-#' @export
 get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
   classifier <- pipeline$named_steps[['classifier']]
 
@@ -69,6 +70,8 @@ get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
 #' @param y_train A DataFrame containing the training labels.
 #' @param n_repeats An integer specifying the number of times to permute each feature.
 #' @param random_state An integer specifying the seed for the random number generator.
+#' @param pipeline_name Strings (names of the selected_pipelines list) representing pipeline names that were constructed for the feature selection
+#' @param iter An integer that is indicating current iteration of the train-test split
 #' @return A list containing the feature names and their importance scores.
 #' @importFrom reticulate import py_to_r
 #' @examples
@@ -76,9 +79,14 @@ get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
 #' # Assuming you have a Scikit-learn pipeline 'my_pipeline' and training data 'X_train'
 #' permutation_importances <- calculate_permutation_feature_importance(my_pipeline, X_train, y_train)
 #' }
-#' @export
-calculate_permutation_feature_importance <- function(pipeline, X_train, y_train, n_repeats=10L, random_state=0L,
-                                                     pipeline_name, iter) {
+
+calculate_permutation_feature_importance <- function(pipeline,
+                                                     X_train,
+                                                     y_train,
+                                                     n_repeats=10L,
+                                                     random_state=0L,
+                                                     pipeline_name,
+                                                     iter) {
   # Import the required function
   permutation_importance <- reticulate::import("sklearn.inspection", convert = FALSE)$permutation_importance
 
@@ -113,7 +121,6 @@ calculate_permutation_feature_importance <- function(pipeline, X_train, y_train,
 #' @param fs_param_grids param grid
 #' @return A list of Scikit-learn pipelines.
 #' @importFrom reticulate import tuple
-#' @export
 create_pipelines <- function(feature_selection_methods, preprocessing_steps, selected_methods, classifier, fs_param_grids) {
   sklearn <- reticulate::import('sklearn')
   pipeline <- sklearn$pipeline$Pipeline
@@ -157,7 +164,6 @@ create_pipelines <- function(feature_selection_methods, preprocessing_steps, sel
 #' @param steps A list of steps to convert to tuples.
 #' @return A list of tuples.
 #' @importFrom reticulate tuple
-#' @export
 steps_to_tuples <- function(steps) {
   tuple_steps <- c()
   for (step_name in names(steps)) {

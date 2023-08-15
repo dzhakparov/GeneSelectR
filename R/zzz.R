@@ -53,7 +53,7 @@ load_python_packages <- function() {
   sys <<- reticulate::import("sys", delay_load = TRUE)
   multiprocessing <<- reticulate::import("multiprocessing", delay_load = TRUE)
 
-  message("Imported Python libraries with delay_load = TRUE")
+  #message("Imported Python libraries with delay_load = TRUE")
 }
 
 .onLoad <- function(libname, pkgname) {
