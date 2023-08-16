@@ -44,7 +44,10 @@ This function performs gene set enrichment analysis on a list of gene sets extra
 \examples{
 \dontrun{
 # Assuming annotated_gene_lists and background are defined
-results <- GO_enrichment_analysis(annotated_gene_lists, background, organism = "org.Hs.eg.db", keyType = "ENTREZID")
+results <- GO_enrichment_analysis(annotated_gene_lists,
+                                  background,
+                                  organism = "org.Hs.eg.db",
+                                  keyType = "ENTREZID")
 }
 }
 \references{

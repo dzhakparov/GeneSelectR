@@ -23,7 +23,10 @@
 #' @examples
 #' \dontrun{
 #' # Assuming annotated_gene_lists and background are defined
-#' results <- GO_enrichment_analysis(annotated_gene_lists, background, organism = "org.Hs.eg.db", keyType = "ENTREZID")
+#' results <- GO_enrichment_analysis(annotated_gene_lists,
+#'                                   background,
+#'                                   organism = "org.Hs.eg.db",
+#'                                   keyType = "ENTREZID")
 #' }
 #' @export
 GO_enrichment_analysis <- function(annotated_gene_lists, list_type = 'inbuilt', background, organism = "org.Hs.eg.db", keyType = "ENTREZID", ont = "BP", pvalueCutoff = 0.05, qvalueCutoff = 0.2, pAdjMethod  = 'fdr') {
