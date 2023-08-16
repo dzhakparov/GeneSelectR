@@ -14,9 +14,9 @@ A class to hold the results of fitting and evaluating pipelines.
 
 \item{\code{cv_results}}{A list of the cross-validation results for each pipeline.}
 
-\item{\code{mean_feature_importances}}{A list of the inbuilt mean feature importances for each method across all splits.}
+\item{\code{inbuilt_feature_importance}}{A list of the inbuilt mean feature importances for each method across all splits.}
 
-\item{\code{permutation_importances}}{A list of the permutation importances for each method.}
+\item{\code{permutation_importance}}{A list of the permutation importances for each method.}
 
 \item{\code{cv_mean_score}}{A data.frame of mean scores from cross-validation.}
 

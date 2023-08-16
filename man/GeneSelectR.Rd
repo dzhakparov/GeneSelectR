@@ -57,10 +57,10 @@ GeneSelectR(
 A list with the following elements:
 \item{fitted_pipelines}{A list of the fitted pipelines.}
 \item{cv_results}{A list of the cross-validation results for each pipeline.}
-\item{mean_feature_importances}{A list of the mean feature importances for each pipeline.}
+\item{inbuilt_feature_importance}{A list of the inbuilt feature importance scores for each pipeline.}
 \item{gene_set_stability}{A list of the gene set stability for each pipeline.}
 \item{test_metrics}{A data frame of test metrics for each pipeline.}
-\item{permutation_importances}{A list of the permutation importances for each pipeline (if calculate_permutation_importance is TRUE).}
+\item{permutation_importances}{A list of the permutation importance scores for each pipeline (if calculate_permutation_importance is TRUE).}
 }
 \description{
 This function performs gene selection using different methods on a given
@@ -79,8 +79,14 @@ results <- GeneSelectR(X_train = X, y_train = y)
 results <- GeneSelectR(X_train = X, y_train = y, selected_methods = c("Univariate", "RFE"))
 
 # Perform gene selection and evaluation using user-defined methods
-fs_methods <- list("Lasso" = select_model(lasso(penalty = 'l1', C = 0.1, solver = 'saga'), threshold = 'median'))
+fs_methods <- list("Lasso" = select_model(lasso(penalty = 'l1',
+                                                C = 0.1,
+                                                solver = 'saga'),
+                                          threshold = 'median'))
 fs_param_grids <- list("Lasso" = list('C' = c(0.1, 1, 10)))
-results <- GeneSelectR(X_train = X, y_train = y, feature_selection_methods = fs_methods, fs_param_grids = fs_param_grids)
+results <- GeneSelectR(X_train = X,
+                       y_train = y,
+                       feature_selection_methods = fs_methods,
+                       fs_param_grids = fs_param_grids)
 }
 }
