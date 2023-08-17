@@ -9,6 +9,10 @@ evaluate_test_metrics(grid_search, X_test, y_test, modules)
 \arguments{
 \item{grid_search}{An object of the optimal model found during a search.}
 
+\item{X_test}{DataFrame object that contains test set data}
+
+\item{y_test}{A vector containing test set labels}
+
 \item{modules}{A list containing the definitions for the Python modules and submodules.}
 }
 \value{

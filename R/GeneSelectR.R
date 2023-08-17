@@ -164,6 +164,8 @@ perform_grid_search <- function(X_train, y_train, pipeline, params, search_type,
 #' Evaluate Test Metrics for a Model
 #'
 #' @param grid_search An object of the optimal model found during a search.
+#' @param X_test DataFrame object that contains test set data
+#' @param y_test A vector containing test set labels
 #' @param modules A list containing the definitions for the Python modules and submodules.
 #' @return A list containing the calculated test metrics for the model.
 #'
@@ -183,7 +185,6 @@ evaluate_test_metrics <- function(grid_search, X_test, y_test, modules) {
 #' @return A dataframe with the processed test metrics.
 #'
 create_test_metrics_df <- function(test_metrics) {
-  #utils::globalVariables(c("split", "methods", "method"))
   test_metrics_df <- test_metrics %>%
     tibble::enframe(name = "split", value = 'methods') %>%
     tidyr::unnest_longer(methods, indices_to = 'method') %>%

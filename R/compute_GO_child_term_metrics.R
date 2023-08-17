@@ -67,7 +67,7 @@ compute_GO_child_term_metrics <- function(GO_data, GO_terms, ontology = 'BP', pl
 
   if (plot) {
     # Plotting Offspring Nodes Number
-    p1 <- ggplot2::ggplot(df_result, ggplot2::aes(x = feature_list, y = offspring_nodes_number, fill = GO_term)) +
+    p1 <- ggplot2::ggplot(df_result, ggplot2::aes(x = .data$feature_list, y = .data$offspring_nodes_number, fill = .data$GO_term)) +
       ggplot2::geom_bar(stat = "identity", position = "dodge") +
       ggplot2::theme_minimal() +
       ggplot2::labs(title = "Offspring Nodes Number per Feature List",
@@ -77,7 +77,7 @@ compute_GO_child_term_metrics <- function(GO_data, GO_terms, ontology = 'BP', pl
     print(p1)
 
     # Plotting Fraction
-    p2 <- ggplot2::ggplot(df_result, ggplot2::aes(x = feature_list, y = fraction, fill = GO_term)) +
+    p2 <- ggplot2::ggplot(df_result, ggplot2::aes(x = .data$feature_list, y = .data$fraction, fill = .data$GO_term)) +
       ggplot2::geom_bar(stat = "identity", position = "dodge") +
       ggplot2::theme_minimal() +
       ggplot2::labs(title = "Fraction of Offspring Nodes per Feature List",

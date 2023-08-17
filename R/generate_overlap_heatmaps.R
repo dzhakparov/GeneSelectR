@@ -21,7 +21,7 @@ generate_overlap_heatmaps <- function(coefficients, save_plot = FALSE, filename 
     data_melt <- reshape2::melt(data)
     colnames(data_melt) <- c("Row", "Column", "Value")
 
-    plot <- ggplot2::ggplot(data = data_melt, ggplot2::aes(x = Row, y = Column, fill = Value)) +
+    plot <- ggplot2::ggplot(data = data_melt, ggplot2::aes(x = .data$Row, y = .data$Column, fill = .data$Value)) +
       ggplot2::geom_tile(color = "white", size = 0.5) +
       ggplot2::geom_text(aes(label = Value), color = "black", size = 3) +
       ggplot2::scale_fill_gradientn(colors = colors,
