@@ -26,7 +26,9 @@
 #' @examples
 #' \dontrun{
 #' GO_terms_vec <- c("GO:0002376", "GO:0008150")
-#' df_res <- get_children_nodes(GO_data = all_selection.GO_inbuilt, GO_terms = GO_terms_vec, plot = TRUE)
+#' df_res <- get_children_nodes(GO_data = all_selection.GO_inbuilt,
+#'                              GO_terms = GO_terms_vec,
+#'                              plot = TRUE)
 #' }
 #'
 #' @importFrom ggplot2 ggplot aes geom_bar theme_minimal labs theme

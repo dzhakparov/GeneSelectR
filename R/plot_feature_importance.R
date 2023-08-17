@@ -7,6 +7,7 @@
 #' @importFrom ggplot2 ggplot aes geom_bar coord_flip theme_minimal labs
 #' @importFrom dplyr arrange slice desc
 #' @importFrom cowplot plot_grid
+#' @importFrom stats reorder
 #' @return A list of grid of ggplot objects.
 #' @export
 
@@ -42,7 +43,7 @@ plot_feature_importance <- function(pipelineresults, top_n_features = 10) {
     top_permutation_features$color <- ifelse(top_permutation_features$feature %in% intersecting_features, color_vector[as.character(top_permutation_features$feature)], "lightgreen")
 
     # Create the plots
-    p1 <- ggplot2::ggplot(top_mean_features, ggplot2::aes(x = reorder(.data$feature, .data$mean_importance), y = .data$mean_importance)) +
+    p1 <- ggplot2::ggplot(top_mean_features, ggplot2::aes(x = stats::reorder(.data$feature, .data$mean_importance), y = .data$mean_importance)) +
       ggplot2::geom_bar(stat = "identity", aes(fill = color)) +
       ggplot2::scale_fill_identity() +
       ggplot2::coord_flip() +
