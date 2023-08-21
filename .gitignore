@@ -8,3 +8,5 @@
 inst/doc
 /vignettes/example_cache
 R/draft.R
+/doc/
+/Meta/

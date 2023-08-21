@@ -4,6 +4,8 @@
 # GeneSelectR
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 `GeneSelectR` is a machine learning-based R package developed to enhance
@@ -15,32 +17,15 @@ limitations such as a high false-positive rate and limited gene
 coverage. The `GeneSelectR` package aims to overcome these limitations
 using machine learning techniques.
 
-![Alt text](./vignettes/images/package-scheme.png)
+<figure>
+<img src="./vignettes/images/package-scheme.png" alt="Alt text" />
+<figcaption aria-hidden="true">Alt text</figcaption>
+</figure>
 
 ## Installation
 
 You can install the development version of GeneSelectR from
 [GitHub](https://github.com/) with:
-
-NB! Prior to installation you should run this:
-
-``` r
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-#> Bioconductor version '3.16' is out-of-date; the current release version '3.17'
-#>   is available with R version '4.3'; see https://bioconductor.org/install
-
-BiocManager::install("ViSEAGO")
-#> Bioconductor version 3.16 (BiocManager 1.30.20), R 4.2.2 (2022-10-31 ucrt)
-#> Warning: package(s) not installed when version(s) same as or greater than current; use
-#>   `force = TRUE` to re-install: 'ViSEAGO'
-#> Old packages: 'areaplot', 'cachem', 'class', 'cli', 'clock', 'DiagrammeR',
-#>   'dplyr', 'DT', 'fs', 'future.apply', 'ggnewscale', 'graphlayouts', 'httpuv',
-#>   'httr2', 'igraph', 'influenceR', 'KernSmooth', 'later', 'lattice', 'lme4',
-#>   'MASS', 'Matrix', 'nnet', 'parallelly', 'pROC', 'profvis', 'RcppArmadillo',
-#>   'recipes', 'rlang', 'scatterpie', 'testthat', 'tibble', 'tidymodels', 'tzdb',
-#>   'viridis', 'vroom', 'waldo', 'XML', 'xml2', 'yardstick'
-```
 
 ``` r
 # install.packages("devtools")
@@ -52,7 +37,7 @@ devtools::install_github("dzhakparov/GeneSelectR")
 The `GeneSelectR` package uses four machine learning methods for feature
 selection:
 
-1.  Recursive Feature Elimination
+1.  Random Forest
 2.  Boruta
 3.  Lasso Regression
 4.  Univariate Filtering
@@ -65,32 +50,5 @@ cross-validation mean metrics scores.
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-# An example of usage:
-#library(GeneSelectR)
-# load your data
-#data <- read.csv("YourData.csv")
-# perform feature selection
-#selected_features <- feature_select(data, method = "lasso")
-# perform GO enrichment analysis
-#go_enrichment <- go_enrich(selected_features)
-# perform semantic similarity analysis
-#semantic_analysis <- semantic_sim(go_enrichment)
-# select the best list
-#best_list <- select_best(semantic_analysis)
-```
-
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
-
-![Alt text](./vignettes/images/hmap_jaccard_GO.png) ![Alt
-text](./vignettes/images/union_0_feature_selection_mean_cv.png) ![Alt
-text](./vignettes/images/hmap_GO_clusters.png)
-
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this. You could also
-use GitHub Actions to re-render `README.Rmd` every time you push. An
-example workflow can be found here:
-<https://github.com/r-lib/actions/tree/v1/examples>.
+A tutorial detailing how to use GeneSelectR can be seen in this
+[vignette](https://dzhakparov.github.io/GeneSelectR/doc/example.html)
