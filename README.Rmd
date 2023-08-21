@@ -43,4 +43,4 @@ The `GeneSelectR` package uses four machine learning methods for feature selecti
 In addition, the package also performs Gene Ontology (GO) enrichment to assess the biological relevance of gene lists. Semantic similarity analysis of the GO lists is performed using Wang distance and binary cut clustering. The package then selects the best list based on cross-validation mean metrics scores.
 
 ## Example
-A tutorial detailing how to use GeneSelectR can be seen in this [vignette](https://dzhakparov.github.io/GeneSelectR/doc/example.html).
+A tutorial detailing how to use GeneSelectR can be seen in this [vignette](https://dzhakparov.github.io/GeneSelectR/vignettes/example.html).
