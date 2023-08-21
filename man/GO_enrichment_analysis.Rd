@@ -7,7 +7,7 @@
 GO_enrichment_analysis(
   annotated_gene_lists,
   list_type = "inbuilt",
-  background,
+  background = NULL,
   organism = "org.Hs.eg.db",
   keyType = "ENTREZID",
   ont = "BP",

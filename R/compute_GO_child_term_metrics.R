@@ -31,7 +31,7 @@
 #'                              plot = TRUE)
 #' }
 #'
-#' @importFrom ggplot2 ggplot aes geom_bar theme_minimal labs theme
+#' @importFrom ggplot2 ggplot aes geom_bar theme_minimal labs theme element_text
 #' @importFrom GO.db GOBPOFFSPRING GOMFOFFSPRING GOCCOFFSPRING
 #'
 #' @export
@@ -75,7 +75,7 @@ compute_GO_child_term_metrics <- function(GO_data, GO_terms, ontology = 'BP', pl
       ggplot2::labs(title = "Offspring Nodes Number per Feature List",
                     y = "Number of Offspring Nodes",
                     x = "Feature List") +
-      ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
     print(p1)
 
     # Plotting Fraction
@@ -85,7 +85,7 @@ compute_GO_child_term_metrics <- function(GO_data, GO_terms, ontology = 'BP', pl
       ggplot2::labs(title = "Fraction of Offspring Nodes per Feature List",
                     y = "Fraction (%)",
                     x = "Feature List") +
-      ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
     print(p2)
   }
 

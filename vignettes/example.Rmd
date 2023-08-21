@@ -195,7 +195,7 @@ Finally, you can visualize the most important features for every feature importa
 plot_feature_importance(selection_results, top_n_features = 10)
 ```
 <div style="text-align:center">
-  <img src="../vignettes/images/feature_importance_plot.png" alt="Alt text" width="500px" />
+  <img src="../vignettes/images/feature_importance_plot.png" alt="Alt text" width="400px" />
 </div>
 
 The plot will show you the mean feature importance of top n features of your choice by their importance score in descending order. 
@@ -317,6 +317,30 @@ annotations_df_with_custom
 ```
 
 ## GO Enrichment Analysis 
+There is a wrapper function to run GO enrichment analysis with clusterprofiler package. To run GO enrichment with default setting simply run: 
+```{r}
+annotated_GO <- GO_enrichment_analysis(annotated_df)
+```
+This function can take different arguments depending on your need: 
+```{r}
+annotated_GO <- GO_enrichment_analysis(annotated_df,
+                                       list_type = 'permutation', #run GO enrichment on permutation based selected features 
+                                       keyType = 'ENSEMBL', # run analysis with ENSEMBLIDs  
+                                       ont = 'BP') # run BP ontology
+annotated_GO
+```
+The returned object is a list containing clusterprofiler enrichResult for every feature selection list 
+
 ## Visualization of Parent Term Fractions 
-You can calculate what is the fraction of target parent GO terms is enriched in your feature selection lists 
+You can calculate what is the fraction of target parent GO terms is enriched in your feature selection lists: 
+```{r}
+annot_child_fractions <- compute_GO_child_term_metrics(GO_data = annotated_GO,
+                              GO_terms = c("GO:0002376", "GO:0044419"),
+                              plot = TRUE)
+```
+
+<div style="text-align:center">
+  <img src="../vignettes/images/compute_GO_child_term_metrics.png" alt="Alt text" width="400px" />
+</div>
+
 # 6. Semantic Similarity Analysis 

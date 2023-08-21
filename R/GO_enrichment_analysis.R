@@ -29,7 +29,7 @@
 #'                                   keyType = "ENTREZID")
 #' }
 #' @export
-GO_enrichment_analysis <- function(annotated_gene_lists, list_type = 'inbuilt', background, organism = "org.Hs.eg.db", keyType = "ENTREZID", ont = "BP", pvalueCutoff = 0.05, qvalueCutoff = 0.2, pAdjMethod  = 'fdr') {
+GO_enrichment_analysis <- function(annotated_gene_lists, list_type = 'inbuilt', background = NULL, organism = "org.Hs.eg.db", keyType = "ENTREZID", ont = "BP", pvalueCutoff = 0.05, qvalueCutoff = 0.2, pAdjMethod  = 'fdr') {
 
   # # Check if annotated_gene_lists is an object of class AnnotatedGeneLists
   # if (!inherits(annotated_gene_lists, "AnnotatedGeneLists")) {
@@ -49,7 +49,7 @@ GO_enrichment_analysis <- function(annotated_gene_lists, list_type = 'inbuilt', 
     }
 
     gl <- methods::as(gl, "GeneList")
-    methods::slot(gl, keyType)
+    methods::slot(gl, keyType) # fetch the gene list based on the slot
   })
 
   results_list <- list()
