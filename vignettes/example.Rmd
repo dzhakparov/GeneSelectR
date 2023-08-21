@@ -1,6 +1,9 @@
 ---
 title: "GeneSelectR Tutorial"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette: 
+    toc: true
+    toc_depth: 2
 vignette: >
   %\VignetteIndexEntry{example}
   %\VignetteEngine{knitr::rmarkdown}
@@ -16,9 +19,7 @@ knitr::opts_chunk$set(
   warning = FALSE)
 ```
 
-# Introduction
-
-## Installation
+# 1. Installation and Requirements 
 
 ## Python requirements
 
@@ -50,7 +51,7 @@ library(GeneSelectR)
 # rest of your code 
 ```
 
-# Basic Example
+# 2. Basic Example
 
 ## Input Data Requirements
 
@@ -92,7 +93,7 @@ selection_results <- GeneSelectR::GeneSelectR(X_train = X,
 selection_results
 ```
 
-# Feature Selection
+# 3. Feature Selection
 ## Feature Selection Procedure
 
 1.  *Settings Defaults*: If not provided, default feature selection methods and hyperparameter grids are established.By default there are four methods implemented to select the features: [Univariate feature selection](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.GenericUnivariateSelect.html) , [Logistic regression with L1 penalty](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html), [boruta](https://github.com/scikit-learn-contrib/boruta_py) and [Random Forest](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html). The default grids for every default feature selection method are as follows:
@@ -178,7 +179,8 @@ selection_results <- GeneSelectR::GeneSelectR(X_train = X,
                                                 feature_selection_methods=my_methods)
 ```
 
-# Structure of the PipelineResults object
+# 4. Machine Learning Performance Results Inspection
+## Structure of the PipelineResults object
 The function returns an object of class "PipelineResults", containing: 
 - 'best_pipeline': A named list containing parameters of the best performer pipeline . 
 - 'cv_results': Results of cross-validation for each pipeline. 
@@ -192,7 +194,10 @@ Finally, you can visualize the most important features for every feature importa
 ```{r}
 plot_feature_importance(selection_results, top_n_features = 10)
 ```
-![Alt text](../vignettes/images/feature_importance_plot.png)
+<div style="text-align:center">
+  <img src="../vignettes/images/feature_importance_plot.png" alt="Alt text" width="500px" />
+</div>
+
 The plot will show you the mean feature importance of top n features of your choice by their importance score in descending order. 
 
 ## ML Performance Metrics
@@ -230,13 +235,16 @@ custom_list <- list(custom_list = c('char1','char2','char3','char4','char5'),
 overlap1 <- calculate_overlap_coefficients(selection_results, custom_lists = custom_list)
 plot_overlap_heatmaps(overlap1)
 ```
-![Alt text](../vignettes/images/overlap.png) 
 
-## GO Enrichment analysis
+<div style="text-align:center">
+  <img src="../vignettes/images/overlap.png" alt="Alt text" width="800px" />
+</div>
 
-## Conversion to ENTREZIDs
+# 5.GO Enrichment analysis
 
-GO Enrichment function only accepts ENTRZIDs to run the analysis. There is a convenience function that will convert your ENSEMBL IDs or Gene names to ENTREZ IDs:
+## Annotation of Selected Genes
+
+For your convenience there is a wrapper function for clusterprofiler(link) GO enrichment implemented, along with a function to get gene annotations. After GeneSelectR has been run, to fetch gene annotations do the following: 
 
 ```{r}
 # Get the annotations for the genes in the analysis 
@@ -247,7 +255,68 @@ human_ens <- human_ens[['AH98047']]
 annotations_ahb <- ensembldb::genes(human_ens, return.type = "data.frame") %>%
  dplyr::select(gene_id,gene_name,entrezid,gene_biotype)
 
-entrez_list <- convert_to_entrezid(pipeline_results = selection_results, ens = annotations_ahb)
+annotations_df <- annotate_gene_lists(pipeline_results = selection_results, 
+                                      annotations_ahb = annotations_ahb,
+                                      format = 'ensembl_gene_name')
+annotations_df
 ```
 
-The conversion functions accepts ENSEMBLIDs, gene names or a combination of both with a separator e.g ENSGXXXXXXXXX_genename. Separator should be specified by the user as a function argument.
+The format argument can be set to three possible options: (1) 'ensembl_id' (eg. ENSGXXXXXXX), (2) 'gene_name' (eg. TSPAN) or combination of both separated by a separating string (eg. ENSGXXXXXXX__TSPAN). 
+The resulting AnnotatedGeneLists class object contains following fields: 
+```{r}
+# Formal class 'AnnotatedGeneLists' [package "GeneSelectR"] with 2 slots
+#   ..@ inbuilt    :List of 4
+#   .. ..$ Lasso       :Formal class 'GeneList' [package "GeneSelectR"] with 3 slots
+#   .. .. .. ..@ SYMBOL  : chr [1:54] "MCOLN3" "AGL" "NBPF26" "EXO1" ...
+#   .. .. .. ..@ ENSEMBL : chr [1:54] "ENSG00000055732" "ENSG00000162688" "ENSG00000273136" "ENSG00000174371" ...
+#   .. .. .. ..@ ENTREZID: chr [1:54] "55283" "178" "101060684" "9156" ...
+#   .. ..$ Univariate  :Formal class 'GeneList' [package "GeneSelectR"] with 3 slots
+#   .. .. .. ..@ SYMBOL  : chr [1:74] "CDA" "BMP8B" "MCOLN3" "AGL" ...
+#   .. .. .. ..@ ENSEMBL : chr [1:74] "ENSG00000158825" "ENSG00000116985" "ENSG00000055732" "ENSG00000162688" ...
+#   .. .. .. ..@ ENTREZID: chr [1:74] "978" "656" "55283" "178" ...
+#   .. ..$ RandomForest:Formal class 'GeneList' [package "GeneSelectR"] with 3 slots
+#   .. .. .. ..@ SYMBOL  : chr [1:73] "CDA" "BMP8B" "MCOLN3" "NBPF26" ...
+#   .. .. .. ..@ ENSEMBL : chr [1:73] "ENSG00000158825" "ENSG00000116985" "ENSG00000055732" "ENSG00000273136" ...
+#   .. .. .. ..@ ENTREZID: chr [1:73] "978" "656" "55283" "101060684" ...
+#   .. ..$ boruta      :Formal class 'GeneList' [package "GeneSelectR"] with 3 slots
+#   .. .. .. ..@ SYMBOL  : chr [1:36] "MCOLN3" "AGL" "NBPF26" "BNIPL" ...
+#   .. .. .. ..@ ENSEMBL : chr [1:36] "ENSG00000055732" "ENSG00000162688" "ENSG00000273136" "ENSG00000163141" ...
+#   .. .. .. ..@ ENTREZID: chr [1:36] "55283" "178" "101060684" "149428" ...
+#   ..@ permutation:List of 4
+#   .. ..$ Lasso       :Formal class 'GeneList' [package "GeneSelectR"] with 3 slots
+#   .. .. .. ..@ SYMBOL  : chr [1:4] "HBB" "" "ABCC12" "LTF"
+#   .. .. .. ..@ ENSEMBL : chr [1:4] "ENSG00000244734" "ENSG00000259529" "ENSG00000140798" "ENSG00000012223"
+#   .. .. .. ..@ ENTREZID: chr [1:4] "3043" "NA" "94160" "4057"
+#   .. ..$ Univariate  :Formal class 'GeneList' [package "GeneSelectR"] with 3 slots
+#   .. .. .. ..@ SYMBOL  : chr [1:19] "KAZN" "RGS16" "IGFN1" "CHI3L1" ...
+#   .. .. .. ..@ ENSEMBL : chr [1:19] "ENSG00000189337" "ENSG00000143333" "ENSG00000163395" "ENSG00000133048" ...
+#   .. .. .. ..@ ENTREZID: chr [1:19] "23254" "6004" "91156" "1116" ...
+#   .. ..$ RandomForest:Formal class 'GeneList' [package "GeneSelectR"] with 3 slots
+#   .. .. .. ..@ SYMBOL  : chr [1:16] "ZBED6" "CYP2E1" "HBB" "OTOGL" ...
+#   .. .. .. ..@ ENSEMBL : chr [1:16] "ENSG00000257315" "ENSG00000130649" "ENSG00000244734" "ENSG00000165899" ...
+#   .. .. .. ..@ ENTREZID: chr [1:16] "100381270" "1571" "3043" "283310" ...
+#   .. ..$ boruta      :Formal class 'GeneList' [package "GeneSelectR"] with 3 slots
+#   .. .. .. ..@ SYMBOL  : chr [1:8] "CHI3L1" "HBB" "IDH1" "PTPRN" ...
+#   .. .. .. ..@ ENSEMBL : chr [1:8] "ENSG00000133048" "ENSG00000244734" "ENSG00000138413" "ENSG00000054356" ...
+#   .. .. .. ..@ ENTREZID: chr [1:8] "1116" "3043" "3417" "5798" ...
+```
+For example, ENTREZID for Random Forest gene list derived from inbuilt feature importance can be accessed like this: 
+```{r}
+print(annotated_df@inbuilt$RandomForest@ENTREZID)
+```
+
+You can also add custom lists (eg. background for enrichment, differential gene expression list) to fetch annotations for them: 
+```{r}
+custom_list <- list(background = c('gene1', 'gene2', 'gene3', 'gene4'), 
+                    DEGs = c('gene5','gene6','gene7'))
+annotations_df_with_custom <- annotate_gene_lists(pipeline_results = selection_results, 
+                                      annotations_ahb = annotations_ahb,
+                                      format = 'ensembl_gene_name', 
+                                      custom_lists = custom_list)
+annotations_df_with_custom
+```
+
+## GO Enrichment Analysis 
+## Visualization of Parent Term Fractions 
+You can calculate what is the fraction of target parent GO terms is enriched in your feature selection lists 
+# 6. Semantic Similarity Analysis 

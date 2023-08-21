@@ -23,11 +23,11 @@ if (!inherits(pipeline_results, "PipelineResults")) {
 format <- match.arg(format, c("ensembl_gene_name", "ensembl_id", "gene_name"))
 
 # Extract the gene lists from the PipelineResults object
-mean_importances_lists <- lapply(pipeline_results@mean_feature_importances, function(x) x$feature)
+mean_importances_lists <- lapply(pipeline_results@inbuilt_feature_importance, function(x) x$feature)
 
-# Check for permutation_importances in the pipeline_results
-if (!is.null(pipeline_results@permutation_importances)) {
-  permutation_importances_lists <- lapply(pipeline_results@permutation_importances, function(x) x$feature)
+# Check for permutation_importance in the pipeline_results
+if (!is.null(pipeline_results@permutation_importance)) {
+  permutation_importance_lists <- lapply(pipeline_results@permutation_importance, function(x) x$feature)
 }
 
 # Check and merge custom_lists with mean_importances_lists
@@ -36,7 +36,7 @@ if (!is.null(custom_lists)) {
     stop("custom_lists must be a named list of character vectors.")
   }
   mean_importances_lists <- c(mean_importances_lists, custom_lists)
-  permutation_importances_lists <- c(permutation_importances_lists, custom_lists)
+  permutation_importance_lists <- c(permutation_importance_lists, custom_lists)
 }
 
 # Prepare lists to hold AnnotatedGeneList objects
@@ -93,19 +93,19 @@ convert_and_annotate <- function(gene_lists, annotated_lists) {
   return(annotated_lists)
 }
 
-# Apply the function to mean_feature_importances
+# Apply the function to inbuilt_feature_importance
 annotated_mean_lists <- convert_and_annotate(mean_importances_lists, annotated_mean_lists)
 
-# Apply the function to permutation_importances if they exist
-if (!is.null(pipeline_results@permutation_importances)) {
-  annotated_permutation_lists <- convert_and_annotate(permutation_importances_lists, annotated_permutation_lists)
+# Apply the function to permutation_importance if they exist
+if (!is.null(pipeline_results@permutation_importance)) {
+  annotated_permutation_lists <- convert_and_annotate(permutation_importance_lists, annotated_permutation_lists)
 }
 
 # Create AnnotatedGeneLists object
 annotated_gene_lists <- new("AnnotatedGeneLists")
 
 # Store inbuilt and permutation lists
-if (!is.null(pipeline_results@permutation_importances)) {
+if (!is.null(pipeline_results@permutation_importance)) {
   annotated_gene_lists@permutation <- annotated_permutation_lists
 } else annotated_gene_lists@permutation <- NULL
 
