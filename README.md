@@ -51,4 +51,4 @@ cross-validation mean metrics scores.
 ## Example
 
 A tutorial detailing how to use GeneSelectR can be seen in this
-[vignette](https://dzhakparov.github.io/GeneSelectR/doc/example.html)
+[vignette](https://dzhakparov.github.io/GeneSelectR/vignettes/example.html).
