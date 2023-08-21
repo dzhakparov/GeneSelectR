@@ -1,8 +1,16 @@
+#' @title Class Union for Test metrics output that could contain either a dataframe or a lists
+#' @description A class union that can contain either a data frame or a list.
+#' @docType class
+#' @seealso \link{setClassUnion}
+#' @keywords internal
+#' @export
+setClassUnion("TestMetrics", c("data.frame", "list"))
+
 #' PipelineResults class
 #'
-#' A class to hold the results of fitting and evaluating pipelines.
+#' A class to hold the results of GeneSelectR function.
 #'
-#' @slot fitted_pipelines A list of the fitted pipelines.
+#' @slot best_pipeline A named list containing parameters of the best performer pipeline
 #' @slot cv_results A list of the cross-validation results for each pipeline.
 #' @slot inbuilt_feature_importance A list of the inbuilt mean feature importances for each method across all splits.
 #' @slot permutation_importance A list of the permutation importances for each method.
@@ -12,12 +20,12 @@
 #' @exportClass PipelineResults
 setClass("PipelineResults",
          slots = list(
-           fitted_pipelines = "list",
+           best_pipeline = "list",
            cv_results = "list",
            inbuilt_feature_importance = "list",
            permutation_importance = 'list',
            cv_mean_score = 'data.frame',
-           test_metrics = 'data.frame'
+           test_metrics = 'TestMetrics'
          ))
 
 #' @title GeneList class
@@ -44,3 +52,4 @@ setClass("AnnotatedGeneLists",
             inbuilt = "list",
             permutation = 'list'
          ))
+

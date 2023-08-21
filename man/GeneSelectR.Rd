@@ -5,27 +5,28 @@
 \title{Gene Selection and Evaluation with GeneSelectR}
 \usage{
 GeneSelectR(
-  X_train,
-  y_train,
+  X,
+  y,
   pipelines = NULL,
   feature_selection_methods = NULL,
   selected_methods = NULL,
   fs_param_grids = NULL,
   testsize = 0.2,
   validsize = 0.2,
-  njobs = -1L,
-  n_splits = 2L,
+  scoring = "accuracy",
+  njobs = -1,
+  n_splits = 5,
   search_type = "random",
-  n_iter = 10L,
-  max_features = 50L,
+  n_iter = 10,
+  max_features = 50,
   calculate_permutation_importance = FALSE,
-  perform_split = TRUE
+  perform_test_split = FALSE
 )
 }
 \arguments{
-\item{X_train}{A matrix or data frame of training data with features as columns and observations as rows.}
+\item{X}{A matrix or data frame with features as columns and observations as rows.}
 
-\item{y_train}{A vector of training labels corresponding to the rows of X_train.}
+\item{y}{A vector of labels corresponding to the rows of X_train.}
 
 \item{pipelines}{An optional list of pre-defined pipelines to use for fitting and evaluation. If this argument is provided, the feature selection methods and preprocessing steps will be ignored.}
 
@@ -39,6 +40,8 @@ GeneSelectR(
 
 \item{validsize}{The size of the validation set used in the evaluation.}
 
+\item{scoring}{A string representing what scoring metric to use for hyperparameter adjustment. Default value is 'accuracy'}
+
 \item{njobs}{Number of jobs to run in parallel.}
 
 \item{n_splits}{Number of train/test splits.}
@@ -51,7 +54,7 @@ GeneSelectR(
 
 \item{calculate_permutation_importance}{A boolean indicating whether to calculate permutation feature importance. Default is FALSE.}
 
-\item{perform_split}{Whether to perform train and test split, to have an evaluation on unseen test set. The default value is set to TRUE}
+\item{perform_test_split}{Whether to perform train and test split, to have an evaluation on unseen test set. The default value is set to FALSE}
 }
 \value{
 A list with the following elements:

@@ -13,7 +13,7 @@ plot_metrics <- function(pipeline_results) {
   }
 
   # Extract the test_metrics dataframe from the object
-  if (is.null(pipeline_results@test_metrics)) {
+  if (length(pipeline_results@test_metrics) == 0) {
     message('Test metrics weren"t calculated')
   } else {
     test_metrics_df <- pipeline_results@test_metrics
@@ -49,7 +49,7 @@ plot_metrics <- function(pipeline_results) {
     ggplot2::geom_errorbar(ggplot2::aes(ymin = .data$mean_score - .data$sd_score, ymax = .data$mean_score + .data$sd_score), width = 0.2) +
     ggplot2::theme_minimal() +
     ggplot2::labs(title = "CV Mean Score", y = "Mean")
-  if (is.null(pipeline_results@test_metrics)) {
+  if (length(pipeline_results@test_metrics) == 0) {
     message('No test set metrics provided. Only CV performance will be plotted')
   } else {
     #Combine the plots and share the legend
@@ -64,7 +64,7 @@ plot_metrics <- function(pipeline_results) {
                                         rel_heights = c(1,1,1,1,1.2))
     }
 
-  return(if (is.null(pipeline_results@test_metrics)) cv_plot else combined_plot)
+  return(if (length(pipeline_results@test_metrics) == 0) cv_plot else combined_plot)
 }
 
 

@@ -37,18 +37,21 @@ calculate_overlap_coefficients <- function(pipeline_results, custom_lists = NULL
   }
 
   # Extract feature names from mean_feature_importances
-  feature_importances_list <- lapply(pipeline_results@mean_feature_importances, function(df) df$feature)
+  feature_importances_list <- lapply(pipeline_results@inbuilt_feature_importance, function(df) df$feature)
 
   # Check if permutation_importances exist and apply function
   permutation_importance_coefficients <- NULL
-  if (!is.null(pipeline_results@permutation_importances)) {
+  if (length(pipeline_results@permutation_importance) != 0) {
     # Extract feature names from permutation_importances
-    permutation_importances_list <- lapply(pipeline_results@permutation_importances, function(df) df$feature)
+    permutation_importances_list <- lapply(pipeline_results@permutation_importance, function(df) df$feature)
   } else {
-    permutation_importances_list <- list()
+    permutation_importances_list <- NULL
   }
 
-  all_lists <- list("features" = feature_importances_list, "permutations" = permutation_importances_list)
+
+  if (!is.null(permutation_importances_list)) {
+    all_lists <- list("features" = feature_importances_list, "permutations" = permutation_importances_list)
+    } else all_lists <- list("features" = feature_importances_list)
 
   if (!is.null(custom_lists)) {
     all_lists <- lapply(all_lists, function(lst) c(lst, custom_lists))
@@ -56,7 +59,9 @@ calculate_overlap_coefficients <- function(pipeline_results, custom_lists = NULL
 
   result_lists <- lapply(all_lists, get_coefficients)
 
-  names(result_lists) <- c("feature_importance_coefficients", "permutation_importance_coefficients")
+  if (!is.null(permutation_importances_list)) {
+    names(result_lists) <- c("inbuilt_feature_importance_coefficient", "permutation_importance_coefficients")
+    } else names(result_lists) <- c('inbuilt_feature_importance_coefficient')
 
   # Return both lists of coefficients
   return(result_lists)

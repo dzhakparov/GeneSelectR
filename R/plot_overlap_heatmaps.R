@@ -10,7 +10,7 @@
 #' @importFrom cowplot plot_grid
 #' @importFrom rlang .data
 #' @export
-generate_overlap_heatmaps <- function(coefficients, save_plot = FALSE, filename = NULL) {
+plot_overlap_heatmaps <- function(coefficients, save_plot = FALSE, filename = NULL) {
   # Check if input is a list of lists, each containing matrices
   if (!is.list(coefficients) || any(!sapply(coefficients, function(l) is.list(l) && all(sapply(l, is.matrix))))) {
     stop("The input should be a list of lists, each containing matrices.")
@@ -47,7 +47,7 @@ generate_overlap_heatmaps <- function(coefficients, save_plot = FALSE, filename 
   }
 
   # Draw heatmaps
-  feature_heatmaps <- draw_multiple_heatmaps(coefficients$feature_importance_coefficients, "Feature")
+  feature_heatmaps <- draw_multiple_heatmaps(coefficients$inbuilt_feature_importance_coefficient, "Inbuilt")
   permutation_heatmaps <- if (!is.null(coefficients$permutation_importance_coefficients)) draw_multiple_heatmaps(coefficients$permutation_importance_coefficients, "Permutation") else NULL
 
   # Arrange heatmaps in one figure

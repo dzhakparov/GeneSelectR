@@ -5,12 +5,12 @@
 \alias{PipelineResults-class}
 \title{PipelineResults class}
 \description{
-A class to hold the results of fitting and evaluating pipelines.
+A class to hold the results of GeneSelectR function.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{fitted_pipelines}}{A list of the fitted pipelines.}
+\item{\code{best_pipeline}}{A named list containing parameters of the best performer pipeline}
 
 \item{\code{cv_results}}{A list of the cross-validation results for each pipeline.}
 

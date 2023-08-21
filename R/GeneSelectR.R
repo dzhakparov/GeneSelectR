@@ -9,14 +9,15 @@ define_sklearn_modules <- function() {
   feature_selection <- sklearn$feature_selection
   ensemble <- sklearn$ensemble
   pipeline <- sklearn$pipeline$Pipeline
-  # define default models for the feature selection process
 
+  # define default models for the feature selection process
   forest <- sklearn$ensemble$RandomForestClassifier
   randomized_grid <- sklearn$model_selection$RandomizedSearchCV
   grid <- sklearn$model_selection$GridSearchCV
   lasso <- sklearn$linear_model$LogisticRegression
   univariate <- sklearn$feature_selection$GenericUnivariateSelect
   select_model <- sklearn$feature_selection$SelectFromModel
+
   # define a classifier for the accuracy estimation
   GradBoost <- ensemble$GradientBoostingClassifier
 
@@ -56,8 +57,8 @@ enable_multiprocess <- function() {
 set_default_fs_methods <- function(modules, max_features) {
   VarianceThreshold <- modules$feature_selection$VarianceThreshold(0.85)
   MinMaxScaler <- modules$preprocessing$MinMaxScaler()
-  Lasso <- modules$select_model(modules$lasso(penalty = 'l1', C = 0.1, solver = 'saga'), threshold = 'median', max_features = max_features)
-  Univariate <- modules$univariate(mode = 'k_best',param = 200L)
+  Lasso <- modules$select_model(modules$lasso(penalty = 'l1', C = 0.01, solver = 'saga', max_iter = 500L), threshold = 'median', max_features = max_features)
+  Univariate <- modules$univariate(mode = 'k_best',param = max_features)
   RandomForest <- modules$select_model(modules$forest(n_estimators=100L, random_state=42L), threshold = 'median', max_features = max_features)
   boruta <- boruta$BorutaPy(modules$forest(), n_estimators = 'auto', verbose = 0,perc = 100L)
 
@@ -129,6 +130,7 @@ split_data <- function(X, y, test_size, modules) {
 #' @param X_train Training data for predictors.
 #' @param y_train Training data for outcomes.
 #' @param pipeline A pipeline specifying the steps for feature selection and model training.
+#' @param scoring A string representing what scoring metric to use for hyperparameter adjustment. Default value is 'accuracy'
 #' @param params A list of parameters or parameter distributions to search over.
 #' @param search_type A character string specifying the type of search ('grid' or 'random').
 #' @param n_iter The number of parameter settings that are sampled in a random search.
@@ -136,18 +138,20 @@ split_data <- function(X, y, test_size, modules) {
 #' @param modules A list containing the definitions for the Python modules and submodules.
 #' @return An object of the optimal model found during the search.
 #'
-perform_grid_search <- function(X_train, y_train, pipeline, params, search_type, n_iter, njobs, modules) {
+perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, search_type, n_iter, njobs, modules) {
   if (search_type == 'grid') {
     search_cv <- modules$grid(
       estimator = pipeline,
+      scoring = scoring,
       param_grid = params,
       cv = 5L,
       n_jobs = njobs,
-      verbose = 2L
+      verbose = 1L
     )
   } else if (search_type == 'random') {
     search_cv <- modules$randomized_grid(
       estimator = pipeline,
+      scoring = scoring,
       param_distributions = params,
       cv = 5L,
       n_iter = n_iter,
@@ -161,14 +165,30 @@ perform_grid_search <- function(X_train, y_train, pipeline, params, search_type,
   return(search_cv)
 }
 
-#' Evaluate Test Metrics for a Model
+#' Convert Scikit-learn Pipeline to Named List
 #'
-#' @param grid_search An object of the optimal model found during a search.
-#' @param X_test DataFrame object that contains test set data
-#' @param y_test A vector containing test set labels
-#' @param modules A list containing the definitions for the Python modules and submodules.
-#' @return A list containing the calculated test metrics for the model.
+#' This function takes a Scikit-learn Pipeline object and converts it to a named list in R.
+#' Each step in the pipeline becomes an element in the list with the name of the step as the name of the list element.
 #'
+#' @param pipeline A Scikit-learn Pipeline object.
+#'
+#' @return A named list where each element represents a step in the pipeline.
+#' The names of the list elements correspond to the names of the steps in the pipeline.
+#'
+pipeline_to_list <- function(pipeline) {
+  steps <- pipeline$steps
+  named_list <- list()
+
+  for (step in steps) {
+    step_name <- step[[1]][[1]]
+    if (!step_name %in% names(named_list)) {
+      step_obj <- step[[2]]
+      named_list[[step_name]] <- step_obj
+    }
+  }
+  return(named_list)
+}
+
 evaluate_test_metrics <- function(grid_search, X_test, y_test, modules) {
   best_model <- grid_search$best_estimator_
   y_pred <- best_model$predict(X_test)
@@ -187,10 +207,10 @@ evaluate_test_metrics <- function(grid_search, X_test, y_test, modules) {
 create_test_metrics_df <- function(test_metrics) {
   test_metrics_df <- test_metrics %>%
     tibble::enframe(name = "split", value = 'methods') %>%
-    tidyr::unnest_longer(methods, indices_to = 'method') %>%
-    tidyr::unnest_wider(methods)
+    tidyr::unnest_longer(.data$methods, indices_to = 'method') %>%
+    tidyr::unnest_wider(.data$methods)
 
-  test_metrics_df %>%
+  test_metrics_df <- test_metrics_df %>%
     dplyr::group_by(method) %>%
     dplyr::summarise(dplyr::across(c(dplyr::starts_with("f1"), dplyr::starts_with("recall"),
                                      dplyr::starts_with("precision"), dplyr::starts_with("accuracy")),
@@ -231,21 +251,22 @@ calculate_mean_cv_scores <- function(selected_pipelines, cv_best_score) {
 #' training set and evaluates their performance using cross-validation. Optionally, it
 #' also calculates permutation feature importances.
 #'
-#' @param X_train A matrix or data frame of training data with features as columns and observations as rows.
-#' @param y_train A vector of training labels corresponding to the rows of X_train.
+#' @param X A matrix or data frame with features as columns and observations as rows.
+#' @param y A vector of labels corresponding to the rows of X_train.
 #' @param pipelines An optional list of pre-defined pipelines to use for fitting and evaluation. If this argument is provided, the feature selection methods and preprocessing steps will be ignored.
 #' @param feature_selection_methods An optional list of feature selection methods to use for fitting and evaluation. If this argument is not provided, a default set of feature selection methods will be used.
 #' @param selected_methods An optional vector of names of feature selection methods to use from the default set. If this argument is provided, only the specified methods will be used.
 #' @param fs_param_grids An optional list of hyperparameter grids for the feature selection methods. Each element of the list should be a named list of parameters for a specific feature selection method. The names of the elements should match the names of the feature selection methods. If this argument is provided, the function will perform hyperparameter tuning for the specified feature selection methods in addition to the final estimator.
 #' @param testsize The size of the test set used in the evaluation.
 #' @param validsize The size of the validation set used in the evaluation.
+#' @param scoring A string representing what scoring metric to use for hyperparameter adjustment. Default value is 'accuracy'
 #' @param njobs Number of jobs to run in parallel.
 #' @param n_splits Number of train/test splits.
 #' @param search_type A string indicating the type of search to use. 'grid' for GridSearchCV and 'random' for RandomizedSearchCV. Default is 'random'.
 #' @param n_iter An integer indicating the number of parameter settings that are sampled in RandomizedSearchCV. Only applies when search_type is 'random'.
 #' @param calculate_permutation_importance A boolean indicating whether to calculate permutation feature importance. Default is FALSE.
 #' @param max_features Maximum number of features to be selected by default feature selection methods
-#' @param perform_split Whether to perform train and test split, to have an evaluation on unseen test set. The default value is set to TRUE
+#' @param perform_test_split Whether to perform train and test split, to have an evaluation on unseen test set. The default value is set to FALSE
 #' @return A list with the following elements:
 #' \item{fitted_pipelines}{A list of the fitted pipelines.}
 #' \item{cv_results}{A list of the cross-validation results for each pipeline.}
@@ -287,30 +308,36 @@ calculate_mean_cv_scores <- function(selected_pipelines, cv_best_score) {
 #' @importFrom utils globalVariables
 #' @export
 #'
-GeneSelectR <- function(X_train,
-                        y_train,
+GeneSelectR <- function(X,
+                        y,
                         pipelines = NULL,
                         feature_selection_methods = NULL,
                         selected_methods = NULL,
                         fs_param_grids = NULL,
                         testsize = 0.2,
                         validsize = 0.2,
-                        njobs = -1L,
-                        n_splits = 2L,
+                        scoring = 'accuracy',
+                        njobs = -1,
+                        n_splits = 5,
                         search_type = 'random',
-                        n_iter = 10L,
-                        max_features = 50L,
+                        n_iter = 10,
+                        max_features = 50,
                         calculate_permutation_importance = FALSE,
-                        perform_split = TRUE) {
+                        perform_test_split = FALSE) {
+
   message('Performing feature selection procedure. Please wait, it takes some time')
+
+  # Convert certain parameters to integers
+  njobs <- as.integer(njobs)
+  n_splits <- as.integer(n_splits)
+  n_iter <- as.integer(n_iter)
+  max_features <- as.integer(max_features)
 
   if (Sys.info()["sysname"] == "Windows") {
     enable_multiprocess()
   }
 
   modules <- define_sklearn_modules()
-  print(modules)
-
   default_feature_selection_methods <- set_default_fs_methods(modules, max_features)
 
   if (is.null(fs_param_grids)) {
@@ -340,8 +367,8 @@ GeneSelectR <- function(X_train,
   }
 
   # convert R objects to Py
-  X_train <- reticulate::r_to_py(X_train)
-  y_train <- reticulate::r_to_py(y_train)
+  X_train <- reticulate::r_to_py(X)
+  y_train <- reticulate::r_to_py(y)
   y_train <- y_train$values$ravel()
 
   fitted_pipelines <- list()
@@ -357,7 +384,7 @@ GeneSelectR <- function(X_train,
   for (split_idx in 1:n_splits) {
     message(glue::glue("Fitting the data split: {split_idx} \n"))
 
-    if (perform_split) {
+    if (perform_test_split) {
       split_results <- split_data(X_train, y_train, testsize, modules)
       X_train_split <- split_results$X_train
       X_test_split <- split_results$X_test
@@ -417,6 +444,7 @@ GeneSelectR <- function(X_train,
         X_train_sub_split,
         y_train_sub_split,
         selected_pipelines[[i]],
+        scoring,
         params,
         search_type,
         n_iter,
@@ -424,17 +452,19 @@ GeneSelectR <- function(X_train,
         modules
       )
 
-      if (perform_split) {
+      best_model <- search_cv$best_estimator_
+
+      if (perform_test_split) {
         test_set_metrics <- evaluate_test_metrics(search_cv, X_test = X_test_split, y_test = y_test_split, modules)
         split_test_metrics[[names(selected_pipelines)[[i]]]] <- test_set_metrics
 
       }
 
       # Save the fitted pipeline and results for the current split
-      split_fitted_pipelines[[names(selected_pipelines)[[i]]]] <- search_cv$best_estimator_
+      split_fitted_pipelines[[names(selected_pipelines)[[i]]]] <- pipeline_to_list(best_model)
       split_cv_results[[names(selected_pipelines)[[i]]]] <- search_cv$cv_results_
       split_best_score[[names(selected_pipelines)[[i]]]] <- search_cv$best_score_
-      split_selected_features[[names(selected_pipelines)[[i]]]] <- get_feature_importances(split_fitted_pipelines[[i]], X_train_sub_split, pipeline_name = names(selected_pipelines)[[i]], iter = split_idx)
+      split_selected_features[[names(selected_pipelines)[[i]]]] <- get_feature_importances(best_model, X_train_sub_split, pipeline_name = names(selected_pipelines)[[i]], iter = split_idx)
 
       if (calculate_permutation_importance) {
         message('Performing Permuation Importance Calculation')
@@ -454,7 +484,7 @@ GeneSelectR <- function(X_train,
     permutation_importances[[glue::glue('split_{split_idx}')]] <- split_permutation_importances
   }
 
-  if (perform_split) {
+  if (perform_test_split) {
     test_metrics_df <- create_test_metrics_df(test_metrics)
   }
 
@@ -471,10 +501,10 @@ GeneSelectR <- function(X_train,
 
 
   return(methods::new("PipelineResults",
-                      fitted_pipelines = split_results,
+                      best_pipeline = split_results,
                       cv_results = cv_results,
                       inbuilt_feature_importance = inbuilt_feature_importance,
-                      test_metrics = if (perform_split) test_metrics_df else list(),
+                      test_metrics = if (perform_test_split) test_metrics_df else list(),
                       cv_mean_score = cv_score_summary_df,
                       permutation_importance = if (calculate_permutation_importance) mean_permutation_importances else list()))
 }

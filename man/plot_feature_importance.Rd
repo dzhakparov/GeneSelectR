@@ -15,5 +15,5 @@ plot_feature_importance(pipelineresults, top_n_features = 10)
 A list of grid of ggplot objects.
 }
 \description{
-This function plots the feature importance scores from \code{mean_feature_importances} and \code{permutation_importances} in the \code{PipelineResults} object.
+This function plots the feature importance scores from \code{inbuilt_feature_importance} and \code{permutation_importance} in the \code{PipelineResults} object.
 }

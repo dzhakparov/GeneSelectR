@@ -1,6 +1,6 @@
 #' Plot Feature Importance
 #'
-#' This function plots the feature importance scores from `mean_feature_importances` and `permutation_importances` in the `PipelineResults` object.
+#' This function plots the feature importance scores from `inbuilt_feature_importance` and `permutation_importance` in the `PipelineResults` object.
 #'
 #' @param pipelineresults An object of class `PipelineResults`.
 #' @param top_n_features An integer specifying the top N features to plot based on their mean importance.
@@ -15,16 +15,16 @@ plot_feature_importance <- function(pipelineresults, top_n_features = 10) {
 
   plots_list <- list()
 
-  for(method_name in names(pipelineresults@mean_feature_importances)){
-    # Extract mean_feature_importances and permutation_importances from the PipelineResults object
-    mean_importances <- pipelineresults@mean_feature_importances[[method_name]]
-    permutation_importances <- pipelineresults@permutation_importances[[method_name]]
+  for(method_name in names(pipelineresults@inbuilt_feature_importance)){
+    # Extract inbuilt_feature_importance and permutation_importance from the PipelineResults object
+    mean_importance <- pipelineresults@inbuilt_feature_importance[[method_name]]
+    permutation_importance <- pipelineresults@permutation_importance[[method_name]]
 
     # Order by mean_importance and take top_n_features
-    top_mean_features <- mean_importances %>%
+    top_mean_features <- mean_importance %>%
       dplyr::arrange(dplyr::desc(mean_importance)) %>%
       dplyr::slice(1:top_n_features)
-    top_permutation_features <- permutation_importances %>%
+    top_permutation_features <- permutation_importance %>%
       dplyr::arrange(dplyr::desc(mean_importance)) %>%
       dplyr::slice(1:top_n_features)
 

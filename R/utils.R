@@ -120,7 +120,7 @@ calculate_permutation_feature_importance <- function(pipeline,
 #' @param classifier A Scikit-learn classifier to use as the final step in the pipelines.
 #' @param fs_param_grids param grid
 #' @return A list of Scikit-learn pipelines.
-#' @importFrom reticulate import tuple
+#' @importFrom reticulate import tuple py_bool
 create_pipelines <- function(feature_selection_methods, preprocessing_steps, selected_methods, classifier, fs_param_grids) {
   sklearn <- reticulate::import('sklearn')
   pipeline <- sklearn$pipeline$Pipeline
@@ -143,7 +143,7 @@ create_pipelines <- function(feature_selection_methods, preprocessing_steps, sel
 
         # Incorporate the parameters from fs_params into the appropriate estimator objects
         for (i in seq_along(tuple_steps)) {
-          if (tuple_steps[[i]][[1]] == "feature_selector") {
+          if (reticulate::py_bool(tuple_steps[[i]][[1]] == "feature_selector")) {
             tuple_steps[[i]][[2]] <- do.call(tuple_steps[[i]][[2]], fs_params)
           }
         }
@@ -157,6 +157,7 @@ create_pipelines <- function(feature_selection_methods, preprocessing_steps, sel
 
   return(named_pipelines)
 }
+
 
 
 #' @title Convert Steps to Tuples

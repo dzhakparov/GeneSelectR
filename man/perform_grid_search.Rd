@@ -8,6 +8,7 @@ perform_grid_search(
   X_train,
   y_train,
   pipeline,
+  scoring,
   params,
   search_type,
   n_iter,
@@ -21,6 +22,8 @@ perform_grid_search(
 \item{y_train}{Training data for outcomes.}
 
 \item{pipeline}{A pipeline specifying the steps for feature selection and model training.}
+
+\item{scoring}{A string representing what scoring metric to use for hyperparameter adjustment. Default value is 'accuracy'}
 
 \item{params}{A list of parameters or parameter distributions to search over.}
 

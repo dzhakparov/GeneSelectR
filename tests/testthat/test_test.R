@@ -1,7 +1,8 @@
 library(testthat)
 library(GeneSelectR)
-# Define a context for your tests
-#context("Testing compare_gene_lists")
+
+# Load the UrbanRandomSubset object from the fixtures subfolder
+load(testthat::test_path("fixtures", "UrbanRandomSubset.rda"))
 
 # # Define a test
 test_that("compare_gene_lists returns expected output", {
@@ -22,5 +23,5 @@ test_that("compare_gene_lists returns expected output", {
   expect_s4_class(results, "PipelineResults")
 
   # Check that the list has the expected elements
-  expect_named(selection_results, c("fitted_pipelines", "cv_results", "mean_feature_importances", 'test_metrics','cv_mean_score'))
+  expect_named(selection_results, c("best_pipeline", "cv_results", "inbuilt_feature_importance", 'test_metrics','cv_mean_score'))
 })
