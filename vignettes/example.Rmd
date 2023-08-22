@@ -166,28 +166,46 @@ select_from_model <- feature_selection$SelectFromModel
 RFE <- feature_selection$RFE
 rf <- sklearn$ensemble$RandomForestClassifier
 
+
 my_methods <- list('RFE' = RFE(estimator = rf(), n_features_to_select = 100L),
                    'SelectFromModel' = select_from_model(estimator = rf()))
+my_params <- list('RFE' = list('feature_selector__step' = seq(0.1, 0.001, 1, 10)),
+                  'SelectFromModel' = list('feature_selector__estimator__n_estimators' = c(50L, 100L, 250L, 500L),
+                                           "feature_selector__estimator__max_depth" = c(10L, 20L, 30L),
+                                           "feature_selector__estimator__bootstrap" = c(TRUE, FALSE))
+                  )
 ```
 
-And then we can pass it as an argument to fit_and_evaluate_pipelines function:
+And then we can pass it as an arguments to fit_and_evaluate_pipelines function:
 
 ```{r}
 selection_results <- GeneSelectR::GeneSelectR(X_train = X, 
-                                                y_train = y,
-                                                njobs = -1,
-                                                feature_selection_methods=my_methods)
+                                              y_train = y,
+                                              njobs = -1,
+                                              feature_selection_methods=my_methods,
+                                              fs_param_grids = my_params)
+```
+### Passing Custom sklearn Pipelines
+In some cases you would want to pass a whole sklearn Pipeline objects with transformers of your choice. In this case the whole Pipeline should be passed to pipelines argument in following fashion: 
+```{r}
+
 ```
 
 # 4. Machine Learning Performance Results Inspection
 ## Structure of the PipelineResults object
-The function returns an object of class "PipelineResults", containing: 
-- 'best_pipeline': A named list containing parameters of the best performer pipeline . 
-- 'cv_results': Results of cross-validation for each pipeline. 
+The function returns an object of class "PipelineResults", containing:  
+-  'best_pipeline': A named list containing parameters of the best performer pipeline.  
+
+-  'cv_results': Results of cross-validation for each pipeline. 
+
 - 'inbuilt_feature_importance': Aggregated inbuilt feature importance scores. 
+
 - 'test_metrics': If the perform_split parameter was set to TRUE, a dataframe of test metrics for each pipeline is returned. 
+
 -'cv_mean_score': A dataframe that summarizes the mean cross-validation scores. 
-- 'permutation_importance': If permutation importance was calculated, its mean values are returned.
+
+- 'permutation_importance': If permutation importance was calculated, its mean values are returned. 
+
 
 ## Feature Importance Plots 
 Finally, you can visualize the most important features for every feature importance method calculation by calling plotting function: 
@@ -202,7 +220,8 @@ The plot will show you the mean feature importance of top n features of your cho
 
 ## ML Performance Metrics
 
-You can plot the feature selection procedure metrics with the following function:
+You can plot the feature selection procedure metrics with the following function: 
+
 
 ```{r}
 plot_metrics(selection_results)
@@ -212,6 +231,9 @@ Or access it as a dataframe:
 
 ```{r}
 selection_results$test_metrics
+```
+```{r}
+
 ```
 
 ## Overlap Between Gene Lists
@@ -329,15 +351,20 @@ annotated_GO <- GO_enrichment_analysis(annotated_df,
                                        ont = 'BP') # run BP ontology
 annotated_GO
 ```
-The returned object is a list containing clusterprofiler enrichResult for every feature selection list 
+The returned object is a list containing clusterprofiler enrichResult for every feature selection list. 
 
 ## Visualization of Parent Term Fractions 
 You can calculate what is the fraction of target parent GO terms is enriched in your feature selection lists: 
 ```{r}
 annot_child_fractions <- compute_GO_child_term_metrics(GO_data = annotated_GO,
                               GO_terms = c("GO:0002376", "GO:0044419"),
-                              plot = TRUE)
+                              plot = FALSE)
 ```
+This will produce a dataframe containing information on number of children terms of specified terms, number of all the terms and fraction of children terms related to the parent one in the total number of identified GO terms (without p-value filtering): 
+```{r}
+
+```
+If the plot argument is set to TRUE it will produce a following plot: 
 
 <div style="text-align:center">
   <img src="../vignettes/images/compute_GO_child_term_metrics.png" alt="Alt text" width="400px" />
