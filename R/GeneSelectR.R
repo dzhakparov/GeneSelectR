@@ -254,9 +254,9 @@ calculate_mean_cv_scores <- function(selected_pipelines, cv_best_score) {
 #' @param X A matrix or data frame with features as columns and observations as rows.
 #' @param y A vector of labels corresponding to the rows of X_train.
 #' @param pipelines An optional list of pre-defined pipelines to use for fitting and evaluation. If this argument is provided, the feature selection methods and preprocessing steps will be ignored.
-#' @param feature_selection_methods An optional list of feature selection methods to use for fitting and evaluation. If this argument is not provided, a default set of feature selection methods will be used.
+#' @param custom_fs_methods An optional list of feature selection methods to use for fitting and evaluation. If this argument is not provided, a default set of feature selection methods will be used.
 #' @param selected_methods An optional vector of names of feature selection methods to use from the default set. If this argument is provided, only the specified methods will be used.
-#' @param fs_param_grids An optional list of hyperparameter grids for the feature selection methods. Each element of the list should be a named list of parameters for a specific feature selection method. The names of the elements should match the names of the feature selection methods. If this argument is provided, the function will perform hyperparameter tuning for the specified feature selection methods in addition to the final estimator.
+#' @param custom_fs_grids An optional list of hyperparameter grids for the feature selection methods. Each element of the list should be a named list of parameters for a specific feature selection method. The names of the elements should match the names of the feature selection methods. If this argument is provided, the function will perform hyperparameter tuning for the specified feature selection methods in addition to the final estimator.
 #' @param testsize The size of the test set used in the evaluation.
 #' @param validsize The size of the validation set used in the evaluation.
 #' @param scoring A string representing what scoring metric to use for hyperparameter adjustment. Default value is 'accuracy'
@@ -290,11 +290,11 @@ calculate_mean_cv_scores <- function(selected_pipelines, cv_best_score) {
 #'                                                 C = 0.1,
 #'                                                 solver = 'saga'),
 #'                                           threshold = 'median'))
-#' fs_param_grids <- list("Lasso" = list('C' = c(0.1, 1, 10)))
+#' custom_fs_grids <- list("Lasso" = list('C' = c(0.1, 1, 10)))
 #' results <- GeneSelectR(X_train = X,
 #'                        y_train = y,
-#'                        feature_selection_methods = fs_methods,
-#'                        fs_param_grids = fs_param_grids)
+#'                        custom_fs_methods = fs_methods,
+#'                        custom_fs_grids = custom_fs_grids)
 #'}
 #' @importFrom reticulate import r_to_py
 #' @importFrom glue glue
@@ -311,9 +311,9 @@ calculate_mean_cv_scores <- function(selected_pipelines, cv_best_score) {
 GeneSelectR <- function(X,
                         y,
                         pipelines = NULL,
-                        feature_selection_methods = NULL,
+                        custom_fs_methods = NULL,
                         selected_methods = NULL,
-                        fs_param_grids = NULL,
+                        custom_fs_grids = NULL,
                         testsize = 0.2,
                         validsize = 0.2,
                         scoring = 'accuracy',
@@ -340,19 +340,19 @@ GeneSelectR <- function(X,
   modules <- define_sklearn_modules()
   default_feature_selection_methods <- set_default_fs_methods(modules, max_features)
 
-  if (is.null(fs_param_grids)) {
-    fs_param_grids <- set_default_param_grids()
+  if (is.null(custom_fs_grids)) {
+    custom_fs_grids <- set_default_param_grids()
   }
 
 
   # Use the default feature selection methods if none are provided
-  if (is.null(feature_selection_methods)) {
-    feature_selection_methods <- default_feature_selection_methods$default_feature_selection_methods
+  if (is.null(custom_fs_methods)) {
+    custom_fs_methods <- default_feature_selection_methods$default_feature_selection_methods
   }
 
   # Select the specified feature selection methods if they are provided
   if (!is.null(selected_methods)) {
-    feature_selection_methods <- feature_selection_methods[selected_methods]
+    custom_fs_methods <- custom_fs_methods[selected_methods]
   }
 
   # Select the specified pipelines if they are provided
@@ -360,9 +360,9 @@ GeneSelectR <- function(X,
     selected_pipelines <- pipelines
   } else {
     # Define the default pipelines using the selected feature selection methods
-    selected_pipelines <- create_pipelines(feature_selection_methods,
+    selected_pipelines <- create_pipelines(custom_fs_methods,
                                            default_feature_selection_methods$preprocessing_steps,
-                                           fs_param_grids = fs_param_grids,
+                                           fs_param_grids = custom_fs_grids,
                                            classifier = modules$forest())
   }
 
@@ -432,10 +432,10 @@ GeneSelectR <- function(X,
         )
       )
 
-      if (!is.null(fs_param_grids)) {
+      if (!is.null(custom_fs_grids)) {
         fs_name <- names(selected_pipelines)[i]
-        if (fs_name %in% names(fs_param_grids)) {
-          fs_params <- fs_param_grids[[fs_name]]
+        if (fs_name %in% names(custom_fs_grids)) {
+          fs_params <- custom_fs_grids[[fs_name]]
           params <- c(params, fs_params)
         }
       }
