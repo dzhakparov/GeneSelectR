@@ -11,6 +11,9 @@ GeneSelectR(
   custom_fs_methods = NULL,
   selected_methods = NULL,
   custom_fs_grids = NULL,
+  classifier = NULL,
+  classifier_grid = NULL,
+  preprocessing_steps = NULL,
   testsize = 0.2,
   validsize = 0.2,
   scoring = "accuracy",
@@ -36,6 +39,12 @@ GeneSelectR(
 
 \item{custom_fs_grids}{An optional list of hyperparameter grids for the feature selection methods. Each element of the list should be a named list of parameters for a specific feature selection method. The names of the elements should match the names of the feature selection methods. If this argument is provided, the function will perform hyperparameter tuning for the specified feature selection methods in addition to the final estimator.}
 
+\item{classifier}{An optional sklearn classifier. If left NULL then sklearn RandomForestClassifier is used.}
+
+\item{classifier_grid}{An optional named list of classifier parameters. If none are provided then default grid is used (check vignette for exact params).}
+
+\item{preprocessing_steps}{An optional named list of sklearn preprocessing procedures. If none provided defaults are used (check vignette for exact params).}
+
 \item{testsize}{The size of the test set used in the evaluation.}
 
 \item{validsize}{The size of the validation set used in the evaluation.}
@@ -50,7 +59,7 @@ GeneSelectR(
 
 \item{n_iter}{An integer indicating the number of parameter settings that are sampled in RandomizedSearchCV. Only applies when search_type is 'random'.}
 
-\item{max_features}{Maximum number of features to be selected by default feature selection methods}
+\item{max_features}{Maximum number of features to be selected by default feature selection methods.}
 
 \item{calculate_permutation_importance}{A boolean indicating whether to calculate permutation feature importance. Default is FALSE.}
 

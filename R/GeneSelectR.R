@@ -102,9 +102,17 @@ set_default_param_grids <- function() {
       "feature_selector__estimator__min_samples_split" = c(2L, 5L, 10L),
       "feature_selector__estimator__min_samples_leaf" = c(1L, 2L, 4L),
       "feature_selector__estimator__bootstrap" = c(TRUE, FALSE)
-    )
-  )
-  return(fs_param_grids)
+    ))
+    classifier_param_grid <- list(
+      "classifier__n_estimators" = seq(100L, 1000L, 400L),
+      "classifier__max_depth" = c(10L, 20L, 30L, 40L, 50L),
+      "classifier__min_samples_split" = c(2L, 5L, 10L),
+      "classifier__min_samples_leaf" = c(1L, 2L, 4L),
+      "classifier__max_features" = c('auto', 'sqrt')
+      )
+
+  return(list(fs_param_grids = fs_param_grids,
+              classifier_param_grid = classifier_param_grid))
 }
 
 #' Split Data into Training and Test Sets
@@ -257,6 +265,9 @@ calculate_mean_cv_scores <- function(selected_pipelines, cv_best_score) {
 #' @param custom_fs_methods An optional list of feature selection methods to use for fitting and evaluation. If this argument is not provided, a default set of feature selection methods will be used.
 #' @param selected_methods An optional vector of names of feature selection methods to use from the default set. If this argument is provided, only the specified methods will be used.
 #' @param custom_fs_grids An optional list of hyperparameter grids for the feature selection methods. Each element of the list should be a named list of parameters for a specific feature selection method. The names of the elements should match the names of the feature selection methods. If this argument is provided, the function will perform hyperparameter tuning for the specified feature selection methods in addition to the final estimator.
+#' @param classifier An optional sklearn classifier. If left NULL then sklearn RandomForestClassifier is used.
+#' @param classifier_grid An optional named list of classifier parameters. If none are provided then default grid is used (check vignette for exact params).
+#' @param preprocessing_steps An optional named list of sklearn preprocessing procedures. If none provided defaults are used (check vignette for exact params).
 #' @param testsize The size of the test set used in the evaluation.
 #' @param validsize The size of the validation set used in the evaluation.
 #' @param scoring A string representing what scoring metric to use for hyperparameter adjustment. Default value is 'accuracy'
@@ -265,7 +276,7 @@ calculate_mean_cv_scores <- function(selected_pipelines, cv_best_score) {
 #' @param search_type A string indicating the type of search to use. 'grid' for GridSearchCV and 'random' for RandomizedSearchCV. Default is 'random'.
 #' @param n_iter An integer indicating the number of parameter settings that are sampled in RandomizedSearchCV. Only applies when search_type is 'random'.
 #' @param calculate_permutation_importance A boolean indicating whether to calculate permutation feature importance. Default is FALSE.
-#' @param max_features Maximum number of features to be selected by default feature selection methods
+#' @param max_features Maximum number of features to be selected by default feature selection methods.
 #' @param perform_test_split Whether to perform train and test split, to have an evaluation on unseen test set. The default value is set to FALSE
 #' @return A list with the following elements:
 #' \item{fitted_pipelines}{A list of the fitted pipelines.}
@@ -305,7 +316,6 @@ calculate_mean_cv_scores <- function(selected_pipelines, cv_best_score) {
 #' @importFrom magrittr '%>%'
 #' @importFrom methods new
 #' @importFrom rlang .data
-#' @importFrom utils globalVariables
 #' @export
 #'
 GeneSelectR <- function(X,
@@ -314,6 +324,9 @@ GeneSelectR <- function(X,
                         custom_fs_methods = NULL,
                         selected_methods = NULL,
                         custom_fs_grids = NULL,
+                        classifier = NULL,
+                        classifier_grid = NULL,
+                        preprocessing_steps = NULL,
                         testsize = 0.2,
                         validsize = 0.2,
                         scoring = 'accuracy',
@@ -339,20 +352,36 @@ GeneSelectR <- function(X,
 
   modules <- define_sklearn_modules()
   default_feature_selection_methods <- set_default_fs_methods(modules, max_features)
+  default_classifier <- modules$forest()
+  default_grids <- set_default_param_grids()
 
+  # define feature selection grids, set to default if none are provided
   if (is.null(custom_fs_grids)) {
-    custom_fs_grids <- set_default_param_grids()
-  }
-
+    fs_grids <- default_grids$fs_param_grids
+  } else fs_grids <- custom_fs_grids
 
   # Use the default feature selection methods if none are provided
   if (is.null(custom_fs_methods)) {
-    custom_fs_methods <- default_feature_selection_methods$default_feature_selection_methods
-  }
+    fs_methods <- default_feature_selection_methods$default_feature_selection_methods
+  } else fs_methods <- custom_fs_methods
+
+  if (is.null(preprocessing_steps)) {
+    preprocessing_steps <- default_feature_selection_methods$preprocessing_steps
+  } else preprocessing_steps <- preprocessing_steps
+
+  # Use default classifier if one is not provided
+  if (is.null(classifier)) {
+    classifier <- default_classifier
+  } else classifier <- classifier
+
+  # Use default classifier grid if none is provided
+  if (is.null(classifier_grid)) {
+    classifier_params <- default_grids$classifier_param_grid
+  } else classifier_params <- classifier_grid
 
   # Select the specified feature selection methods if they are provided
   if (!is.null(selected_methods)) {
-    custom_fs_methods <- custom_fs_methods[selected_methods]
+    fs_methods <- fs_methods[selected_methods]
   }
 
   # Select the specified pipelines if they are provided
@@ -360,10 +389,10 @@ GeneSelectR <- function(X,
     selected_pipelines <- pipelines
   } else {
     # Define the default pipelines using the selected feature selection methods
-    selected_pipelines <- create_pipelines(custom_fs_methods,
-                                           default_feature_selection_methods$preprocessing_steps,
-                                           fs_param_grids = custom_fs_grids,
-                                           classifier = modules$forest())
+    selected_pipelines <- create_pipelines(fs_methods,
+                                           preprocessing_steps,
+                                           fs_param_grids = fs_grids,
+                                           classifier = classifier)
   }
 
   # convert R objects to Py
@@ -414,29 +443,11 @@ GeneSelectR <- function(X,
       y_train_sub_split <- train_valid_split$y_train
       y_valid_split <- train_valid_split$y_test
 
-      # Create the parameter grid with the 'classifier' prefix
-      params <- stats::setNames(
-        list(
-          seq(100L, 1000L, 400L), # n_estimators
-          c(10L, 20L, 30L, 40L, 50L), # max_depth
-          c(2L, 5L, 10L), # min_samples_split
-          c(1L, 2L, 4L), # min_samples_leaf
-          c('auto', 'sqrt') # max_features
-        ),
-        c(
-          "classifier__n_estimators",
-          "classifier__max_depth",
-          "classifier__min_samples_split",
-          "classifier__min_samples_leaf",
-          "classifier__max_features"
-        )
-      )
-
       if (!is.null(custom_fs_grids)) {
         fs_name <- names(selected_pipelines)[i]
         if (fs_name %in% names(custom_fs_grids)) {
           fs_params <- custom_fs_grids[[fs_name]]
-          params <- c(params, fs_params)
+          params <- c(classifier_params, fs_params)
         }
       }
 
@@ -453,6 +464,7 @@ GeneSelectR <- function(X,
       )
 
       best_model <- search_cv$best_estimator_
+
 
       if (perform_test_split) {
         test_set_metrics <- evaluate_test_metrics(search_cv, X_test = X_test_split, y_test = y_test_split, modules)

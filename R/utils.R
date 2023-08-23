@@ -233,3 +233,40 @@ aggregate_feature_importances <- function(selected_features) {
 
   return(aggregated_importances)
 }
+
+#' Save HTML Representation of a GridSearchCV Object
+#'
+#' This function takes a GridSearchCV object from scikit-learn and saves its HTML representation to a specified directory.
+#'
+# @param grid_search A GridSearchCV object from scikit-learn.
+# @param output_dir A string specifying the directory where the HTML file will be saved.
+# @return A message indicating the location where the HTML file has been saved.
+# @examples
+# \dontrun{
+# library(reticulate)
+# # Assuming 'grid_search' is your GridSearchCV object
+# save_pipeline_html(grid_search, "path/to/output/directory")
+# }
+# @importFrom glue glue
+
+# save_pipeline_html <- function(grid_search, filename, output_dir) {
+#   # Import necessary Python modules
+#   #sklearn <- import('sklearn')
+#   sklearn$set_config('diagram') # Enable HTML representation
+#
+#   # Convert the GridSearchCV object to HTML
+#   print(grid_search)
+#
+#   # Create the output directory if it doesn't exist
+#   if (!dir.exists(output_dir)) {
+#     dir.create(output_dir)
+#   }
+#
+#   # Define the output file path
+#   output_file <- file.path(glue::glue('{output_dir}/{filename}_pipeline.html'))
+#
+#   # Save HTML to the file
+#   writeLines(print(grid_search), output_file)
+#
+#   cat("HTML representation saved to", output_file, "\n")
+# }
