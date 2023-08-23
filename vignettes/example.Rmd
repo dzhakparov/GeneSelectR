@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 
 The feature selection procedure is implemented with Python's scikit-learn library. The package requires an Anaconda installation to work properly. The Python requirements are listed in the requirements.txt file.
 
-You can install the development version of GeneSelectR from [GitHub](%5Bhttps://github.com/)](<https://github.com/>)) with:
+You can install the development version of GeneSelectR from [GitHub](<https://github.com/>) with:
 
 ```{r}
 # install.packages("devtools")
@@ -146,29 +146,33 @@ fs_param_grids <- list(
 ***A Note on Permutation Importance***: Permutation importance provides insights specific to the model it's computed for. A feature that's vital for one model might not be for another. Hence, it's crucial to understand that permutation importance doesn't indicate the intrinsic predictive value of a feature in isolation. Moreover, it's vital to have a trustworthy model (with good cross-validation scores) before considering its permutation importance values. Features deemed unimportant in a poorly performing model could be crucial for a well-performing one. It's always recommended to evaluate a model's predictive power using held-out data or cross-validation prior to computing permutation importances. For more information please refere to the [sklearn official documentation on permutation importance](https://scikit-learn.org/stable/modules/permutation_importance.html) 5. Hyperparamter adjustment For the sake of computational time the RandomizedSearchCV is used by default. However, if you want to perform an extensive hyperparameter optimization grid search testing all possible combinations can be performed:
 
 ```{r}
-selection_results <- GeneSelectR::GeneSelectR(X_train = X, 
-                                                y_train = y,
-                                                njobs = -1,
-                                                search_type = 'grid')
+selection_results <- GeneSelectR::GeneSelectR(X = X, 
+                                              y = y,
+                                              njobs = -1,
+                                              search_type = 'grid')
 ```
 
 6.  Aggregating Results: Across all the splits, mean inbuilt feature importance values with standard deviation are aggregated for each method. Same is done for the permutation importance if it is enabled. Additionally, rank for every feature at every data split is reported.
 
-## Passing Other Feature Selection Methods from sklearn 
-If you wish to add any other methods from sklearn, you should pass it as a named list like this:
+## Customizing GeneSelectR Workflow with Other sklearn Methods  
+GeneSelectR workflow is highly customizable depending on your needs. For example,  if you wish to add any other feature selection methods from sklearn, you should pass it as a named list like this:
 
 ```{r}
-# import the sklearn module
-sklearn <- reticulate::import('sklearn')
+# sklearn is already imported when the library is loaded 
 # define the feature selection submodule and wanted methods with an estimator
 feature_selection <- sklearn$feature_selection
 select_from_model <- feature_selection$SelectFromModel
 RFE <- feature_selection$RFE
 rf <- sklearn$ensemble$RandomForestClassifier
 
-
+# feature selection methods of your choice 
 my_methods <- list('RFE' = RFE(estimator = rf(), n_features_to_select = 100L),
                    'SelectFromModel' = select_from_model(estimator = rf()))
+
+```
+The parameters for the methods should be passed like this with a prefix 'feature_selector__' for every parameter: 
+```{r}
+# params for the feature selection methods of your choice 
 my_params <- list('RFE' = list('feature_selector__step' = seq(0.1, 0.001, 1, 10)),
                   'SelectFromModel' = list('feature_selector__estimator__n_estimators' = c(50L, 100L, 250L, 500L),
                                            "feature_selector__estimator__max_depth" = c(10L, 20L, 30L),
@@ -176,19 +180,62 @@ my_params <- list('RFE' = list('feature_selector__step' = seq(0.1, 0.001, 1, 10)
                   )
 ```
 
-And then we can pass it as an arguments to fit_and_evaluate_pipelines function:
-
+Finally, we can pass it as an arguments to fit_and_evaluate_pipelines function: 
 ```{r}
-selection_results <- GeneSelectR::GeneSelectR(X_train = X, 
-                                              y_train = y,
+selection_results <- GeneSelectR::GeneSelectR(X = X, 
+                                              y = y,
                                               njobs = -1,
                                               feature_selection_methods=my_methods,
                                               fs_param_grids = my_params)
 ```
-### Passing Custom sklearn Pipelines
-In some cases you would want to pass a whole sklearn Pipeline objects with transformers of your choice. In this case the whole Pipeline should be passed to pipelines argument in following fashion: 
-```{r}
 
+Other than feature selection methods, preprocessing steps as well as other estimators for classifications can be passed. 
+For example, if you want to pass other preprocessing steps you can do it like this: 
+```{r}
+minmax <- sklearn$preprocessing$MinMaxScaler()
+varthr <- sklearn$feature_selection$VarianceThreshold()
+preprocessing <- list( 'MinMaxScaler' = minmax, 
+                       'VarianceThreshold' = varthr)
+
+selection_results <- GeneSelectR::GeneSelectR(X = X, 
+                                              y = y,
+                                              njobs = -1,
+                                              feature_selection_methods=my_methods,
+                                              fs_param_grids = my_params,
+                                              preprocessing_steps = preprocessing)
+```
+Same can be done with classifiying estimator. For example you want to use XGBoost classifier instead of default random forest: 
+```{r}
+# import xgboost 
+# NOTE: it should be installed in the working conda env 
+xgb <- reticulate::import('xgboost')
+xgb.classifier <- xgb$XGBClassifier()
+
+selection_results <- GeneSelectR::GeneSelectR(X = X, 
+                                              y = y,
+                                              njobs = -1,
+                                              classifier = xgb.classifier)
+```
+Note: if you supply your own classifier, you have to specify the parameter grid for it with a 'classifier__' prefix: 
+```{r}
+xgb <- reticulate::import('xgboost')
+xgb.classifier <- xgb$XGBClassifier()
+
+xgb_param_grid <- list(
+  "classifier__learning_rate" = c(0.01, 0.05, 0.1),
+  "classifier__n_estimators" = c(100L, 200L, 300L),
+  "classifier__max_depth" = c(3L, 5L, 7L),
+  "classifier__min_child_weight" = c(1L, 3L, 5L),
+  "classifier__gamma" = c(0, 0.1, 0.2),
+  "classifier__subsample" = c(0.8, 1.0),
+  "classifier__colsample_bytree" = c(0.8, 1.0)
+)
+
+selection_results <- GeneSelectR::GeneSelectR(X = X, 
+                                              y = y,
+                                              njobs = -1,
+                                              classifier = xgb.classifier,
+                                              classifier_grid = xgb_param_grid)
 ```
 
 # 4. Machine Learning Performance Results Inspection
