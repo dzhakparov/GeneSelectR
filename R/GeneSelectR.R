@@ -443,13 +443,18 @@ GeneSelectR <- function(X,
       y_train_sub_split <- train_valid_split$y_train
       y_valid_split <- train_valid_split$y_test
 
-      if (!is.null(custom_fs_grids)) {
-        fs_name <- names(selected_pipelines)[i]
-        if (fs_name %in% names(custom_fs_grids)) {
-          fs_params <- custom_fs_grids[[fs_name]]
-          params <- c(classifier_params, fs_params)
-        }
+
+      fs_name <- names(selected_pipelines)[i]
+      fs_params <- if (!is.null(custom_fs_grids) && fs_name %in% names(custom_fs_grids)) {
+        custom_fs_grids[[fs_name]]
+      } else if (fs_name %in% names(fs_grids)) {
+        fs_grids[[fs_name]]
+      } else {
+        NULL
       }
+
+      params <- c(classifier_params, fs_params)
+      print(params)
 
       search_cv <- perform_grid_search(
         X_train_sub_split,
