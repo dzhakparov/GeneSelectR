@@ -19,13 +19,13 @@ knitr::opts_chunk$set(
   warning = FALSE)
 ```
 
-# 1. Installation and Requirements 
+# 1. Installation and Requirements
 
 ## Python requirements
 
 The feature selection procedure is implemented with Python's scikit-learn library. The package requires an Anaconda installation to work properly. The Python requirements are listed in the requirements.txt file.
 
-You can install the development version of GeneSelectR from [GitHub](<https://github.com/>) with:
+You can install the development version of GeneSelectR from [GitHub](https://github.com/) with:
 
 ```{r}
 # install.packages("devtools")
@@ -94,6 +94,7 @@ selection_results
 ```
 
 # 3. Feature Selection
+
 ## Feature Selection Procedure
 
 1.  *Settings Defaults*: If not provided, default feature selection methods and hyperparameter grids are established.By default there are four methods implemented to select the features: [Univariate feature selection](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.GenericUnivariateSelect.html) , [Logistic regression with L1 penalty](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html), [boruta](https://github.com/scikit-learn-contrib/boruta_py) and [Random Forest](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html). The default grids for every default feature selection method are as follows:
@@ -154,8 +155,9 @@ selection_results <- GeneSelectR::GeneSelectR(X = X,
 
 6.  Aggregating Results: Across all the splits, mean inbuilt feature importance values with standard deviation are aggregated for each method. Same is done for the permutation importance if it is enabled. Additionally, rank for every feature at every data split is reported.
 
-## Customizing GeneSelectR Workflow with Other sklearn Methods  
-GeneSelectR workflow is highly customizable depending on your needs. For example,  if you wish to add any other feature selection methods from sklearn, you should pass it as a named list like this:
+## Customizing GeneSelectR Workflow with Other sklearn Methods
+
+GeneSelectR workflow is highly customizable depending on your needs. For example, if you wish to add any other feature selection methods from sklearn, you should pass it as a named list like this:
 
 ```{r}
 # sklearn is already imported when the library is loaded 
@@ -170,7 +172,9 @@ my_methods <- list('RFE' = RFE(estimator = rf(), n_features_to_select = 100L),
                    'SelectFromModel' = select_from_model(estimator = rf()))
 
 ```
-The parameters for the methods should be passed like this with a prefix 'feature_selector__' for every parameter: 
+
+The parameters for the methods should be passed like this with a prefix 'feature_selector\_\_' for every parameter:
+
 ```{r}
 # params for the feature selection methods of your choice 
 my_params <- list('RFE' = list('feature_selector__step' = seq(0.1, 0.001, 1, 10)),
@@ -180,7 +184,8 @@ my_params <- list('RFE' = list('feature_selector__step' = seq(0.1, 0.001, 1, 10)
                   )
 ```
 
-Finally, we can pass it as an arguments to fit_and_evaluate_pipelines function: 
+Finally, we can pass it as an arguments to fit_and_evaluate_pipelines function:
+
 ```{r}
 selection_results <- GeneSelectR::GeneSelectR(X = X, 
                                               y = y,
@@ -189,8 +194,8 @@ selection_results <- GeneSelectR::GeneSelectR(X = X,
                                               fs_param_grids = my_params)
 ```
 
-Other than feature selection methods, preprocessing steps as well as other estimators for classifications can be passed. 
-For example, if you want to pass other preprocessing steps you can do it like this: 
+Other than feature selection methods, preprocessing steps as well as other estimators for classifications can be passed. For example, if you want to pass other preprocessing steps you can do it like this:
+
 ```{r}
 minmax <- sklearn$preprocessing$MinMaxScaler()
 varthr <- sklearn$feature_selection$VarianceThreshold()
@@ -204,7 +209,9 @@ selection_results <- GeneSelectR::GeneSelectR(X = X,
                                               fs_param_grids = my_params,
                                               preprocessing_steps = preprocessing)
 ```
-Same can be done with classifiying estimator. For example you want to use XGBoost classifier instead of default random forest: 
+
+Same can be done with classifiying estimator. For example you want to use XGBoost classifier instead of default random forest:
+
 ```{r}
 # import xgboost 
 # NOTE: it should be installed in the working conda env 
@@ -216,7 +223,9 @@ selection_results <- GeneSelectR::GeneSelectR(X = X,
                                               njobs = -1,
                                               classifier = xgb.classifier)
 ```
-Note: if you supply your own classifier, you have to specify the parameter grid for it with a 'classifier__' prefix: 
+
+Note: if you supply your own classifier, you have to specify the parameter grid for it with a 'classifier\_\_' prefix:
+
 ```{r}
 xgb <- reticulate::import('xgboost')
 xgb.classifier <- xgb$XGBClassifier()
@@ -239,46 +248,50 @@ selection_results <- GeneSelectR::GeneSelectR(X = X,
 ```
 
 # 4. Machine Learning Performance Results Inspection
+
 ## Structure of the PipelineResults object
-The function returns an object of class "PipelineResults", containing:  
--  'best_pipeline': A named list containing parameters of the best performer pipeline.  
 
--  'cv_results': Results of cross-validation for each pipeline. 
+The function returns an object of class "PipelineResults", containing:\
+- 'best_pipeline': A named list containing parameters of the best performer pipeline.
 
-- 'inbuilt_feature_importance': Aggregated inbuilt feature importance scores. 
+-   'cv_results': Results of cross-validation for each pipeline.
 
-- 'test_metrics': If the perform_split parameter was set to TRUE, a dataframe of test metrics for each pipeline is returned. 
+-   'inbuilt_feature_importance': Aggregated inbuilt feature importance scores.
 
--'cv_mean_score': A dataframe that summarizes the mean cross-validation scores. 
+-   'test_metrics': If the perform_split parameter was set to TRUE, a dataframe of test metrics for each pipeline is returned.
 
-- 'permutation_importance': If permutation importance was calculated, its mean values are returned. 
+\-'cv_mean_score': A dataframe that summarizes the mean cross-validation scores.
 
+-   'permutation_importance': If permutation importance was calculated, its mean values are returned.
 
-## Feature Importance Plots 
-Finally, you can visualize the most important features for every feature importance method calculation by calling plotting function: 
+## Feature Importance Plots
+
+Finally, you can visualize the most important features for every feature importance method calculation by calling plotting function:
+
 ```{r}
 plot_feature_importance(selection_results, top_n_features = 10)
 ```
-<div style="text-align:center">
-  <img src="../vignettes/images/feature_importance_plot.png" alt="Alt text" width="400px" />
-</div>
 
-The plot will show you the mean feature importance of top n features of your choice by their importance score in descending order. 
+::: {style="text-align:center"}
+<img src="../vignettes/images/feature_importance_plot.png" alt="Alt text" width="400px"/>
+:::
+
+The plot will show you the mean feature importance of top n features of your choice by their importance score in descending order.
 
 ## ML Performance Metrics
 
-You can plot the feature selection procedure metrics with the following function: 
-
+You can plot the feature selection procedure metrics with the following function:
 
 ```{r}
 plot_metrics(selection_results)
 ```
-![Alt text](../vignettes/images/plot_metrics.png)
-Or access it as a dataframe:
+
+![Alt text](../vignettes/images/plot_metrics.png) Or access it as a dataframe:
 
 ```{r}
 selection_results$test_metrics
 ```
+
 ```{r}
 
 ```
@@ -291,13 +304,17 @@ Additionally, you can inspect whether genes in your feature selection lists have
 overlap <- calculate_overlap_coefficients(selection_results)
 overlap 
 ```
-This will return a dataframe that demonstrates three types of overlap coefficients for inbuilt feature importance and permutation importance (if calculated): Soerensen-Dice, Overlap and Jaccard. 
-The coefficients can also be visualized as overlap heatmaps. To do so do the following: 
+
+This will return a dataframe that demonstrates three types of overlap coefficients for inbuilt feature importance and permutation importance (if calculated): Soerensen-Dice, Overlap and Jaccard. The coefficients can also be visualized as overlap heatmaps. To do so do the following:
+
 ```{r}
 plot_overlap_heatmaps(overlap)
 ```
+
 ![Alt text](../vignettes/images/overlap_permutation.png) 
-Additionally, if you have any custom lists (e.g. differential gene expression list) you can pass it as an argument like this: 
+
+Additionally, if you have any custom lists (e.g. differential gene expression list) you can pass it as an argument like this:
+
 ```{r}
 custom_list <- list(custom_list = c('char1','char2','char3','char4','char5'),
                     custom_list2 = c('char1','char2','char3','char4','char5'))
@@ -305,15 +322,15 @@ overlap1 <- calculate_overlap_coefficients(selection_results, custom_lists = cus
 plot_overlap_heatmaps(overlap1)
 ```
 
-<div style="text-align:center">
-  <img src="../vignettes/images/overlap.png" alt="Alt text" width="800px" />
-</div>
+::: {style="text-align:center"}
+<img src="../vignettes/images/overlap.png" alt="Alt text" width="800px"/>
+:::
 
 # 5.GO Enrichment analysis
 
 ## Annotation of Selected Genes
 
-For your convenience there is a wrapper function for clusterprofiler(link) GO enrichment implemented, along with a function to get gene annotations. After GeneSelectR has been run, to fetch gene annotations do the following: 
+For your convenience there is a wrapper function for clusterprofiler(link) GO enrichment implemented, along with a function to get gene annotations. After GeneSelectR has been run, to fetch gene annotations do the following:
 
 ```{r}
 # Get the annotations for the genes in the analysis 
@@ -330,8 +347,8 @@ annotations_df <- annotate_gene_lists(pipeline_results = selection_results,
 annotations_df
 ```
 
-The format argument can be set to three possible options: (1) 'ensembl_id' (eg. ENSGXXXXXXX), (2) 'gene_name' (eg. TSPAN) or combination of both separated by a separating string (eg. ENSGXXXXXXX__TSPAN). 
-The resulting AnnotatedGeneLists class object contains following fields: 
+The format argument can be set to three possible options: (1) 'ensembl_id' (eg. ENSGXXXXXXX), (2) 'gene_name' (eg. TSPAN) or combination of both separated by a separating string (eg. ENSGXXXXXXX\_\_TSPAN). The resulting AnnotatedGeneLists class object contains following fields:
+
 ```{r}
 # Formal class 'AnnotatedGeneLists' [package "GeneSelectR"] with 2 slots
 #   ..@ inbuilt    :List of 4
@@ -369,12 +386,15 @@ The resulting AnnotatedGeneLists class object contains following fields:
 #   .. .. .. ..@ ENSEMBL : chr [1:8] "ENSG00000133048" "ENSG00000244734" "ENSG00000138413" "ENSG00000054356" ...
 #   .. .. .. ..@ ENTREZID: chr [1:8] "1116" "3043" "3417" "5798" ...
 ```
-For example, ENTREZID for Random Forest gene list derived from inbuilt feature importance can be accessed like this: 
+
+For example, ENTREZID for Random Forest gene list derived from inbuilt feature importance can be accessed like this:
+
 ```{r}
 print(annotated_df@inbuilt$RandomForest@ENTREZID)
 ```
 
-You can also add custom lists (eg. background for enrichment, differential gene expression list) to fetch annotations for them: 
+You can also add custom lists (eg. background for enrichment, differential gene expression list) to fetch annotations for them:
+
 ```{r}
 custom_list <- list(background = c('gene1', 'gene2', 'gene3', 'gene4'), 
                     DEGs = c('gene5','gene6','gene7'))
@@ -385,12 +405,16 @@ annotations_df_with_custom <- annotate_gene_lists(pipeline_results = selection_r
 annotations_df_with_custom
 ```
 
-## GO Enrichment Analysis 
-There is a wrapper function to run GO enrichment analysis with clusterprofiler package. To run GO enrichment with default setting simply run: 
+## GO Enrichment Analysis
+
+There is a wrapper function to run GO enrichment analysis with clusterprofiler package. To run GO enrichment with default setting simply run:
+
 ```{r}
 annotated_GO <- GO_enrichment_analysis(annotated_df)
 ```
-This function can take different arguments depending on your need: 
+
+This function can take different arguments depending on your need:
+
 ```{r}
 annotated_GO <- GO_enrichment_analysis(annotated_df,
                                        list_type = 'permutation', #run GO enrichment on permutation based selected features 
@@ -398,23 +422,46 @@ annotated_GO <- GO_enrichment_analysis(annotated_df,
                                        ont = 'BP') # run BP ontology
 annotated_GO
 ```
-The returned object is a list containing clusterprofiler enrichResult for every feature selection list. 
 
-## Visualization of Parent Term Fractions 
-You can calculate what is the fraction of target parent GO terms is enriched in your feature selection lists: 
+The returned object is a list containing clusterprofiler enrichResult for every feature selection list.
+
+## Visualization of Parent Term Fractions
+
+You can calculate what is the fraction of target parent GO terms is enriched in your feature selection lists:
+
 ```{r}
 annot_child_fractions <- compute_GO_child_term_metrics(GO_data = annotated_GO,
                               GO_terms = c("GO:0002376", "GO:0044419"),
                               plot = FALSE)
 ```
-This will produce a dataframe containing information on number of children terms of specified terms, number of all the terms and fraction of children terms related to the parent one in the total number of identified GO terms (without p-value filtering): 
+
+This will produce a dataframe containing information on number of children terms of specified terms, number of all the terms and fraction of children terms related to the parent one in the total number of identified GO terms (without p-value filtering):
+
 ```{r}
 
 ```
-If the plot argument is set to TRUE it will produce a following plot: 
 
-<div style="text-align:center">
-  <img src="../vignettes/images/compute_GO_child_term_metrics.png" alt="Alt text" width="400px" />
-</div>
+If the plot argument is set to TRUE it will produce a following plot:
 
-# 6. Semantic Similarity Analysis 
+::: {style="text-align:center"}
+<img src="../vignettes/images/compute_GO_child_term_metrics.png" alt="Alt text" width="400px"/>
+:::
+
+# 6. Semantic Similarity Analysis
+
+## simplifyEnrichment Wrapper Function 
+Final step is the analysis is the clustering and semantic similarity analysis of GO Terms from every list. This is done via [simplifyEnrichment R package](https://github.com/jokergoo/simplifyEnrichment). For the convenience of data input, there is a wrapper for [simplifyGOFromMultipleLists()]() function implemented:   
+```{r}
+# simplifyEnrichment produces a heatmap
+hmap <- run_simplify_enrichment(annotated_GO,
+                                method = 'lovain',
+                                measure = 'Resnik')
+```
+
+This will produce a heatmap with clustered GO terms from the feature selecton lists methods: 
+
+::: {style="text-align:center"}
+<img src="../vignettes/images/Clustering_Rel_louvain.png" alt="Alt text" width="500px"/>
+:::
+
+
