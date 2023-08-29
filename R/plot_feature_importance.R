@@ -16,6 +16,7 @@ plot_feature_importance <- function(pipelineresults, top_n_features = 10) {
   plots_list <- list()
 
   for(method_name in names(pipelineresults@inbuilt_feature_importance)){
+
     # Extract inbuilt_feature_importance from the PipelineResults object
     mean_importance <- pipelineresults@inbuilt_feature_importance[[method_name]]
 

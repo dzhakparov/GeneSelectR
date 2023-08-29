@@ -70,6 +70,7 @@ get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
 #' @param y_train A DataFrame containing the training labels.
 #' @param n_repeats An integer specifying the number of times to permute each feature.
 #' @param random_state An integer specifying the seed for the random number generator.
+#' @param njobs An integer specifying number of cores to use. Set up by the master GeneSelectR function.
 #' @param pipeline_name Strings (names of the selected_pipelines list) representing pipeline names that were constructed for the feature selection
 #' @param iter An integer that is indicating current iteration of the train-test split
 #' @return A list containing the feature names and their importance scores.
@@ -85,13 +86,14 @@ calculate_permutation_feature_importance <- function(pipeline,
                                                      y_train,
                                                      n_repeats=10L,
                                                      random_state=0L,
+                                                     njobs = njobs,
                                                      pipeline_name,
                                                      iter) {
   # Import the required function
   permutation_importance <- reticulate::import("sklearn.inspection", convert = FALSE)$permutation_importance
 
   # Compute the permutation feature importance
-  perm_importance <- permutation_importance(pipeline, X_train, y_train, n_repeats = n_repeats, random_state = random_state)
+  perm_importance <- permutation_importance(pipeline, X_train, y_train, n_repeats = n_repeats, random_state = random_state, n_jobs = njobs)
 
   # Extract the importances and feature names
   importances <- reticulate::py_to_r(perm_importance$importances_mean)

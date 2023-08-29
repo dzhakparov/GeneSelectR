@@ -18,7 +18,7 @@
 #' @importFrom simplifyEnrichment simplifyGOFromMultipleLists
 #' @export
 run_simplify_enrichment <- function(fs_GO_results, padj_column, padj_cutoff, ont, measure, method, ...) {
-  simplifyEnrichment::simplifyGOFromMultipleLists(all_selection_GO,
+  simplifyEnrichment::simplifyGOFromMultipleLists(fs_GO_results,
                                                   padj_column=padj_column,
                                                   padj_cutoff=padj_cutoff,
                                                   ont=ont,

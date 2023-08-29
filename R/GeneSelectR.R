@@ -80,17 +80,21 @@ set_default_fs_methods <- function(modules, max_features) {
 }
 
 #' Set Default Parameter Grids for Feature Selection
-#'
+#' @param max_features An integer indicating max_features to select in Univariate select
 #' @return A list containing the default parameter grids for feature selection methods.
 #'
-set_default_param_grids <- function() {
+set_default_param_grids <- function(max_features) {
+  # Calculate step size dynamically
+  step_size <- ifelse(max_features <= 100L, 10L,
+                      ifelse(max_features <= 1000L, 100L,
+                             ifelse(max_features <= 10000L, 50L, 100L)))
   fs_param_grids <- list(
     "Lasso" = list(
       "feature_selector__estimator__C" = c(0.01, 0.1, 1L, 10L),
       "feature_selector__estimator__solver" = c('liblinear','saga')
     ),
     "Univariate" = list(
-      "feature_selector__param" = seq(50L, 200L, by = 50L)
+      "feature_selector__param" = seq(10L, max_features, by = step_size)
     ),
     "boruta" = list(
       "feature_selector__perc" = seq(80L, 100L, by = 10L),
@@ -353,7 +357,7 @@ GeneSelectR <- function(X,
   modules <- define_sklearn_modules()
   default_feature_selection_methods <- set_default_fs_methods(modules, max_features)
   default_classifier <- modules$forest()
-  default_grids <- set_default_param_grids()
+  default_grids <- set_default_param_grids(max_features)
 
   # define feature selection grids, set to default if none are provided
   if (is.null(custom_fs_grids)) {
@@ -454,7 +458,6 @@ GeneSelectR <- function(X,
       }
 
       params <- c(classifier_params, fs_params)
-      print(params)
 
       search_cv <- perform_grid_search(
         X_train_sub_split,
@@ -486,7 +489,7 @@ GeneSelectR <- function(X,
       if (calculate_permutation_importance) {
         message('Performing Permuation Importance Calculation')
         split_permutation_importances[[names(selected_pipelines)[[i]]]] <-
-          calculate_permutation_feature_importance(best_model, X_valid_split, y_valid_split, pipeline_name = names(selected_pipelines)[[i]], iter = split_idx)
+          calculate_permutation_feature_importance(best_model, X_valid_split, y_valid_split, pipeline_name = names(selected_pipelines)[[i]], iter = split_idx, njobs = njobs)
       }
     }
 

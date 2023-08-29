@@ -66,12 +66,3 @@ calculate_overlap_coefficients <- function(pipeline_results, custom_lists = NULL
   # Return both lists of coefficients
   return(result_lists)
 }
-
-
-
-
-
-
-
-
-

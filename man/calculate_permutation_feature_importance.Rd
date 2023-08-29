@@ -10,6 +10,7 @@ calculate_permutation_feature_importance(
   y_train,
   n_repeats = 10L,
   random_state = 0L,
+  njobs = njobs,
   pipeline_name,
   iter
 )
@@ -24,6 +25,8 @@ calculate_permutation_feature_importance(
 \item{n_repeats}{An integer specifying the number of times to permute each feature.}
 
 \item{random_state}{An integer specifying the seed for the random number generator.}
+
+\item{njobs}{An integer specifying number of cores to use. Set up by the master GeneSelectR function.}
 
 \item{pipeline_name}{Strings (names of the selected_pipelines list) representing pipeline names that were constructed for the feature selection}
 

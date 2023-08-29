@@ -4,7 +4,10 @@
 \alias{set_default_param_grids}
 \title{Set Default Parameter Grids for Feature Selection}
 \usage{
-set_default_param_grids()
+set_default_param_grids(max_features)
+}
+\arguments{
+\item{max_features}{An integer indicating max_features to select in Univariate select}
 }
 \value{
 A list containing the default parameter grids for feature selection methods.
