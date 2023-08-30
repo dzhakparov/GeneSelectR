@@ -1,28 +1,25 @@
 Package: GeneSelectR
-Title: Feature Selection for Bulk RNAseq Datasets
+Title: Comprehensive Feature Selection Worfkflow for Bulk RNAseq Datasets
 Version: 0.0.0.9000
 Authors@R: 
     person("Damir", "Zhakparov", , "damir.zhakparov@uzh.ch", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7175-0843"))
-Description: TODO.
+Description: GeneSelectR provides a comprehensive toolkit for feature selection and gene set enrichment analysis in bulk RNAseq datasets. The package integrates various machine learning algorithms from sklearn Python package. On top of default feature selection methods, the package can accomodate most of the sklearn feature selection techniques and methods. It aims to simplify the workflow for both feature selection and enrichment analysis by providing a unified interface.
 License: MIT + file LICENSE
 URL: https://github.com/dzhakparov/GeneSelectR
 BugReports: https://github.com/dzhakparov/GeneSelectR/issues
 biocViews:
 Imports: 
-    clusterProfiler (>= 4.6.2),
     cowplot (>= 1.1.1),
     dplyr (>= 1.1.0),
     ggplot2 (>= 3.4.2),
     glue (>= 1.6.2),
-    GO.db (>= 3.17.0),
     magrittr (>= 2.0.3),
     methods (>= 4.2.2),
     RColorBrewer (>= 1.1.3),
     reshape2 (>= 1.4.4),
     reticulate (>= 1.28),
     rlang (>= 1.1.1),
-    simplifyEnrichment (>= 1.8.0),
     stringr (>= 1.5.0),
     testthat (>= 3.0.0),
     tibble (>= 3.2.1),
@@ -30,6 +27,9 @@ Imports:
     tmod (>= 0.50.13),
 Suggests: 
     BiocManager (>= 1.30.20),
+    clusterProfiler (>= 4.6.2),
+    GO.db (>= 3.17.0),
+    simplifyEnrichment (>= 1.8.0),
     knitr,
     rmarkdown
 Config/testthat/edition: 3
