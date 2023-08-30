@@ -60,7 +60,29 @@ load_python_packages <- function() {
   load_python_packages()
 }
 
+#'@importFrom utils install.packages menu
+.onAttach <- function(libname, pkgname) {
+  bioconductor_packages <- c("clusterProfiler", "GO.db", "simplifyEnrichment")
 
+  missing_packages <- bioconductor_packages[!sapply(bioconductor_packages, requireNamespace, quietly = TRUE)]
+
+  if (length(missing_packages) > 0) {
+    packageStartupMessage("The following Bioconductor packages are required for full functionality of ",
+            pkgname, ": ", paste(missing_packages, collapse = ", "), ".")
+
+    if (interactive()) {
+      response <- menu(c("Yes", "No"), title = "Do you want to install them now?")
+      if (response == 1) {
+        if (!requireNamespace("BiocManager", quietly = TRUE)) {
+          install.packages("BiocManager")
+        }
+        BiocManager::install(missing_packages)
+      }
+    } else {
+      packageStartupMessage("Run BiocManager::install(c(", paste(sQuote(missing_packages), collapse = ", "), ")) to install missing packages.")
+    }
+  }
+}
 
 
 
