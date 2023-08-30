@@ -1,6 +1,3 @@
-# Load the testthat package
-library(testthat)
-
 # Load the PipelineResults object from the fixture
 pipeline_results_fixture <- readRDS("fixtures/PipelineResults.rds")
 
