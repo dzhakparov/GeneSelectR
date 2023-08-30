@@ -13,7 +13,8 @@ GO_enrichment_analysis(
   ont = "BP",
   pvalueCutoff = 0.05,
   qvalueCutoff = 0.2,
-  pAdjMethod = "fdr"
+  pAdjMethod = "fdr",
+  ...
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ GO_enrichment_analysis(
 \item{qvalueCutoff}{A numeric value specifying the q-value cutoff. Default: 0.2.}
 
 \item{pAdjMethod}{A p-value adjustment method. Should be the one from "holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none". Default is 'fdr}
+
+\item{...}{Other parameters to be passed to clusterProfiler::enrichGO function.}
 }
 \value{
 A list containing the enrichment results for all gene sets (excluding "background").

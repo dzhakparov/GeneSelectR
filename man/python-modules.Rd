@@ -6,7 +6,7 @@
 \alias{sklearn}
 \title{Global references to Python modules}
 \format{
-An object of class \code{python.builtin.module} (inherits from \code{python.builtin.object}) of length 1.
+An object of class \code{python.builtin.module} (inherits from \code{python.builtin.object}) of length 0.
 }
 \usage{
 sklearn

@@ -11,9 +11,9 @@
 #' @param pvalueCutoff A numeric value specifying the significance cutoff. Default: 0.05.
 #' @param qvalueCutoff A numeric value specifying the q-value cutoff. Default: 0.2.
 #' @param pAdjMethod A p-value adjustment method. Should be the one from "holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none". Default is 'fdr
+#' @param ... Other parameters to be passed to clusterProfiler::enrichGO function.
 #' @return A list containing the enrichment results for all gene sets (excluding "background").
 #'
-#' @importFrom clusterProfiler enrichGO
 #' @importFrom dplyr setdiff
 #' @importFrom methods as slot
 #'
@@ -29,12 +29,12 @@
 #'                                   keyType = "ENTREZID")
 #' }
 #' @export
-GO_enrichment_analysis <- function(annotated_gene_lists, list_type = 'inbuilt', background = NULL, organism = "org.Hs.eg.db", keyType = "ENTREZID", ont = "BP", pvalueCutoff = 0.05, qvalueCutoff = 0.2, pAdjMethod  = 'fdr') {
+GO_enrichment_analysis <- function(annotated_gene_lists, list_type = 'inbuilt', background = NULL, organism = "org.Hs.eg.db", keyType = "ENTREZID", ont = "BP", pvalueCutoff = 0.05, qvalueCutoff = 0.2, pAdjMethod  = 'fdr', ...) {
 
-  # # Check if annotated_gene_lists is an object of class AnnotatedGeneLists
-  # if (!inherits(annotated_gene_lists, "AnnotatedGeneLists")) {
-  #   stop("annotated_gene_lists must be an object of class AnnotatedGeneLists.")
-  # }
+  if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
+    stop("The clusterProfiler package is required but not installed. Please install it first.")
+  }
+
   if (list_type == 'inbuilt'){
    annotated_list <-  annotated_gene_lists@inbuilt
   } else if (list_type == 'permutation'){
@@ -70,7 +70,8 @@ GO_enrichment_analysis <- function(annotated_gene_lists, list_type = 'inbuilt', 
       ont          = ont,
       pAdjustMethod = pAdjMethod,
       pvalueCutoff = pvalueCutoff,
-      qvalueCutoff = qvalueCutoff
+      qvalueCutoff = qvalueCutoff,
+      ...
     )
 
     results_list[[gene_set_name]] <- enrichment_result

@@ -15,13 +15,17 @@
 #'
 #' @return The result of the simplifyGOFromMultipleLists function.
 #'
-#' @importFrom simplifyEnrichment simplifyGOFromMultipleLists
 #' @export
 run_simplify_enrichment <- function(fs_GO_results, padj_column, padj_cutoff, ont, measure, method, ...) {
+
+  if (!requireNamespace("simplifyEnrichment", quietly = TRUE)) {
+    stop("The simplifyEnrichment package is required but not installed. Please install it first.")
+  }
   simplifyEnrichment::simplifyGOFromMultipleLists(fs_GO_results,
                                                   padj_column=padj_column,
                                                   padj_cutoff=padj_cutoff,
                                                   ont=ont,
                                                   measure=measure,
-                                                  method=method)
+                                                  method=method,
+                                                  ...)
 }

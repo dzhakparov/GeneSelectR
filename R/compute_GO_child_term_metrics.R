@@ -32,11 +32,15 @@
 #' }
 #'
 #' @importFrom ggplot2 ggplot aes geom_bar theme_minimal labs theme element_text
-#' @importFrom GO.db GOBPOFFSPRING GOMFOFFSPRING GOCCOFFSPRING
 #'
 #' @export
 
 compute_GO_child_term_metrics <- function(GO_data, GO_terms, ontology = 'BP', plot = FALSE) {
+
+  if (!requireNamespace("GO.db", quietly = TRUE)) {
+    stop("The GO.db package is required but not installed. Please install it first.")
+  }
+
 
   # Determine the appropriate DAG based on ontology
   get_dag <- function(ontology) {
@@ -47,8 +51,7 @@ compute_GO_child_term_metrics <- function(GO_data, GO_terms, ontology = 'BP', pl
     } else if (ontology == 'CC') {
       return(as.list(GO.db::GOCCOFFSPRING))
     } else {
-      message('Ontology should be one of "BP", "MF" or "CC"')
-      return(NULL)
+      stop('Ontology should be one of "BP", "MF" or "CC"')
     }
   }
   dag <- get_dag(ontology)
