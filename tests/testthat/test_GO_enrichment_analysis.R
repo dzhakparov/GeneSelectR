@@ -24,7 +24,7 @@ test_that("GO_enrichment_analysis returns expected results", {
   # Check if the list is not empty
   expect_true(length(result) > 0)
 
-  expected_names <- c('')
+  expected_names <- c('Lasso', 'Univariate', 'RandomForest', 'boruta', 'DEG_rural', 'DEG_urban')
   expect_equal(names(result), expected_names)
 
   # Add more specific checks based on your expected results
@@ -42,7 +42,7 @@ test_that("GO_enrichment_analysis throws an error for invalid list_type", {
       background = background_fixture,
       organism = "org.Hs.eg.db",
       keyType = "ENTREZID",
-      minGSSize = 1
+      minGSSize = 10
     ),
     "list_type should be 'inbuilt' or 'permutation'"
   )
