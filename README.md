@@ -66,5 +66,5 @@ devtools::install_github("dzhakparov/GeneSelectR")
 
 ### Usage and Example
 
-A tutorial detailing how to use GeneSelectR can be seen in this
+A tutorial detailing how to use GeneSelectR can be acessed in this
 [vignette](https://dzhakparov.github.io/GeneSelectR/vignettes/example.html).
