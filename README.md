@@ -6,7 +6,6 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml)
-[![Bioconductor-check](https://github.com/dzhakparov/GeneSelectR/actions/workflows/Bioc-check.yaml/badge.svg)](https://github.com/dzhakparov/GeneSelectR/actions/workflows/Bioc-check.yaml)
 <!-- badges: end -->
 
 `GeneSelectR` is a machine learning-based R package developed to enhance
