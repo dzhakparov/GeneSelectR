@@ -1,3 +1,4 @@
+testthat::skip_on_cran()
 modules <- c('sklearn', 'pandas', 'numpy', 'boruta', 'sys', 'multiprocessing', 'skopt')
 # Skip all tests if Python is not available
 GeneSelectR::skip_if_no_modules(modules)
