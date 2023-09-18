@@ -6,6 +6,7 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml)
+[![Bioconductor-check](https://github.com/dzhakparov/GeneSelectR/actions/workflows/Bioc-check.yaml/badge.svg)](https://github.com/dzhakparov/GeneSelectR/actions/workflows/Bioc-check.yaml)
 <!-- badges: end -->
 
 `GeneSelectR` is a machine learning-based R package developed to enhance
@@ -18,8 +19,7 @@ coverage. The `GeneSelectR` package aims to overcome these limitations
 using machine learning techniques.
 
 <figure>
-<img src="./vignettes/images/package-scheme.png" alt="Alt text" />
-<figcaption aria-hidden="true">Alt text</figcaption>
+<img src="./vignettes/images/package_workflow.png"/>
 </figure>
 
 ## Installation
