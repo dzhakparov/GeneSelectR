@@ -1,8 +1,7 @@
-GeneSelectR::set_reticulate_python()
 modules <- c('sklearn', 'pandas', 'numpy', 'boruta', 'sys', 'multiprocessing', 'skopt')
 # Skip all tests if Python is not available
 GeneSelectR::skip_if_no_modules(modules)
-
+GeneSelectR::set_reticulate_python()
 # load fixtures
 matrix_fixture <- readRDS('./fixtures/UrbanRandomSubset.rda')
 test_that("GeneSelectR returns expected output types", {
