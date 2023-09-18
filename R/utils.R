@@ -24,6 +24,9 @@ get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
 
   if (reticulate::py_has_attr(classifier, "coef_")) {
     feature_importances <- classifier$coef_
+    if (dim(feature_importances)[1] == 1) {
+      feature_importances <- feature_importances[1,]
+    }
   } else if (reticulate::py_has_attr(classifier, "feature_importances_")) {
     feature_importances <- classifier$feature_importances_
   } else {
@@ -34,34 +37,67 @@ get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
   feature_selector <- pipeline$named_steps[["feature_selector"]]
   original_feature_names <- colnames(reticulate::py_to_r(X_train))
 
-  # Check if the feature selector has the get_support method
   if (reticulate::py_has_attr(feature_selector, "get_support")) {
     selected_indices <- which(feature_selector$get_support())
-    selected_feature_names <- original_feature_names[selected_indices]
-
-    importances <- data.frame(feature=selected_feature_names, importance=feature_importances)
-    importances <- importances[order(-importances$importance),]
-    importances$rank <- seq_len(nrow(importances))
-    column_name <- as.character(glue::glue('rank_{pipeline_name}_split_{iter}'))
-    colnames(importances)[colnames(importances) == 'rank'] <- column_name
-    return(importances)
-  }
-  else if (reticulate::py_has_attr(feature_selector, "support_")) {
+  } else if (reticulate::py_has_attr(feature_selector, "support_")) {
     selected_indices <- which(feature_selector$support_)
-    selected_feature_names <- original_feature_names[selected_indices]
-
-    importances <- data.frame(feature=selected_feature_names, importance=feature_importances)
-    importances <- importances[order(-importances$importance),]
-    importances$rank <- seq_len(nrow(importances))
-    column_name <- as.character(glue::glue('rank_{pipeline_name}_split_{iter}'))
-    colnames(importances)[colnames(importances) == 'rank'] <- column_name
-    return(importances)
   } else {
-    cat("Feature selector doesn't have get_support() attribute")
-  }
-  return(NULL)
-
+    cat("Feature selector doesn't have get_support() or support_ attribute")
+    return(NULL)
 }
+
+  selected_feature_names <- original_feature_names[selected_indices]
+  importances <- data.frame(feature=selected_feature_names, importance=feature_importances[selected_indices])
+  importances <- importances[order(-importances$importance),]
+  importances$rank <- seq_len(nrow(importances))
+  column_name <- as.character(glue::glue('rank_{pipeline_name}_split_{iter}'))
+  colnames(importances)[colnames(importances) == 'rank'] <- column_name
+
+  return(importances)
+}
+
+# get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
+#   classifier <- pipeline$named_steps[['classifier']]
+#
+#   if (reticulate::py_has_attr(classifier, "coef_")) {
+#     feature_importances <- classifier$coef_
+#   } else if (reticulate::py_has_attr(classifier, "feature_importances_")) {
+#     feature_importances <- classifier$feature_importances_
+#   } else {
+#     cat("Classifier doesn't have coef_ or feature_importances_ attributes")
+#     return(NULL)
+#   }
+#
+#   feature_selector <- pipeline$named_steps[["feature_selector"]]
+#   original_feature_names <- colnames(reticulate::py_to_r(X_train))
+#   # Check if the feature selector has the get_support method
+#   if (reticulate::py_has_attr(feature_selector, "get_support")) {
+#     selected_indices <- which(feature_selector$get_support())
+#     selected_feature_names <- original_feature_names[selected_indices]
+#     importances <- data.frame(feature=selected_feature_names, importance=feature_importances)
+#     print(importances)
+#     importances <- importances[order(-importances$importance),]
+#     importances$rank <- seq_len(nrow(importances))
+#     column_name <- as.character(glue::glue('rank_{pipeline_name}_split_{iter}'))
+#     colnames(importances)[colnames(importances) == 'rank'] <- column_name
+#     return(importances)
+#   }
+#   else if (reticulate::py_has_attr(feature_selector, "support_")) {
+#     selected_indices <- which(feature_selector$support_)
+#     selected_feature_names <- original_feature_names[selected_indices]
+#
+#     importances <- data.frame(feature=selected_feature_names, importance=feature_importances)
+#     importances <- importances[order(-importances$importance),]
+#     importances$rank <- seq_len(nrow(importances))
+#     column_name <- as.character(glue::glue('rank_{pipeline_name}_split_{iter}'))
+#     colnames(importances)[colnames(importances) == 'rank'] <- column_name
+#     return(importances)
+#   } else {
+#     cat("Feature selector doesn't have get_support() attribute")
+#   }
+#   return(NULL)
+#
+# }
 
 #' @title Calculate Permutation Feature Importance
 #' @description This function calculates permutation feature importance for a Scikit-learn
