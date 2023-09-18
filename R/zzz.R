@@ -52,6 +52,7 @@ load_python_packages <- function() {
   boruta <<- reticulate::import("boruta", delay_load = TRUE)
   sys <<- reticulate::import("sys", delay_load = TRUE)
   multiprocessing <<- reticulate::import("multiprocessing", delay_load = TRUE)
+  skopt <<- reticulate::import('skopt', delay_load = TRUE)
 
   #message("Imported Python libraries with delay_load = TRUE")
 }

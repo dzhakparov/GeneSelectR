@@ -30,7 +30,8 @@ install_python_packages <- function(conda_env = "GeneSelectR_env") {
                        "numpy <= 1.19",
                        "lightgbm",
                        "xgboost",
-                       "boruta_py")
+                       "boruta_py",
+                       'scikit-optimize')
 
   # Install the Python packages in the Conda environment
   reticulate::conda_install(packages = python_packages, envname = conda_env)

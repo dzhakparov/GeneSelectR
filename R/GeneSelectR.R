@@ -1,7 +1,7 @@
 #' Define Python modules and scikit-learn submodules
 #'
 #' @return A list containing the definitions for the Python modules and submodules.
-#'
+#' @export
 define_sklearn_modules <- function() {
   # define Python modules and sklearn submodules
   preprocessing <- sklearn$preprocessing
@@ -14,6 +14,7 @@ define_sklearn_modules <- function() {
   forest <- sklearn$ensemble$RandomForestClassifier
   randomized_grid <- sklearn$model_selection$RandomizedSearchCV
   grid <- sklearn$model_selection$GridSearchCV
+  bayesianCV <- skopt$BayesSearchCV
   lasso <- sklearn$linear_model$LogisticRegression
   univariate <- sklearn$feature_selection$GenericUnivariateSelect
   select_model <- sklearn$feature_selection$SelectFromModel
@@ -29,6 +30,7 @@ define_sklearn_modules <- function() {
               forest = forest,
               randomized_grid = randomized_grid,
               grid = grid,
+              bayesianCV = bayesianCV,
               lasso = lasso,
               univariate = univariate,
               select_model = select_model,
@@ -126,7 +128,7 @@ set_default_param_grids <- function(max_features) {
 #' @param test_size Proportion of the data to be used as the test set.
 #' @param modules A list containing the definitions for the Python modules and submodules.
 #' @return A list containing the training and test sets for predictors and outcomes.
-#'
+#' @export
 split_data <- function(X, y, test_size, modules) {
   split_data <- modules$model_selection$train_test_split(X, y, test_size = test_size)
   list(
@@ -149,7 +151,7 @@ split_data <- function(X, y, test_size, modules) {
 #' @param njobs The number of CPU cores to use.
 #' @param modules A list containing the definitions for the Python modules and submodules.
 #' @return An object of the optimal model found during the search.
-#'
+#' @export
 perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, search_type, n_iter, njobs, modules) {
   if (search_type == 'grid') {
     search_cv <- modules$grid(
@@ -170,6 +172,17 @@ perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, sea
       n_jobs = njobs,
       verbose = 1L
     )
+  } else if (search_type == 'bayesian') {
+    search_cv <- modules$bayesianCV(
+      estimator = pipeline,
+      scoring = scoring,
+      search_spaces = params,
+      cv = 5L,
+      n_iter = 50L,
+      n_points = 5L,
+      n_jobs = njobs,
+      verbose = 1L
+    )
   } else {
     stop("Invalid search_type. Choose either 'grid' or 'random'.")
   }
@@ -186,7 +199,7 @@ perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, sea
 #'
 #' @return A named list where each element represents a step in the pipeline.
 #' The names of the list elements correspond to the names of the steps in the pipeline.
-#'
+#' @export
 pipeline_to_list <- function(pipeline) {
   steps <- pipeline$steps
   named_list <- list()
@@ -201,6 +214,25 @@ pipeline_to_list <- function(pipeline) {
   return(named_list)
 }
 
+#' Evaluate Test Metrics for a Grid Search Model
+#'
+#' This function takes a grid search object, test data, and test labels to evaluate the performance
+#' of the best model found during grid search.
+#'
+#' @param grid_search A grid search object containing the best estimator.
+#' @param X_test A data frame or matrix of test features.
+#' @param y_test A vector of test labels.
+#' @param modules A list of Python modules used in the function.
+#'
+#' @return A list containing the weighted precision, weighted recall, weighted F1 score, and accuracy.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Assuming grid_search, X_test, y_test, and sklearn are defined
+#' metrics <- evaluate_test_metrics(grid_search, X_test, y_test, sklearn)
+#' }
+#'@export
 evaluate_test_metrics <- function(grid_search, X_test, y_test, modules) {
   best_model <- grid_search$best_estimator_
   y_pred <- best_model$predict(X_test)
