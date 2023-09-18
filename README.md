@@ -9,7 +9,7 @@
 <!-- badges: end -->
 
 ## Overview
-<img src="./man/figures/GeneSelecR.png" align="right" alt="" width="120" />
+<img src="./man/figures/GeneSelectR.png" align="right" alt="" width="120" />
 
 GeneSelectR is an R package designed to streamline the process of gene
 selection and evaluation in bulk RNAseq datasets. Built on top of the
