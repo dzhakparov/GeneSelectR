@@ -1,3 +1,8 @@
+---
+editor_options: 
+  markdown: 
+    wrap: 72
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
@@ -6,23 +11,56 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml)
+
 <!-- badges: end -->
 
-`GeneSelectR` is a machine learning-based R package developed to enhance
-feature selection and biological assessment in RNAseq analysis of
-complex biological datasets. Traditional RNAseq datasets can be
-challenging to analyze due to their high dimensionality. The standard
-differential gene expression analysis approach has been found to have
-limitations such as a high false-positive rate and limited gene
-coverage. The `GeneSelectR` package aims to overcome these limitations
-using machine learning techniques.
+# Overview
 
-<figure>
-<img src="./vignettes/images/package_workflow.png"/>
-</figure>
+GeneSelectR is an R package designed to streamline the process of gene
+selection and evaluation in bulk RNAseq datasets. Built on top of the
+powerful scikit-learn Python library via the reticulate package,
+GeneSelectR offers a seamless integration of machine learning and
+bioinformatics capabilities in a single workflow.
 
-## Installation
+### Features
 
+Comprehensive Workflow GeneSelectR provides an end-to-end solution for
+feature selection, combining the machine learning prowess of
+scikit-learn with the bioinformatics utilities of R packages like
+clusterprofiler and simplifyEnrichment.
+
+### Customizable Yet User-Friendly
+
+While GeneSelectR offers a high degree of customization to cater to
+specific research needs, it also comes with preset configurations that
+are suitable for most use-cases, making it accessible for both novice
+and experienced users.
+
+### Diverse Feature Selection Methods
+
+The package includes a variety of inbuilt feature selection methods,
+such as:
+
+-   SelectFromModel with RandomForest
+-   SelectFromModel with Logistic Regression (L1 penalty)
+-   Boruta
+-   Univariate Filtering
+
+### Main Functionality
+
+The core function, GeneSelectR, performs gene selection using various
+methods and evaluates their performance through cross-validation. It
+also supports hyperparameter tuning, permutation feature importance
+calculation, and more.
+
+<figure><img src="./vignettes/images/package_workflow.png"/></figure>
+
+### Installation
+
+GeneSelectR depends on retiulate that creates a conda working
+environment. Please, install
+[Anaconda](https://www.anaconda.com/download) distribution before you
+proceed.\
 You can install the development version of GeneSelectR from
 [GitHub](https://github.com/) with:
 
@@ -31,23 +69,7 @@ You can install the development version of GeneSelectR from
 devtools::install_github("dzhakparov/GeneSelectR")
 ```
 
-## Usage
-
-The `GeneSelectR` package uses four machine learning methods for feature
-selection:
-
-1.  Random Forest
-2.  Boruta
-3.  Lasso Regression
-4.  Univariate Filtering
-
-In addition, the package also performs Gene Ontology (GO) enrichment to
-assess the biological relevance of gene lists. Semantic similarity
-analysis of the GO lists is performed using Wang distance and binary cut
-clustering. The package then selects the best list based on
-cross-validation mean metrics scores.
-
-## Example
+### Usage and Example
 
 A tutorial detailing how to use GeneSelectR can be seen in this
 [vignette](https://dzhakparov.github.io/GeneSelectR/vignettes/example.html).
