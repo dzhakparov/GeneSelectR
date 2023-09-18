@@ -1,9 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # GeneSelectR
@@ -14,7 +8,8 @@ editor_options:
 
 <!-- badges: end -->
 
-# Overview
+## Overview
+<img src="./man/figures/GeneSelecR.png" align="right" alt="" width="120" />
 
 GeneSelectR is an R package designed to streamline the process of gene
 selection and evaluation in bulk RNAseq datasets. Built on top of the
