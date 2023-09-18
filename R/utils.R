@@ -18,6 +18,7 @@
 #' selected_features <- feature_importances$selected_features
 #' importances <- feature_importances$importances
 #' }
+#' @export
 get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
   classifier <- pipeline$named_steps[['classifier']]
 
@@ -80,6 +81,7 @@ get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
 #' # Assuming you have a Scikit-learn pipeline 'my_pipeline' and training data 'X_train'
 #' permutation_importances <- calculate_permutation_feature_importance(my_pipeline, X_train, y_train)
 #' }
+#' @export
 
 calculate_permutation_feature_importance <- function(pipeline,
                                                      X_train,

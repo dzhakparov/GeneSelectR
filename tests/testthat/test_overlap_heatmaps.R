@@ -1,4 +1,4 @@
-testthat::expect_warning()
+#testthat::expect_warning()
 
 # Create a mock list of matrices for testing
 mock_coefficients <- list(
