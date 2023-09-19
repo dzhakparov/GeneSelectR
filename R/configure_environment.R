@@ -37,16 +37,7 @@ configure_environment <- function(env_name = "GeneSelectR_env") {
                      title = paste("The conda environment", env_name, "does not exist. Do you want to create it?")) == 1) {
       stop(paste("The conda environment", env_name, "was not created."))
     }
-    # Create the conda environment
-    reticulate::conda_create(env_name)
-
-    # Ask the user if they want to install the necessary Python packages
-    if (interactive() &&
-        !utils::menu(c("yes", "no"),
-                     title = "Do you want to install the necessary Python packages to the environment?") == 1) {
-      stop("The necessary Python packages were not installed.")
-    }
-
+    message("Creating conda environment and installing required packages")
     # Install the necessary Python packages
     python_packages = c("scikit-learn",
                         "pandas",
@@ -54,10 +45,29 @@ configure_environment <- function(env_name = "GeneSelectR_env") {
                         "boruta_py",
                         'scikit-optimize')
 
-    reticulate::conda_install(packages = python_packages,
-                              envname = env_name,
-                              channel = 'conda-forge')
-  }
+    # Create the conda environment
+    reticulate::conda_create(env_name,
+                             packages = python_packages,
+                             pip = TRUE)
+
+    # Ask the user if they want to install the necessary Python packages
+  #   if (interactive() &&
+  #       !utils::menu(c("yes", "no"),
+  #                    title = "Do you want to install necessary Python packages to the environment?") == 1) {
+  #     stop("The necessary Python packages were not installed.")
+  #   }
+  #
+  #   # Install the necessary Python packages
+  #   python_packages = c("scikit-learn",
+  #                       "pandas",
+  #                       "numpy <= 1.19",
+  #                       "boruta_py",
+  #                       'scikit-optimize')
+  #
+  #   reticulate::conda_install(packages = python_packages,
+  #                             envname = env_name,
+  #                             channel = 'conda-forge')
+   }
 
   message("Please restart your R session for the changes to take effect.")
 }
