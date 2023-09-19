@@ -24,6 +24,7 @@ numpy <- NULL
 boruta <- NULL
 sys <- NULL
 multiprocessing <- NULL
+skopt <- NULL
 
 #' @title Load Python Modules
 #'

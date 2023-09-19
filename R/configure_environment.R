@@ -52,7 +52,8 @@ configure_environment <- function(env_name = "GeneSelectR_env") {
                         "pandas <= 1.2.3",
                         "numpy <= 1.19",
                         "lightgbm",
-                        "boruta_py")
+                        "boruta_py",
+                        'scikit-optimize')
 
     reticulate::conda_install(packages = python_packages,
                               envname = env_name,
