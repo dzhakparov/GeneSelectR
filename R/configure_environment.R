@@ -39,16 +39,20 @@ configure_environment <- function(env_name = "GeneSelectR_env") {
     }
     message("Creating conda environment and installing required packages")
     # Install the necessary Python packages
-    python_packages = c("scikit-learn <= 1.0.3",
-                        "pandas",
-                        "numpy <= 1.19",
+    python_packages = c("numpy <= 1.19",
+                        "scikit-learn <= 0.22.1",
+                        'pandas',
                         "boruta_py",
                         'scikit-optimize')
 
     # Create the conda environment
     reticulate::conda_create(env_name,
+                             python_version = '3.8',
                              packages = python_packages,
                              channel = 'conda-forge')
+
+    #message("Installing additional package in target environment")
+    #reticulate::py_install(c("boruta_py",'scikit-optimize'), envname = 'GeneSelectR_env', method = 'auto', pip = TRUE)
 
     # Ask the user if they want to install the necessary Python packages
   #   if (interactive() &&
