@@ -36,9 +36,9 @@ and experienced users.
 The package includes a variety of inbuilt feature selection methods,
 such as:
 
--   SelectFromModel with RandomForest
--   SelectFromModel with Logistic Regression (L1 penalty)
--   Boruta
+-   [SelectFromModel](https://scikit-learn.org/0.23/modules/generated/sklearn.feature_selection.SelectFromModel.html#sklearn.feature_selection.SelectFromModel) with RandomForest
+-   [SelectFromModel](https://scikit-learn.org/0.23/modules/generated/sklearn.feature_selection.SelectFromModel.html#sklearn.feature_selection.SelectFromModel) with Logistic Regression (L1 penalty)
+-   [Boruta](https://github.com/scikit-learn-contrib/boruta_py)
 -   Univariate Filtering
 
 ### Main Functionality
@@ -68,3 +68,6 @@ devtools::install_github("dzhakparov/GeneSelectR")
 
 A tutorial detailing how to use GeneSelectR can be acessed in this
 [vignette](https://dzhakparov.github.io/GeneSelectR/vignettes/example.html).
+
+### Feedback and Contribution 
+Any feedback is welcome and appreciated! Feel free to create issues or pull requests. For any other questions please write to: damir.zhakparov@uzh.ch. 
