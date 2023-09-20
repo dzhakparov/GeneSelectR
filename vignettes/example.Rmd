@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 
 ## Python requirements
 
-The feature selection procedure is implemented with Python's scikit-learn library. The package requires an Anaconda installation to work properly. The Python requirements are listed in the requirements.txt file.
+The feature selection procedure is implemented with Python's scikit-learn library. The package requires an Anaconda installation to work properly. The Python requirements are listed in the [requirements.txt](../inst/python/requirements.txt) file.
 
 You can install the development version of GeneSelectR from [GitHub](https://github.com/) with:
 
@@ -407,7 +407,7 @@ annotations_df_with_custom
 
 ## GO Enrichment Analysis
 
-There is a wrapper function to run GO enrichment analysis with clusterprofiler package. To run GO enrichment with default setting simply run:
+There is a wrapper function to run GO enrichment analysis with [clusterprofiler](https://guangchuangyu.github.io/software/clusterProfiler/) package. To run GO enrichment with default setting simply run:
 
 ```{r}
 annotated_GO <- GO_enrichment_analysis(annotated_df)
@@ -438,7 +438,14 @@ annot_child_fractions <- compute_GO_child_term_metrics(GO_data = annotated_GO,
 This will produce a dataframe containing information on number of children terms of specified terms, number of all the terms and fraction of children terms related to the parent one in the total number of identified GO terms (without p-value filtering):
 
 ```{r}
-
+str(annot_child_fractions)
+# 'data.frame':	12 obs. of  6 variables:
+#  $ feature_list          : chr  "Lasso" "Univariate" "RandomForest" "boruta" ...
+#  $ all_terms_number      : int  5413 5421 5981 4643 1308 1752 5413 5421 5981 4643 ...
+#  $ offspring_nodes_number: int  432 449 495 379 196 170 112 110 128 100 ...
+#  $ offspring_terms       : chr  "GO:0001767;GO:0001768;GO:0001771;GO:0001773;GO:0001774;GO:0001776;GO:0001779;GO:0001780;GO:0001782;GO:0001787;G"| __truncated__ "GO:0001767;GO:0001768;GO:0001771;GO:0001773;GO:0001774;GO:0001776;GO:0001780;GO:0001782;GO:0001787;GO:0001909;G"| __truncated__ "GO:0001767;GO:0001768;GO:0001771;GO:0001773;GO:0001774;GO:0001776;GO:0001779;GO:0001782;GO:0001787;GO:0001865;G"| __truncated__ "GO:0001767;GO:0001768;GO:0001771;GO:0001773;GO:0001774;GO:0001776;GO:0001779;GO:0001780;GO:0001782;GO:0001865;G"| __truncated__ ...
+#  $ fraction              : num  7.98 8.28 8.28 8.16 14.98 ...
+#  $ GO_term               : chr  "GO:0002376" "GO:0002376" "GO:0002376" "GO:0002376" ...
 ```
 
 If the plot argument is set to TRUE it will produce a following plot:
@@ -464,4 +471,5 @@ This will produce a heatmap with clustered GO terms from the feature selecton li
 <img src="../vignettes/images/Clustering_Rel_louvain.png" alt="Alt text" width="500px"/>
 :::
 
+For more information on simplifyEnrichment please visit the official package [webpage](https://github.com/jokergoo/simplifyEnrichment). 
 
