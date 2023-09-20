@@ -84,6 +84,15 @@ X <- UrbanRandomSubset %>% dplyr::select(-treatment) # get the feature matrix
 y <- UrbanRandomSubset['treatment'] # store the data point label in a separate vector
 ```
 
+### **Important**
+
+Due to how sklearn handles data, it is critical to convert the label column y into numeric representation. For example, you can do it like this:
+
+```{r}
+y <- as.factor(y)
+y <- as.integer(y)
+```
+
 To run the feature selection procedure with default settings, you should run the GeneSelectR::GeneSelectR() function:
 
 ```{r}
@@ -144,13 +153,25 @@ fs_param_grids <- list(
     -   Speed: Can be computationally intensive as it involves multiple evaluations of the model.
     -   Bias: Offers a more unbiased approach, especially for features with high cardinality.
 
-***A Note on Permutation Importance***: Permutation importance provides insights specific to the model it's computed for. A feature that's vital for one model might not be for another. Hence, it's crucial to understand that permutation importance doesn't indicate the intrinsic predictive value of a feature in isolation. Moreover, it's vital to have a trustworthy model (with good cross-validation scores) before considering its permutation importance values. Features deemed unimportant in a poorly performing model could be crucial for a well-performing one. It's always recommended to evaluate a model's predictive power using held-out data or cross-validation prior to computing permutation importances. For more information please refere to the [sklearn official documentation on permutation importance](https://scikit-learn.org/stable/modules/permutation_importance.html) 5. Hyperparamter adjustment For the sake of computational time the RandomizedSearchCV is used by default. However, if you want to perform an extensive hyperparameter optimization grid search testing all possible combinations can be performed:
+***A Note on Permutation Importance***: Permutation importance provides insights specific to the model it's computed for. A feature that's vital for one model might not be for another. Hence, it's crucial to understand that permutation importance doesn't indicate the intrinsic predictive value of a feature in isolation. Moreover, it's vital to have a trustworthy model (with good cross-validation scores) before considering its permutation importance values. Features deemed unimportant in a poorly performing model could be crucial for a well-performing one. It's always recommended to evaluate a model's predictive power using held-out data or cross-validation prior to computing permutation importances. For more information please refere to the [sklearn official documentation on permutation importance](https://scikit-learn.org/stable/modules/permutation_importance.html). 
+**Note:** Permutation Importance calculation is pretty computationally intensive and may increase the time to finish the analysis run. As a general recommendation it should be used if there is no computational resources constraints. 
+
+5. Hyperparamter adjustment For the sake of computational time the RandomizedSearchCV is used by default. However, if you want to perform an extensive hyperparameter optimization grid search testing all possible combinations can be performed:
 
 ```{r}
 selection_results <- GeneSelectR::GeneSelectR(X = X, 
                                               y = y,
                                               njobs = -1,
                                               search_type = 'grid')
+```
+
+GeneSelectR also supports  scikit-optimize method BayesSearchCV, that performs Bayesian Optimization of hyperparameters. Depending on settings and data it could potentially speed up computation: 
+
+```{r}
+selection_results <- GeneSelectR::GeneSelectR(X = X, 
+                                              y = y,
+                                              njobs = -1,
+                                              search_type = 'bayesian')
 ```
 
 6.  Aggregating Results: Across all the splits, mean inbuilt feature importance values with standard deviation are aggregated for each method. Same is done for the permutation importance if it is enabled. Additionally, rank for every feature at every data split is reported.
@@ -311,7 +332,7 @@ This will return a dataframe that demonstrates three types of overlap coefficien
 plot_overlap_heatmaps(overlap)
 ```
 
-![Alt text](../vignettes/images/overlap_permutation.png) 
+![Alt text](../vignettes/images/overlap_permutation.png)
 
 Additionally, if you have any custom lists (e.g. differential gene expression list) you can pass it as an argument like this:
 
@@ -456,8 +477,10 @@ If the plot argument is set to TRUE it will produce a following plot:
 
 # 6. Semantic Similarity Analysis
 
-## simplifyEnrichment Wrapper Function 
-Final step is the analysis is the clustering and semantic similarity analysis of GO Terms from every list. This is done via [simplifyEnrichment R package](https://github.com/jokergoo/simplifyEnrichment). For the convenience of data input, there is a wrapper for [simplifyGOFromMultipleLists()]() function implemented:   
+## simplifyEnrichment Wrapper Function
+
+Final step is the analysis is the clustering and semantic similarity analysis of GO Terms from every list. This is done via [simplifyEnrichment R package](https://github.com/jokergoo/simplifyEnrichment). For the convenience of data input, there is a wrapper for [simplifyGOFromMultipleLists()]() function implemented:
+
 ```{r}
 # simplifyEnrichment produces a heatmap
 hmap <- run_simplify_enrichment(annotated_GO,
@@ -465,11 +488,10 @@ hmap <- run_simplify_enrichment(annotated_GO,
                                 measure = 'Resnik')
 ```
 
-This will produce a heatmap with clustered GO terms from the feature selecton lists methods: 
+This will produce a heatmap with clustered GO terms from the feature selecton lists methods:
 
 ::: {style="text-align:center"}
 <img src="../vignettes/images/Clustering_Rel_louvain.png" alt="Alt text" width="500px"/>
 :::
 
-For more information on simplifyEnrichment please visit the official package [webpage](https://github.com/jokergoo/simplifyEnrichment). 
-
+For more information on simplifyEnrichment please visit the official package [webpage](https://github.com/jokergoo/simplifyEnrichment).
