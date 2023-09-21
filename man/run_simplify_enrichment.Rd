@@ -6,7 +6,7 @@
 \usage{
 run_simplify_enrichment(
   fs_GO_results,
-  padj_column,
+  padj_column = "p.adjust",
   padj_cutoff,
   ont,
   measure,
