@@ -8,8 +8,7 @@ annotate_gene_lists(
   pipeline_results,
   custom_lists = NULL,
   annotations_ahb,
-  format = c("ensembl_gene_name", "ensembl_id", "gene_name"),
-  separator = "__"
+  format = c("entrezid", "ensembl_id", "gene_name")
 )
 }
 \arguments{
