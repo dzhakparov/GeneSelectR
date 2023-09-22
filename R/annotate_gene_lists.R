@@ -7,11 +7,13 @@
 #' @param separator (optional) A character indicating the separator between ensembl_id and gene_name when format is "ensembl_gene_name".
 #' @return An object of the class AnnotatedGeneLists.
 #' @importFrom methods is
-#' @importFrom clusterProfiler bitr
 #' @export
 #'
 annotate_gene_lists <- function(pipeline_results, custom_lists = NULL, annotations_ahb, format = c("entrezid", "ensembl_id", "gene_name")) {
-# Check if input object belongs to the PipelineResults class
+  if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
+    stop("The clusterProfiler package is required but not installed. Please install it first.")
+  }
+  # Check if input object belongs to the PipelineResults class
 if (!inherits(pipeline_results, "PipelineResults")) {
   stop("The input object does not belong to the PipelineResults class.")
 }
