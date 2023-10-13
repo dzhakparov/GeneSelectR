@@ -26,7 +26,7 @@ Imports:
     tmod (>= 0.50.13),
 biocViews:
 Suggests: 
-    BiocManager (>= 1.30.21),
+    BiocManager,
     clusterProfiler (>= 4.6.2),
     GO.db (>= 3.17.0),
     simplifyEnrichment (>= 1.8.0),
