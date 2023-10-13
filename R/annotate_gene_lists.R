@@ -3,13 +3,12 @@
 #' @param pipeline_results A PipelineResults object containing a named list of data frames.
 #' @param custom_lists (optional) A named list of character vectors containing additional user-defined gene sets.
 #' @param annotations_ahb A data.frame object containing gene annotations with columns 'gene_id', 'gene_name', and 'entrezid'.
-#' @param format The format of the gene list in 'pipeline_results' and 'custom_lists'. This should be one of "ensembl_gene_name", "ensembl_id", or "gene_name".
-#' @param separator (optional) A character indicating the separator between ensembl_id and gene_name when format is "ensembl_gene_name".
+#' @param format The format of the gene list in 'pipeline_results' and 'custom_lists'. This should be one of "ENSEMBL", "ENTREZ", or "SYMBOL".
 #' @return An object of the class AnnotatedGeneLists.
 #' @importFrom methods is
 #' @export
 #'
-annotate_gene_lists <- function(pipeline_results, custom_lists = NULL, annotations_ahb, format = c("entrezid", "ensembl_id", "gene_name")) {
+annotate_gene_lists <- function(pipeline_results, custom_lists = NULL, annotations_ahb, format = c("ENTREZ", "ENSEMBL", "SYMBOL")) {
   if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
     stop("The clusterProfiler package is required but not installed. Please install it first.")
   }
@@ -19,7 +18,7 @@ if (!inherits(pipeline_results, "PipelineResults")) {
 }
 
 # Validate format
-format <- match.arg(format, c("ensembl_gene_name", "ensembl_id", "gene_name"))
+format <- match.arg(format, c("ENTREZ", "ENSEMBL", "SYMBOL"))
 
 # Extract the gene lists from the PipelineResults object
 mean_importances_lists <- lapply(pipeline_results@inbuilt_feature_importance, function(x) x$feature)
@@ -55,11 +54,11 @@ convert_and_annotate <- function(gene_lists, annotated_lists) {
 
     tryCatch({
       # Convert IDs using bitr
-      if (format == "ensembl_id") {
+      if (format == "ENSEMBL") {
         converted_df <- clusterProfiler::bitr(original_ids, fromType = "ENSEMBL", toType = c("SYMBOL", "ENTREZID"), OrgDb = org.Hs.eg.db::org.Hs.eg.db)
-      } else if (format == "gene_name") {
+      } else if (format == "SYMBOL") {
         converted_df <- clusterProfiler::bitr(original_ids, fromType = "SYMBOL", toType = c("ENSEMBL", "ENTREZID"), OrgDb = org.Hs.eg.db::org.Hs.eg.db)
-      } else if (format == "entrezid") {
+      } else if (format == "ENTREZ") {
         converted_df <- clusterProfiler::bitr(original_ids, fromType = "ENTREZID", toType = c("SYMBOL", "ENSEMBL"), OrgDb = org.Hs.eg.db::org.Hs.eg.db)
       }
 

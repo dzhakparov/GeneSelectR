@@ -16,7 +16,6 @@ test_that("GO_enrichment_analysis returns expected results", {
     minGSSize = 10
   )
 
-  print(result)
 
   # Check if the result is a list
   expect_is(result, "list")
@@ -27,7 +26,6 @@ test_that("GO_enrichment_analysis returns expected results", {
   expected_names <- c('Lasso', 'Univariate', 'RandomForest', 'boruta', 'DEG_rural', 'DEG_urban')
   expect_equal(names(result), expected_names)
 
-  # Add more specific checks based on your expected results
 })
 
 test_that("GO_enrichment_analysis throws an error for invalid list_type", {

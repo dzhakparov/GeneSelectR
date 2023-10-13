@@ -8,7 +8,7 @@ annotate_gene_lists(
   pipeline_results,
   custom_lists = NULL,
   annotations_ahb,
-  format = c("entrezid", "ensembl_id", "gene_name")
+  format = c("ENTREZ", "ENSEMBL", "SYMBOL")
 )
 }
 \arguments{
@@ -18,9 +18,7 @@ annotate_gene_lists(
 
 \item{annotations_ahb}{A data.frame object containing gene annotations with columns 'gene_id', 'gene_name', and 'entrezid'.}
 
-\item{format}{The format of the gene list in 'pipeline_results' and 'custom_lists'. This should be one of "ensembl_gene_name", "ensembl_id", or "gene_name".}
-
-\item{separator}{(optional) A character indicating the separator between ensembl_id and gene_name when format is "ensembl_gene_name".}
+\item{format}{The format of the gene list in 'pipeline_results' and 'custom_lists'. This should be one of "ENSEMBL", "ENTREZ", or "SYMBOL".}
 }
 \value{
 An object of the class AnnotatedGeneLists.
