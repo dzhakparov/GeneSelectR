@@ -56,17 +56,17 @@ enable_multiprocess <- function() {
 #' @param max_features The maximum number of features to consider.
 #' @return A list containing preprocessing steps and default feature selection methods.
 #'
-set_default_fs_methods <- function(modules, max_features) {
+set_default_fs_methods <- function(modules, max_features, random_state) {
   VarianceThreshold <- modules$feature_selection$VarianceThreshold(0.85)
-  MinMaxScaler <- modules$preprocessing$MinMaxScaler()
-  Lasso <- modules$select_model(modules$lasso(penalty = 'l1', C = 0.01, solver = 'saga', max_iter = 500L), threshold = 'median', max_features = max_features)
+  StandardScaler <- modules$preprocessing$StandardScaler()
+  Lasso <- modules$select_model(modules$lasso(penalty = 'l1', C = 0.01, solver = 'saga', max_iter = 1000L, random_state = random_state), threshold = 'median', max_features = max_features)
   Univariate <- modules$univariate(mode = 'k_best',param = max_features)
-  RandomForest <- modules$select_model(modules$forest(n_estimators=100L, random_state=42L), threshold = 'median', max_features = max_features)
-  boruta <- boruta$BorutaPy(modules$forest(), n_estimators = 'auto', verbose = 0,perc = 100L)
+  RandomForest <- modules$select_model(modules$forest(n_estimators=100L, random_state=random_state), threshold = 'median', max_features = max_features)
+  boruta <- boruta$BorutaPy(modules$forest(random_state = random_state), n_estimators = 'auto', verbose = 0,perc = 100L)
 
   preprocessing_steps <- list(
     "VarianceThreshold" = VarianceThreshold,
-    "MinMaxScaler" = MinMaxScaler
+    "StandardScaler" = StandardScaler
   )
 
   default_feature_selection_methods <- list(
@@ -152,7 +152,7 @@ split_data <- function(X, y, test_size, modules) {
 #' @param modules A list containing the definitions for the Python modules and submodules.
 #' @return An object of the optimal model found during the search.
 #' @export
-perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, search_type, n_iter, njobs, modules) {
+perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, search_type, n_iter, njobs, modules, random_state) {
   if (search_type == 'grid') {
     search_cv <- modules$grid(
       estimator = pipeline,
@@ -160,7 +160,8 @@ perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, sea
       param_grid = params,
       cv = 5L,
       n_jobs = njobs,
-      verbose = 1L
+      verbose = 1L,
+      random_state = random_state
     )
   } else if (search_type == 'random') {
     search_cv <- modules$randomized_grid(
@@ -170,7 +171,8 @@ perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, sea
       cv = 5L,
       n_iter = n_iter,
       n_jobs = njobs,
-      verbose = 1L
+      verbose = 1L,
+      random_state = random_state
     )
   } else if (search_type == 'bayesian') {
     search_cv <- modules$bayesianCV(
@@ -184,7 +186,7 @@ perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, sea
       verbose = 1L
     )
   } else {
-    stop("Invalid search_type. Choose either 'grid' or 'random'.")
+    stop("Invalid search_type. Choose either 'grid', 'random' or 'bayesian'.")
   }
   search_cv$fit(X_train, y_train)
   return(search_cv)
@@ -199,8 +201,10 @@ perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, sea
 #'
 #' @return A named list where each element represents a step in the pipeline.
 #' The names of the list elements correspond to the names of the steps in the pipeline.
+#' @importFrom reticulate py_to_r
 #' @export
 pipeline_to_list <- function(pipeline) {
+  pipeline <- reticulate::py_to_r(pipeline)
   steps <- pipeline$steps
   named_list <- list()
 
@@ -314,6 +318,7 @@ calculate_mean_cv_scores <- function(selected_pipelines, cv_best_score) {
 #' @param calculate_permutation_importance A boolean indicating whether to calculate permutation feature importance. Default is FALSE.
 #' @param max_features Maximum number of features to be selected by default feature selection methods.
 #' @param perform_test_split Whether to perform train and test split, to have an evaluation on unseen test set. The default value is set to FALSE
+#' @param random_state An integer value setting the random seed for feature selection algorithms and cross validation procedure. By default set to NULL to use different random seed every time an algorithm is used. For reproducibility could be fixed, otherwise for an unbiased estimation should be left as NULL.
 #' @return A list with the following elements:
 #' \item{fitted_pipelines}{A list of the fitted pipelines.}
 #' \item{cv_results}{A list of the cross-validation results for each pipeline.}
@@ -372,7 +377,8 @@ GeneSelectR <- function(X,
                         n_iter = 10,
                         max_features = 50,
                         calculate_permutation_importance = FALSE,
-                        perform_test_split = FALSE) {
+                        perform_test_split = FALSE,
+                        random_state = NULL) {
 
   message('Performing feature selection procedure. Please wait, it takes some time')
 
@@ -381,14 +387,17 @@ GeneSelectR <- function(X,
   n_splits <- as.integer(n_splits)
   n_iter <- as.integer(n_iter)
   max_features <- as.integer(max_features)
+  if (!is.null(random_state)) {
+    random_state <- as.integer(random_state)
+  }
 
   if (Sys.info()["sysname"] == "Windows") {
     enable_multiprocess()
   }
 
   modules <- define_sklearn_modules()
-  default_feature_selection_methods <- set_default_fs_methods(modules, max_features)
-  default_classifier <- modules$forest()
+  default_feature_selection_methods <- set_default_fs_methods(modules, max_features,random_state = random_state)
+  default_classifier <- modules$forest(random_state = random_state)
   default_grids <- set_default_param_grids(max_features)
 
   # define feature selection grids, set to default if none are provided
@@ -500,7 +509,8 @@ GeneSelectR <- function(X,
         search_type,
         n_iter,
         njobs,
-        modules
+        modules,
+        random_state = random_state
       )
 
       best_model <- search_cv$best_estimator_
@@ -560,3 +570,5 @@ GeneSelectR <- function(X,
                       cv_mean_score = cv_score_summary_df,
                       permutation_importance = if (calculate_permutation_importance) mean_permutation_importances else list()))
 }
+
+
