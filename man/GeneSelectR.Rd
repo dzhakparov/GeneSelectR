@@ -23,7 +23,8 @@ GeneSelectR(
   n_iter = 10,
   max_features = 50,
   calculate_permutation_importance = FALSE,
-  perform_test_split = FALSE
+  perform_test_split = FALSE,
+  random_state = NULL
 )
 }
 \arguments{
@@ -64,6 +65,8 @@ GeneSelectR(
 \item{calculate_permutation_importance}{A boolean indicating whether to calculate permutation feature importance. Default is FALSE.}
 
 \item{perform_test_split}{Whether to perform train and test split, to have an evaluation on unseen test set. The default value is set to FALSE}
+
+\item{random_state}{An integer value setting the random seed for feature selection algorithms and cross validation procedure. By default set to NULL to use different random seed every time an algorithm is used. For reproducibility could be fixed, otherwise for an unbiased estimation should be left as NULL.}
 }
 \value{
 A list with the following elements:

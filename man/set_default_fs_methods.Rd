@@ -4,7 +4,7 @@
 \alias{set_default_fs_methods}
 \title{Set Default Feature Selection Methods}
 \usage{
-set_default_fs_methods(modules, max_features)
+set_default_fs_methods(modules, max_features, random_state)
 }
 \arguments{
 \item{modules}{A list containing the definitions for the Python modules and submodules.}

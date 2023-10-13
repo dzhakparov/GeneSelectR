@@ -13,7 +13,8 @@ perform_grid_search(
   search_type,
   n_iter,
   njobs,
-  modules
+  modules,
+  random_state
 )
 }
 \arguments{

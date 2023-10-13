@@ -9,6 +9,7 @@ License: MIT + file LICENSE
 URL: https://github.com/dzhakparov/GeneSelectR
 BugReports: https://github.com/dzhakparov/GeneSelectR/issues
 Imports: 
+    BiocManager,
     cowplot (>= 1.1.1),
     dplyr (>= 1.1.0),
     ggplot2 (>= 3.4.2),
@@ -26,7 +27,6 @@ Imports:
     tmod (>= 0.50.13),
 biocViews:
 Suggests: 
-    BiocManager,
     clusterProfiler (>= 4.6.2),
     GO.db (>= 3.17.0),
     simplifyEnrichment (>= 1.8.0),
