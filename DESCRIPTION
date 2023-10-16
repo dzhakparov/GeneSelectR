@@ -31,7 +31,11 @@ Suggests:
     simplifyEnrichment (>= 1.8.0),
     knitr,
     rmarkdown,
-    BiocManager (>= 1.30.21)
+    BiocManager (>= 1.30.21),
+    UpSetR (>= 1.4.0),
+    AnnotationHub (>= 3.8.0),
+    ensembldb (>= 2.24.0),
+    org.Hs.eg.db (>= 3.17.0)
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

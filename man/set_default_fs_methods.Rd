@@ -10,6 +10,8 @@ set_default_fs_methods(modules, max_features, random_state)
 \item{modules}{A list containing the definitions for the Python modules and submodules.}
 
 \item{max_features}{The maximum number of features to consider.}
+
+\item{random_state}{An integer value setting the random seed for feature selection algorithms and cross validation procedure. By default set to NULL to use different random seed every time an algorithm is used. For reproducibility could be fixed, otherwise for an unbiased estimation should be left as NULL.}
 }
 \value{
 A list containing preprocessing steps and default feature selection methods.

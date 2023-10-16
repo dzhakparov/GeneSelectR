@@ -35,6 +35,8 @@ perform_grid_search(
 \item{njobs}{The number of CPU cores to use.}
 
 \item{modules}{A list containing the definitions for the Python modules and submodules.}
+
+\item{random_state}{An integer value setting the random seed for feature selection algorithms and cross validation procedure. By default set to NULL to use different random seed every time an algorithm is used. For reproducibility could be fixed, otherwise for an unbiased estimation should be left as NULL.}
 }
 \value{
 An object of the optimal model found during the search.
