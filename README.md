@@ -1,96 +1,73 @@
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # GeneSelectR
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml)
+
 <!-- badges: end -->
 
-`GeneSelectR` is a machine learning-based R package developed to enhance
-feature selection and biological assessment in RNAseq analysis of
-complex biological datasets. Traditional RNAseq datasets can be
-challenging to analyze due to their high dimensionality. The standard
-differential gene expression analysis approach has been found to have
-limitations such as a high false-positive rate and limited gene
-coverage. The `GeneSelectR` package aims to overcome these limitations
-using machine learning techniques.
+## Overview
+<img src="./man/figures/GeneSelectR.png" align="right" alt="" width="120" />
 
-![Alt text](./vignettes/images/package-scheme.png)
+GeneSelectR is an R package designed to streamline the process of gene
+selection and evaluation in bulk RNAseq datasets. Built on top of the
+powerful scikit-learn Python library via the reticulate package,
+GeneSelectR offers a seamless integration of machine learning and
+bioinformatics capabilities in a single workflow.
 
-## Installation
+### Features
 
+Comprehensive Workflow GeneSelectR provides an end-to-end solution for
+feature selection, combining the machine learning prowess of
+scikit-learn with the bioinformatics utilities of R packages like
+clusterprofiler and simplifyEnrichment.
+
+### Customizable Yet User-Friendly
+
+While GeneSelectR offers a high degree of customization to cater to
+specific research needs, it also comes with preset configurations that
+are suitable for most use-cases, making it accessible for both novice
+and experienced users.
+
+### Diverse Feature Selection Methods
+
+The package includes a variety of inbuilt feature selection methods,
+such as:
+
+-   [SelectFromModel](https://scikit-learn.org/0.23/modules/generated/sklearn.feature_selection.SelectFromModel.html#sklearn.feature_selection.SelectFromModel) with RandomForest
+-   [SelectFromModel](https://scikit-learn.org/0.23/modules/generated/sklearn.feature_selection.SelectFromModel.html#sklearn.feature_selection.SelectFromModel) with Logistic Regression (L1 penalty)
+-   [Boruta](https://github.com/scikit-learn-contrib/boruta_py)
+-   Univariate Filtering
+
+### Main Functionality
+
+The core function, GeneSelectR, performs gene selection using various
+methods and evaluates their performance through cross-validation. It
+also supports hyperparameter tuning, permutation feature importance
+calculation, and more.
+
+<figure><img src="./vignettes/images/package_workflow.png"/></figure>
+
+### Installation
+
+GeneSelectR depends on retiulate that creates a conda working
+environment. Please, install
+[Anaconda](https://www.anaconda.com/download) distribution before you
+proceed.\
 You can install the development version of GeneSelectR from
 [GitHub](https://github.com/) with:
-
-NB! Prior to installation you should run this:
-
-``` r
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-#> Bioconductor version '3.16' is out-of-date; the current release version '3.17'
-#>   is available with R version '4.3'; see https://bioconductor.org/install
-
-BiocManager::install("ViSEAGO")
-#> Bioconductor version 3.16 (BiocManager 1.30.20), R 4.2.2 (2022-10-31 ucrt)
-#> Warning: package(s) not installed when version(s) same as or greater than current; use
-#>   `force = TRUE` to re-install: 'ViSEAGO'
-#> Old packages: 'areaplot', 'cachem', 'class', 'cli', 'clock', 'DiagrammeR',
-#>   'dplyr', 'DT', 'fs', 'future.apply', 'ggnewscale', 'graphlayouts', 'httpuv',
-#>   'httr2', 'igraph', 'influenceR', 'KernSmooth', 'later', 'lattice', 'lme4',
-#>   'MASS', 'Matrix', 'nnet', 'parallelly', 'pROC', 'profvis', 'RcppArmadillo',
-#>   'recipes', 'rlang', 'scatterpie', 'testthat', 'tibble', 'tidymodels', 'tzdb',
-#>   'viridis', 'vroom', 'waldo', 'XML', 'xml2', 'yardstick'
-```
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("dzhakparov/GeneSelectR")
 ```
 
-## Usage
+### Usage and Example
 
-The `GeneSelectR` package uses four machine learning methods for feature
-selection:
+A tutorial detailing how to use GeneSelectR can be acessed in this
+[vignette](https://dzhakparov.github.io/GeneSelectR/vignettes/example.html).
 
-1.  Recursive Feature Elimination
-2.  Boruta
-3.  Lasso Regression
-4.  Univariate Filtering
-
-In addition, the package also performs Gene Ontology (GO) enrichment to
-assess the biological relevance of gene lists. Semantic similarity
-analysis of the GO lists is performed using Wang distance and binary cut
-clustering. The package then selects the best list based on
-cross-validation mean metrics scores.
-
-## Example
-
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-# An example of usage:
-#library(GeneSelectR)
-# load your data
-#data <- read.csv("YourData.csv")
-# perform feature selection
-#selected_features <- feature_select(data, method = "lasso")
-# perform GO enrichment analysis
-#go_enrichment <- go_enrich(selected_features)
-# perform semantic similarity analysis
-#semantic_analysis <- semantic_sim(go_enrichment)
-# select the best list
-#best_list <- select_best(semantic_analysis)
-```
-
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
-
-![Alt text](./vignettes/images/hmap_jaccard_GO.png) ![Alt
-text](./vignettes/images/union_0_feature_selection_mean_cv.png) ![Alt
-text](./vignettes/images/hmap_GO_clusters.png)
-
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this. You could also
-use GitHub Actions to re-render `README.Rmd` every time you push. An
-example workflow can be found here:
-<https://github.com/r-lib/actions/tree/v1/examples>.
+### Feedback and Contribution 
+Any feedback is welcome and appreciated! Feel free to create issues or pull requests. For any other questions please write to: damir.zhakparov@uzh.ch. 

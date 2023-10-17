@@ -6,17 +6,21 @@
 \usage{
 GO_enrichment_analysis(
   annotated_gene_lists,
-  background,
+  list_type = "inbuilt",
+  background = NULL,
   organism = "org.Hs.eg.db",
   keyType = "ENTREZID",
   ont = "BP",
   pvalueCutoff = 0.05,
   qvalueCutoff = 0.2,
-  pAdjMethod = "fdr"
+  pAdjMethod = "fdr",
+  ...
 )
 }
 \arguments{
 \item{annotated_gene_lists}{An AnnotatedGeneLists object containing a list of GeneList objects.}
+
+\item{list_type}{A type of AnnotatedGeneList from annotate_gene_lists function. Either 'inbuilt' or 'permutation'. (default: 'inbuilt')}
 
 \item{background}{A character vector representing the background gene set.}
 
@@ -31,6 +35,8 @@ GO_enrichment_analysis(
 \item{qvalueCutoff}{A numeric value specifying the q-value cutoff. Default: 0.2.}
 
 \item{pAdjMethod}{A p-value adjustment method. Should be the one from "holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none". Default is 'fdr}
+
+\item{...}{Other parameters to be passed to clusterProfiler::enrichGO function.}
 }
 \value{
 A list containing the enrichment results for all gene sets (excluding "background").
@@ -41,7 +47,10 @@ This function performs gene set enrichment analysis on a list of gene sets extra
 \examples{
 \dontrun{
 # Assuming annotated_gene_lists and background are defined
-results <- GO_enrichment_analysis(annotated_gene_lists, background, organism = "org.Hs.eg.db", keyType = "ENTREZID")
+results <- GO_enrichment_analysis(annotated_gene_lists,
+                                  background,
+                                  organism = "org.Hs.eg.db",
+                                  keyType = "ENTREZID")
 }
 }
 \references{

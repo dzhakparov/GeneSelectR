@@ -37,28 +37,41 @@ configure_environment <- function(env_name = "GeneSelectR_env") {
                      title = paste("The conda environment", env_name, "does not exist. Do you want to create it?")) == 1) {
       stop(paste("The conda environment", env_name, "was not created."))
     }
+    message("Creating conda environment and installing required packages")
+    # Install the necessary Python packages
+    python_packages = c("numpy <= 1.19",
+                        "scikit-learn <= 0.22.1",
+                        'pandas',
+                        "boruta_py",
+                        'scikit-optimize')
+
     # Create the conda environment
-    reticulate::conda_create(env_name)
+    reticulate::conda_create(env_name,
+                             python_version = '3.8',
+                             packages = python_packages,
+                             channel = 'conda-forge')
+
+    #message("Installing additional package in target environment")
+    #reticulate::py_install(c("boruta_py",'scikit-optimize'), envname = 'GeneSelectR_env', method = 'auto', pip = TRUE)
 
     # Ask the user if they want to install the necessary Python packages
-    if (interactive() &&
-        !utils::menu(c("yes", "no"),
-                     title = "Do you want to install the necessary Python packages to the environment?") == 1) {
-      stop("The necessary Python packages were not installed.")
-    }
-
-    # Install the necessary Python packages
-    python_packages = c("scikit-learn <= 0.22.1",
-                        "pandas <= 1.2.3",
-                        "numpy <= 1.19",
-                        "lightgbm",
-                        "py-xgboost",
-                        "boruta_py")
-
-    reticulate::conda_install(packages = python_packages,
-                              envname = env_name,
-                              channel = 'conda-forge')
-  }
+  #   if (interactive() &&
+  #       !utils::menu(c("yes", "no"),
+  #                    title = "Do you want to install necessary Python packages to the environment?") == 1) {
+  #     stop("The necessary Python packages were not installed.")
+  #   }
+  #
+  #   # Install the necessary Python packages
+  #   python_packages = c("scikit-learn",
+  #                       "pandas",
+  #                       "numpy <= 1.19",
+  #                       "boruta_py",
+  #                       'scikit-optimize')
+  #
+  #   reticulate::conda_install(packages = python_packages,
+  #                             envname = env_name,
+  #                             channel = 'conda-forge')
+   }
 
   message("Please restart your R session for the changes to take effect.")
 }

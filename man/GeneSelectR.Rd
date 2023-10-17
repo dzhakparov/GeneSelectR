@@ -5,43 +5,82 @@
 \title{Gene Selection and Evaluation with GeneSelectR}
 \usage{
 GeneSelectR(
-  X_train,
-  y_train,
+  X,
+  y,
   pipelines = NULL,
-  feature_selection_methods = NULL,
+  custom_fs_methods = NULL,
   selected_methods = NULL,
-  fs_param_grids = NULL,
+  custom_fs_grids = NULL,
+  classifier = NULL,
+  classifier_grid = NULL,
+  preprocessing_steps = NULL,
   testsize = 0.2,
-  njobs = -1L,
-  n_splits = 2L
+  validsize = 0.2,
+  scoring = "accuracy",
+  njobs = -1,
+  n_splits = 5,
+  search_type = "random",
+  n_iter = 10,
+  max_features = 50,
+  calculate_permutation_importance = FALSE,
+  perform_test_split = FALSE,
+  random_state = NULL
 )
 }
 \arguments{
-\item{X_train}{A matrix or data frame of training data with features as columns and observations as rows.}
+\item{X}{A matrix or data frame with features as columns and observations as rows.}
 
-\item{y_train}{A vector of training labels corresponding to the rows of X_train.}
+\item{y}{A vector of labels corresponding to the rows of X_train.}
 
 \item{pipelines}{An optional list of pre-defined pipelines to use for fitting and evaluation. If this argument is provided, the feature selection methods and preprocessing steps will be ignored.}
 
-\item{feature_selection_methods}{An optional list of feature selection methods to use for fitting and evaluation. If this argument is not provided, a default set of feature selection methods will be used.}
+\item{custom_fs_methods}{An optional list of feature selection methods to use for fitting and evaluation. If this argument is not provided, a default set of feature selection methods will be used.}
 
 \item{selected_methods}{An optional vector of names of feature selection methods to use from the default set. If this argument is provided, only the specified methods will be used.}
 
-\item{fs_param_grids}{An optional list of hyperparameter grids for the feature selection methods. Each element of the list should be a named list of parameters for a specific feature selection method. The names of the elements should match the names of the feature selection methods. If this argument is provided, the function will perform hyperparameter tuning for the specified feature selection methods in addition to the final estimator.}
+\item{custom_fs_grids}{An optional list of hyperparameter grids for the feature selection methods. Each element of the list should be a named list of parameters for a specific feature selection method. The names of the elements should match the names of the feature selection methods. If this argument is provided, the function will perform hyperparameter tuning for the specified feature selection methods in addition to the final estimator.}
+
+\item{classifier}{An optional sklearn classifier. If left NULL then sklearn RandomForestClassifier is used.}
+
+\item{classifier_grid}{An optional named list of classifier parameters. If none are provided then default grid is used (check vignette for exact params).}
+
+\item{preprocessing_steps}{An optional named list of sklearn preprocessing procedures. If none provided defaults are used (check vignette for exact params).}
 
 \item{testsize}{The size of the test set used in the evaluation.}
+
+\item{validsize}{The size of the validation set used in the evaluation.}
+
+\item{scoring}{A string representing what scoring metric to use for hyperparameter adjustment. Default value is 'accuracy'}
 
 \item{njobs}{Number of jobs to run in parallel.}
 
 \item{n_splits}{Number of train/test splits.}
+
+\item{search_type}{A string indicating the type of search to use. 'grid' for GridSearchCV and 'random' for RandomizedSearchCV. Default is 'random'.}
+
+\item{n_iter}{An integer indicating the number of parameter settings that are sampled in RandomizedSearchCV. Only applies when search_type is 'random'.}
+
+\item{max_features}{Maximum number of features to be selected by default feature selection methods.}
+
+\item{calculate_permutation_importance}{A boolean indicating whether to calculate permutation feature importance. Default is FALSE.}
+
+\item{perform_test_split}{Whether to perform train and test split, to have an evaluation on unseen test set. The default value is set to FALSE}
+
+\item{random_state}{An integer value setting the random seed for feature selection algorithms and cross validation procedure. By default set to NULL to use different random seed every time an algorithm is used. For reproducibility could be fixed, otherwise for an unbiased estimation should be left as NULL.}
 }
 \value{
 A list with the following elements:
 \item{fitted_pipelines}{A list of the fitted pipelines.}
 \item{cv_results}{A list of the cross-validation results for each pipeline.}
+\item{inbuilt_feature_importance}{A list of the inbuilt feature importance scores for each pipeline.}
+\item{gene_set_stability}{A list of the gene set stability for each pipeline.}
+\item{test_metrics}{A data frame of test metrics for each pipeline.}
+\item{permutation_importances}{A list of the permutation importance scores for each pipeline (if calculate_permutation_importance is TRUE).}
 }
 \description{
-This function performs gene selection using different methods on a given training set and evaluates their performance using cross-validation.
+This function performs gene selection using different methods on a given
+training set and evaluates their performance using cross-validation. Optionally, it
+also calculates permutation feature importances.
 }
 \examples{
 \dontrun{
@@ -55,8 +94,14 @@ results <- GeneSelectR(X_train = X, y_train = y)
 results <- GeneSelectR(X_train = X, y_train = y, selected_methods = c("Univariate", "RFE"))
 
 # Perform gene selection and evaluation using user-defined methods
-fs_methods <- list("Lasso" = select_model(lasso(penalty = 'l1', C = 0.1, solver = 'saga'), threshold = 'median'))
-fs_param_grids <- list("Lasso" = list('C' = c(0.1, 1, 10)))
-results <- GeneSelectR(X_train = X, y_train = y, feature_selection_methods = fs_methods, fs_param_grids = fs_param_grids)
+fs_methods <- list("Lasso" = select_model(lasso(penalty = 'l1',
+                                                C = 0.1,
+                                                solver = 'saga'),
+                                          threshold = 'median'))
+custom_fs_grids <- list("Lasso" = list('C' = c(0.1, 1, 10)))
+results <- GeneSelectR(X_train = X,
+                       y_train = y,
+                       custom_fs_methods = fs_methods,
+                       custom_fs_grids = custom_fs_grids)
 }
 }
