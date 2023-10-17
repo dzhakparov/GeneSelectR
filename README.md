@@ -76,7 +76,7 @@ pull the image using the following command:
 
 ``` bash
 docker pull dzhakparov/geneselectr-image:v1.0
-docker run -e PASSWORD=your_password -p 8787:8787 dzhakparov/geneselectr-image:V1.0
+docker run -e PASSWORD=your_password -p 8787:8787 dzhakparov/geneselectr-image:v1.0
 ```
 
 ### Citation
