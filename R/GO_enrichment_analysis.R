@@ -9,7 +9,7 @@
 #' @param ont A character string representing GO term ontology. Default: "BP" (for Biological Process).
 #' @param pvalueCutoff A numeric value specifying the significance cutoff. Default: 0.05.
 #' @param qvalueCutoff A numeric value specifying the q-value cutoff. Default: 0.2.
-#'
+#' @param pAdjMethod A p-value adjustment method. Should be the one from "holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none". Default is 'fdr
 #' @return A list containing the enrichment results for all gene sets (excluding "background").
 #'
 #' @importFrom clusterProfiler enrichGO
@@ -24,7 +24,7 @@
 #' results <- GO_enrichment_analysis(annotated_gene_lists, background, organism = "org.Hs.eg.db", keyType = "ENTREZID")
 #' }
 #' @export
-GO_enrichment_analysis <- function(annotated_gene_lists, background, organism = "org.Hs.eg.db", keyType = "ENTREZID", ont = "BP", pvalueCutoff = 0.05, qvalueCutoff = 0.2) {
+GO_enrichment_analysis <- function(annotated_gene_lists, background, organism = "org.Hs.eg.db", keyType = "ENTREZID", ont = "BP", pvalueCutoff = 0.05, qvalueCutoff = 0.2, pAdjMethod  = 'fdr') {
 
   # Check if annotated_gene_lists is an object of class AnnotatedGeneLists
   if (!inherits(annotated_gene_lists, "AnnotatedGeneLists")) {
@@ -58,6 +58,7 @@ GO_enrichment_analysis <- function(annotated_gene_lists, background, organism = 
       OrgDb        = organism,
       keyType      = keyType,
       ont          = ont,
+      pAdjustMethod = pAdjMethod,
       pvalueCutoff = pvalueCutoff,
       qvalueCutoff = qvalueCutoff
     )

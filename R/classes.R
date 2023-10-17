@@ -12,6 +12,7 @@ setClass("PipelineResults",
            fitted_pipelines = "list",
            cv_results = "list",
            mean_feature_importances = "list",
+           #gene_set_stability = 'list',
            test_metrics = 'data.frame'
          ))
 

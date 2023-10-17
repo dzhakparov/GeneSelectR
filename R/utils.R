@@ -60,25 +60,37 @@ get_feature_importances <- function(pipeline, X_train) {
 #' @param preprocessing_steps A list of preprocessing steps to use for the pipelines.
 #' @param selected_methods A vector of names of feature selection methods to use from the default set.
 #' @param classifier A Scikit-learn classifier to use as the final step in the pipelines.
+#' @param fs_param_grids param grid
 #' @return A list of Scikit-learn pipelines.
 #' @importFrom reticulate import tuple
 #' @export
-create_pipelines <- function(feature_selection_methods, preprocessing_steps, selected_methods, classifier) {
+create_pipelines <- function(feature_selection_methods, preprocessing_steps, selected_methods, classifier, fs_param_grids) {
   sklearn <- reticulate::import('sklearn')
   pipeline <- sklearn$pipeline$Pipeline
   named_pipelines <- list()
   selected_methods <- names(feature_selection_methods)
-
 
   for (feature_selector_name in selected_methods) {
     if (feature_selector_name %in% names(feature_selection_methods)) {
       feature_selector_method <- feature_selection_methods[[feature_selector_name]]
       base_model <- classifier
 
-      steps <- c(preprocessing_steps, list("feature_selector" =feature_selector_method))
+      steps <- c(preprocessing_steps, list("feature_selector" = feature_selector_method))
       steps <- c(steps, list("classifier" = base_model))
 
       tuple_steps <- steps_to_tuples(steps)
+
+      # Add feature selection parameters to the pipeline if they are provided
+      if (feature_selector_name %in% names(fs_param_grids)) {
+        fs_params <- fs_param_grids[[feature_selector_name]]
+
+        # Incorporate the parameters from fs_params into the appropriate estimator objects
+        for (i in seq_along(tuple_steps)) {
+          if (tuple_steps[[i]][[1]] == "feature_selector") {
+            tuple_steps[[i]][[2]] <- do.call(tuple_steps[[i]][[2]], fs_params)
+          }
+        }
+      }
 
       named_pipelines[[feature_selector_name]] <- pipeline(steps = tuple_steps)
     } else {
@@ -88,6 +100,13 @@ create_pipelines <- function(feature_selection_methods, preprocessing_steps, sel
 
   return(named_pipelines)
 }
+
+
+
+
+
+
+
 
 #' @title Convert Steps to Tuples
 #' @description This function converts a list of steps to tuples for use in a Scikit-learn pipeline.

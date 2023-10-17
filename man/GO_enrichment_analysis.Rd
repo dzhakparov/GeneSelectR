@@ -11,7 +11,8 @@ GO_enrichment_analysis(
   keyType = "ENTREZID",
   ont = "BP",
   pvalueCutoff = 0.05,
-  qvalueCutoff = 0.2
+  qvalueCutoff = 0.2,
+  pAdjMethod = "fdr"
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ GO_enrichment_analysis(
 \item{pvalueCutoff}{A numeric value specifying the significance cutoff. Default: 0.05.}
 
 \item{qvalueCutoff}{A numeric value specifying the q-value cutoff. Default: 0.2.}
+
+\item{pAdjMethod}{A p-value adjustment method. Should be the one from "holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none". Default is 'fdr}
 }
 \value{
 A list containing the enrichment results for all gene sets (excluding "background").

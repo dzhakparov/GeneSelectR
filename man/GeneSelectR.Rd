@@ -10,6 +10,7 @@ GeneSelectR(
   pipelines = NULL,
   feature_selection_methods = NULL,
   selected_methods = NULL,
+  fs_param_grids = NULL,
   testsize = 0.2,
   njobs = -1L,
   n_splits = 2L
@@ -25,6 +26,8 @@ GeneSelectR(
 \item{feature_selection_methods}{An optional list of feature selection methods to use for fitting and evaluation. If this argument is not provided, a default set of feature selection methods will be used.}
 
 \item{selected_methods}{An optional vector of names of feature selection methods to use from the default set. If this argument is provided, only the specified methods will be used.}
+
+\item{fs_param_grids}{An optional list of hyperparameter grids for the feature selection methods. Each element of the list should be a named list of parameters for a specific feature selection method. The names of the elements should match the names of the feature selection methods. If this argument is provided, the function will perform hyperparameter tuning for the specified feature selection methods in addition to the final estimator.}
 
 \item{testsize}{The size of the test set used in the evaluation.}
 
@@ -53,6 +56,7 @@ results <- GeneSelectR(X_train = X, y_train = y, selected_methods = c("Univariat
 
 # Perform gene selection and evaluation using user-defined methods
 fs_methods <- list("Lasso" = select_model(lasso(penalty = 'l1', C = 0.1, solver = 'saga'), threshold = 'median'))
-results <- GeneSelectR(X_train = X, y_train = y, feature_selection_methods = fs_methods)
+fs_param_grids <- list("Lasso" = list('C' = c(0.1, 1, 10)))
+results <- GeneSelectR(X_train = X, y_train = y, feature_selection_methods = fs_methods, fs_param_grids = fs_param_grids)
 }
 }

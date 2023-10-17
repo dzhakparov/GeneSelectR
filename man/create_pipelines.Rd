@@ -8,7 +8,8 @@ create_pipelines(
   feature_selection_methods,
   preprocessing_steps,
   selected_methods,
-  classifier
+  classifier,
+  fs_param_grids
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ create_pipelines(
 \item{selected_methods}{A vector of names of feature selection methods to use from the default set.}
 
 \item{classifier}{A Scikit-learn classifier to use as the final step in the pipelines.}
+
+\item{fs_param_grids}{param grid}
 }
 \value{
 A list of Scikit-learn pipelines.
