@@ -1,3 +1,4 @@
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # GeneSelectR
@@ -5,11 +6,11 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml)
-
 <!-- badges: end -->
 
 ## Overview
-<img src="./man/figures/GeneSelectR.png" align="right" alt="" width="120" />
+
+<img src="man/figures/GeneSelectR.png" style="float: right; margin: 0px 0px 10px 10px;" width="120px" />
 
 GeneSelectR is an R package designed to streamline the process of gene
 selection and evaluation in bulk RNAseq datasets. Built on top of the
@@ -36,10 +37,10 @@ and experienced users.
 The package includes a variety of inbuilt feature selection methods,
 such as:
 
--   [SelectFromModel](https://scikit-learn.org/0.23/modules/generated/sklearn.feature_selection.SelectFromModel.html#sklearn.feature_selection.SelectFromModel) with RandomForest
--   [SelectFromModel](https://scikit-learn.org/0.23/modules/generated/sklearn.feature_selection.SelectFromModel.html#sklearn.feature_selection.SelectFromModel) with Logistic Regression (L1 penalty)
--   [Boruta](https://github.com/scikit-learn-contrib/boruta_py)
--   Univariate Filtering
+- SelectFromModel with RandomForest
+- SelectFromModel with Logistic Regression (L1 penalty)
+- Boruta
+- Univariate Filtering
 
 ### Main Functionality
 
@@ -48,15 +49,14 @@ methods and evaluates their performance through cross-validation. It
 also supports hyperparameter tuning, permutation feature importance
 calculation, and more.
 
-<figure><img src="./vignettes/images/package_workflow.png"/></figure>
+<img src="vignettes/images/package_workflow.png" width="100%" />
 
 ### Installation
 
-GeneSelectR depends on retiulate that creates a conda working
+GeneSelectR depends on reticulate that creates a conda working
 environment. Please, install
 [Anaconda](https://www.anaconda.com/download) distribution before you
-proceed.\
-You can install the development version of GeneSelectR from
+proceed. You can install the development version of GeneSelectR from
 [GitHub](https://github.com/) with:
 
 ``` r
@@ -66,8 +66,11 @@ devtools::install_github("dzhakparov/GeneSelectR")
 
 ### Usage and Example
 
-A tutorial detailing how to use GeneSelectR can be acessed in this
+A tutorial detailing how to use GeneSelectR can be accessed in this
 [vignette](https://dzhakparov.github.io/GeneSelectR/vignettes/example.html).
 
-### Feedback and Contribution 
-Any feedback is welcome and appreciated! Feel free to create issues or pull requests. For any other questions please write to: damir.zhakparov@uzh.ch. 
+### Feedback and Contribution
+
+Any feedback is welcome and appreciated! Feel free to create issues or
+pull requests. For any other questions please write to:
+<damir.zhakparov@uzh.ch>.
