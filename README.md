@@ -69,6 +69,20 @@ devtools::install_github("dzhakparov/GeneSelectR")
 A tutorial detailing how to use GeneSelectR can be accessed in this
 [vignette](https://dzhakparov.github.io/GeneSelectR/vignettes/example.html).
 
+### Docker Image
+
+GeneSelectR is available as a container image on Docker Hub. You can
+pull the image using the following command:
+
+``` bash
+docker pull dzhakparov/geneselectr-image:V1.0
+docker run -e PASSWORD=your_password -p 8787:8787 dzhakparov/geneselectr-image:V1.0
+```
+
+### Citation
+
+Please cite the following paper if you use GeneSelectR in your research:
+
 ### Feedback and Contribution
 
 Any feedback is welcome and appreciated! Feel free to create issues or
