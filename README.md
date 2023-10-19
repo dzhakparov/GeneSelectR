@@ -80,7 +80,7 @@ docker run -e PASSWORD=your_password -p 8787:8787 dzhakparov/geneselectr-image:v
 ```
 
 After running these commands, open your browser and go to localhost:8787
-(http//local-ip-address:8787 in Windows). You will be prompted to enter
+(https://local-ip-address:8787 in Windows). You will be prompted to enter
 username and password. The default username is rstudio and the password
 is the one you specified in the command above.
 
