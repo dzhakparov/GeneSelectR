@@ -8,13 +8,13 @@
 #' @param custom_lists An optional named list of character vectors. Each character vector should contain feature names.
 #'   The names of the list will be used as names in the UpSet plots.
 #'
-#' @return A named list containing two UpSet plots accessible as \code{result$plot1} for feature importances
-#'   and \code{result$plot2} for permutation importances.
+#' @return A named list containing two UpSet plots accessible as \code{result$inbuilt_importance} for inbuilt feature importances
+#'   and \code{result$permutation_importance} for permutation importances.
 #'
 #' @examples
 #' \dontrun{
 #' pipeline_results <- PipelineResults$new(...)
-#' custom_lists <- list("custom1" = c("f1", "f2"), "custom2" = c("f3", "f4"))
+#' custom_lists <- list("custom1" = c("gene1", "gene2"), "custom2" = c("gene3", "gene4"))
 #' result <- plot_feature_overlap_upset(pipeline_results, custom_lists)
 #' print(result$plot1)
 #' print(result$plot2)
@@ -39,7 +39,8 @@ plot_upset <- function(pipeline_results, custom_lists = NULL) {
   plot1 <- UpSetR::upset(UpSetR::fromList(feature_importances_list),
                          sets.bar.color = "black",
                          main.bar.color = "#A2D729",
-                         matrix.color = "#3C91E6")
+                         matrix.color = "#3C91E6",
+                         keep.order = TRUE)
 
   # Check if permutation_importances exist
   if (length(pipeline_results@permutation_importance) != 0) {
@@ -55,11 +56,12 @@ plot_upset <- function(pipeline_results, custom_lists = NULL) {
     plot2 <- UpSetR::upset(UpSetR::fromList(permutation_importances_list),
                            sets.bar.color = "black",
                            main.bar.color = "#A2D729",
-                           matrix.color = "#3C91E6")
+                           matrix.color = "#3C91E6",
+                           keep.order = TRUE)
   } else {
     plot2 <- NULL
   }
-  print(feature_importances_list)
+
   # Create named list to store both plots
   result <- list(
     inbuilt_importance = plot1,

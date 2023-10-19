@@ -14,8 +14,8 @@ mean performance, and mean feature importances.}
 The names of the list will be used as names in the UpSet plots.}
 }
 \value{
-A named list containing two UpSet plots accessible as \code{result$plot1} for feature importances
-and \code{result$plot2} for permutation importances.
+A named list containing two UpSet plots accessible as \code{result$inbuilt_importance} for inbuilt feature importances
+and \code{result$permutation_importance} for permutation importances.
 }
 \description{
 This function produces separate UpSet plots for inbuilt feature importances and permutation importances,
@@ -24,7 +24,7 @@ allowing you to visualize the overlap of feature lists. Optionally, you can incl
 \examples{
 \dontrun{
 pipeline_results <- PipelineResults$new(...)
-custom_lists <- list("custom1" = c("f1", "f2"), "custom2" = c("f3", "f4"))
+custom_lists <- list("custom1" = c("gene1", "gene2"), "custom2" = c("gene3", "gene4"))
 result <- plot_feature_overlap_upset(pipeline_results, custom_lists)
 print(result$plot1)
 print(result$plot2)
