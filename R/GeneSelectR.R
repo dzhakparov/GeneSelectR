@@ -445,7 +445,7 @@ GeneSelectR <- function(X,
   # convert R objects to Py
   X_train <- reticulate::r_to_py(X)
   y_train <- reticulate::r_to_py(y)
-  y_train <- y_train$values$ravel()
+  #y_train <- y_train$values$ravel()
 
   fitted_pipelines <- list()
   cv_results <- list()
