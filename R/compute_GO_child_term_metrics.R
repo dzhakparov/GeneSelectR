@@ -32,6 +32,7 @@
 #' }
 #'
 #' @importFrom ggplot2 ggplot aes geom_bar theme_minimal labs theme element_text
+#' @importFrom stats phyper
 #'
 #' @export
 
@@ -66,6 +67,15 @@ compute_GO_child_term_metrics <- function(GO_data, GO_terms, ontology = 'BP', pl
                       offspring_terms = sapply(GO_data, function(x) paste(dag_term[dag_term %in% x@result$ID], collapse = ";")),
                       stringsAsFactors = FALSE)
     res$fraction <- (res$offspring_nodes_number / res$all_terms_number) * 100
+
+    res$p_value <- sapply(1:nrow(res), function(i) {
+      stats::phyper(q = res$offspring_nodes_number[i],
+                     n = res$all_terms_number[i],
+                     m = length(dag_term),
+                     k = res$all_terms_number[i],
+                     lower.tail = FALSE)
+    })
+
     res$GO_term <- term
     df_result <- rbind(df_result, res)
   }
