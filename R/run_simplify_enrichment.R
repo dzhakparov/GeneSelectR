@@ -21,7 +21,7 @@ run_simplify_enrichment <- function(fs_GO_results, padj_column = 'p.adjust', pad
   if (!requireNamespace("simplifyEnrichment", quietly = TRUE)) {
     stop("The simplifyEnrichment package is required but not installed. Please install it first.")
   }
-  GO_df_list <- lapply(annotated_GO_inbuilt, function (x) x@result )
+  GO_df_list <- lapply(fs_GO_results, function (x) x@result )
   names(GO_df_list) <- names(fs_GO_results)
   simplifyEnrichment::simplifyGOFromMultipleLists(GO_df_list,
                                                   padj_column=padj_column,
