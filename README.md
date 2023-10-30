@@ -82,6 +82,8 @@ If you want to run the container with a mounted directory:
 
 ``` bash
 docker run -e PASSWORD=your_password -p 8787:8787 -v /path/to/local/directory:/path/in/container dzhakparov/geneselectr-image:v1.1
+# e.g. you want to mount your home directory and the home directory of the container:
+docker run -e PASSWORD=your_password -p 8787:8787 -v $HOME:/home dzhakparov/geneselectr-image:v1.1
 ```
 
 After running these commands, open your browser and go to localhost:8787
