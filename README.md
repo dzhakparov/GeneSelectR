@@ -75,8 +75,13 @@ GeneSelectR is available as a container image on Docker Hub. You can
 pull the image using the following command:
 
 ``` bash
-docker pull dzhakparov/geneselectr-image:v1.0
-docker run -e PASSWORD=your_password -p 8787:8787 dzhakparov/geneselectr-image:v1.0
+docker pull dzhakparov/geneselectr-image:v1.1
+docker run -e PASSWORD=your_password -p 8787:8787 dzhakparov/geneselectr-image:v1.1
+```
+If you want to run the container with a mounted directory: 
+
+``` bash
+docker run -e PASSWORD=your_password -p 8787:8787 -v /path/to/local/directory:/path/in/container dzhakparov/geneselectr-image:v1.1
 ```
 
 After running these commands, open your browser and go to localhost:8787
