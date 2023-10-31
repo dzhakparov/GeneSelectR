@@ -62,9 +62,9 @@ data("UrbanRandomSubset")
 head(UrbanRandomSubset[,1:10])
 ```
 
-This dataset is a bulk RNAseq dataset that was obtained from blood samples of the 149 African children that were stratified into ones having Atopic Dermatitis (AD) and healthy controls (HC). Additionally, the whole dataset contains the stratification variable by the childrens' location (Urban and Rural). This data snippet contains the Urban samples only. The columns represent the genes and samples are in rows. The column treatment contains diangosis label.
+This dataset is a bulk RNAseq dataset that was obtained from blood samples of the 149 African children that were stratified into ones having Atopic Dermatitis (AD) and healthy controls (HC). Additionally, the whole dataset contains the stratification variable by the children's location (Urban and Rural). This data snippet contains the Urban samples only. The columns represent the genes and samples are in rows. The column treatment contains diagnosis label.
 
-This data subset was used in the PharML 2022 workshop within ECML-PKDD 2022 conference. The whole paper is available with the doi:
+This data subset was used in the PharML 2022 workshop within ECML-PKDD 2022 conference. The whole paper is available with the doi: doi.org/10.1007/978-3-031-23633-4_18
 
 ## Feature Selection Procedure Basic Usage
 
@@ -93,11 +93,16 @@ y <- as.factor(y)
 y <- as.integer(y)
 ```
 
+Also, make sure that y is a vector, and not a data frame with one column: 
+```{r}
+y <- as.vector(y)
+```
+
 To run the feature selection procedure with default settings, you should run the GeneSelectR::GeneSelectR() function:
 
 ```{r}
-selection_results <- GeneSelectR::GeneSelectR(X_train = X, 
-                                              y_train = y,
+selection_results <- GeneSelectR::GeneSelectR(X = X, 
+                                              y = y,
                                               njobs = -1) # all cores will be used
 selection_results
 ```
@@ -106,7 +111,7 @@ selection_results
 
 ## Feature Selection Procedure
 
-1.  *Settings Defaults*: If not provided, default feature selection methods and hyperparameter grids are established.By default there are four methods implemented to select the features: [Univariate feature selection](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.GenericUnivariateSelect.html) , [Logistic regression with L1 penalty](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html), [boruta](https://github.com/scikit-learn-contrib/boruta_py) and [Random Forest](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html). The default grids for every default feature selection method are as follows:
+1.  *Settings Defaults*: If not provided, default feature selection methods and hyperparameter grids are established.By default there are four methods implemented to select the features: [Univariate feature selection](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.GenericUnivariateSelect.html) , [Logistic regression with L1 penalty](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html), [boruta](https://github.com/scikit-learn-contrib/boruta_py) and [Random Forest](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html). The default grids for every default feature selection method are as follows: 
 
 ```{r}
 fs_param_grids <- list(
@@ -137,10 +142,11 @@ fs_param_grids <- list(
 
 -   Pipelines are iterated over for fitting.
 -   Each pipeline undergoes a secondary splitting for validation purposes.
--   Hyperparameter tuning is conducted through grid or randomized search.
--   If the perform_test_split parameter is set to TRUE, the test metrics for the split are computed. ***Attention***: due to the nature of biomedical data most of the time there is not so many samples available. As a general recommendation it is better to set perform_test_split to FALSE if number of samples is under 100. This way only cross validation performance will be reported.
+-   Hyperparameter tuning is conducted through grid, randomized or grid search with Bayesian Optimization.
+-   If the perform_test_split parameter is set to TRUE, the test metrics for the split are computed. Otherwise, only cross validation metrics are reported. 
+***Attention***: due to the nature of biomedical data most of the time there is not so many samples available. As a general recommendation it is better to set perform_test_split to FALSE if number of samples is under 100. This way only cross validation performance will be reported.
 
-4.  *Feature Importance Calculation*: For each split and each pipeline, feature importance scores are computed. By default model specific, inbuilt feature importance is reported.If calculate_permutation_importance is set to TRUE, permutation feature importance scores are calculated, in addition to inbuilt feature importance scores.
+4.  *Feature Importance Calculation*: For each split and each pipeline, feature importance scores are computed. By default model specific, inbuilt feature importance is reported. If calculate_permutation_importance is set to TRUE, permutation feature importance scores are calculated, in addition to inbuilt feature importance scores.
 
 4.1 *Note on Inbuilt vs Permutation feature importance*: GeneSelectR package offers to ways of selecting features, and it is important to understand the difference in these two approaches. In short, these two methods can be summarized in this manner:
 
@@ -154,7 +160,8 @@ fs_param_grids <- list(
     -   Bias: Offers a more unbiased approach, especially for features with high cardinality.
 
 ***A Note on Permutation Importance***: Permutation importance provides insights specific to the model it's computed for. A feature that's vital for one model might not be for another. Hence, it's crucial to understand that permutation importance doesn't indicate the intrinsic predictive value of a feature in isolation. Moreover, it's vital to have a trustworthy model (with good cross-validation scores) before considering its permutation importance values. Features deemed unimportant in a poorly performing model could be crucial for a well-performing one. It's always recommended to evaluate a model's predictive power using held-out data or cross-validation prior to computing permutation importances. For more information please refere to the [sklearn official documentation on permutation importance](https://scikit-learn.org/stable/modules/permutation_importance.html). 
-**Note:** Permutation Importance calculation is pretty computationally intensive and may increase the time to finish the analysis run. As a general recommendation it should be used if there is no computational resources constraints. 
+
+**Note:** Permutation Importance calculation is pretty computationally intensive and may increase the time to finish the analysis run. As a general recommendation it should be used if there large computational resources are avaialble. 
 
 5. Hyperparamter adjustment For the sake of computational time the RandomizedSearchCV is used by default. However, if you want to perform an extensive hyperparameter optimization grid search testing all possible combinations can be performed:
 
@@ -178,7 +185,7 @@ selection_results <- GeneSelectR::GeneSelectR(X = X,
 
 ## Customizing GeneSelectR Workflow with Other sklearn Methods
 
-GeneSelectR workflow is highly customizable depending on your needs. For example, if you wish to add any other feature selection methods from sklearn, you should pass it as a named list like this:
+The GeneSelectR workflow is highly customizable depending on your needs. For example, if you wish to add any other feature selection methods from sklearn, you should pass it as a named list like this:
 
 ```{r}
 # sklearn is already imported when the library is loaded 
@@ -205,7 +212,7 @@ my_params <- list('RFE' = list('feature_selector__step' = seq(0.1, 0.001, 1, 10)
                   )
 ```
 
-Finally, we can pass it as an arguments to fit_and_evaluate_pipelines function:
+Finally, we can pass it as an arguments to the GeneSelectR() function: 
 
 ```{r}
 selection_results <- GeneSelectR::GeneSelectR(X = X, 
@@ -231,7 +238,7 @@ selection_results <- GeneSelectR::GeneSelectR(X = X,
                                               preprocessing_steps = preprocessing)
 ```
 
-Same can be done with classifiying estimator. For example you want to use XGBoost classifier instead of default random forest:
+Same can be done with the classifiying estimator. For example if you want to use the XGBoost classifier instead of the default random forest:
 
 ```{r}
 # import xgboost 
@@ -287,7 +294,7 @@ The function returns an object of class "PipelineResults", containing:\
 
 ## Feature Importance Plots
 
-Finally, you can visualize the most important features for every feature importance method calculation by calling plotting function:
+Finally, you can visualize the most important features for every feature importance method calculation by calling the plotting function:
 
 ```{r}
 plot_feature_importance(selection_results, top_n_features = 10)
@@ -305,17 +312,14 @@ You can plot the feature selection procedure metrics with the following function
 
 ```{r}
 plot_metrics(selection_results)
+
+# or access it as a dataframe 
+selection_results$test_metrics 
+selection_results$cv_mean_score
 ```
 
-![Alt text](../vignettes/images/plot_metrics.png) Or access it as a dataframe:
+![Alt text](../vignettes/images/plot_metrics.png) 
 
-```{r}
-selection_results$test_metrics
-```
-
-```{r}
-
-```
 
 ## Overlap Between Gene Lists
 
@@ -326,13 +330,13 @@ overlap <- calculate_overlap_coefficients(selection_results)
 overlap 
 ```
 
-This will return a dataframe that demonstrates three types of overlap coefficients for inbuilt feature importance and permutation importance (if calculated): Soerensen-Dice, Overlap and Jaccard. The coefficients can also be visualized as overlap heatmaps. To do so do the following:
+This will return a dataframe that demonstrates three types of overlap coefficients for inbuilt feature importance and permutation importance (if calculated): Soerensen-Dice, Overlap and Jaccard. The coefficients can also be visualized as overlap heatmaps. To do so do the following: 
 
 ```{r}
 plot_overlap_heatmaps(overlap)
 ```
 
-![Alt text](../vignettes/images/overlap_permutation.png)
+![Alt text](../vignettes/images/overlap_permutation.png) 
 
 Additionally, if you have any custom lists (e.g. differential gene expression list) you can pass it as an argument like this:
 
@@ -344,7 +348,22 @@ plot_overlap_heatmaps(overlap1)
 ```
 
 ::: {style="text-align:center"}
-<img src="../vignettes/images/overlap.png" alt="Alt text" width="800px"/>
+<img src="../vignettes/images/overlap.png" alt="Alt text" width="800px"/> 
+:::
+
+## Upset plot 
+To get the exact numbers of intersections between the feature lists you can use the upset plot function:
+
+```{r}
+upset_upet(selection_results)
+
+# plot upset with custom lists 
+upset_upet(selection_results, custom_lists = custom_list)
+
+```
+
+::: {style="text-align:center"}
+<img src="../vignettes/images/upset_1.png" alt="Alt text" width="800px"/> 
 :::
 
 # 5.GO Enrichment analysis
@@ -364,11 +383,11 @@ annotations_ahb <- ensembldb::genes(human_ens, return.type = "data.frame") %>%
 
 annotations_df <- annotate_gene_lists(pipeline_results = selection_results, 
                                       annotations_ahb = annotations_ahb,
-                                      format = 'ensembl_gene_name')
+                                      format = 'ENSEMBL')
 annotations_df
 ```
 
-The format argument can be set to three possible options: (1) 'ensembl_id' (eg. ENSGXXXXXXX), (2) 'gene_name' (eg. TSPAN) or combination of both separated by a separating string (eg. ENSGXXXXXXX\_\_TSPAN). The resulting AnnotatedGeneLists class object contains following fields:
+The format argument can be set to three possible options: (1) 'ENSEMBL' (eg. ENSGXXXXXXX), (2) 'SYMBOL' (eg. TSPAN) or ENTREZ ID. The resulting AnnotatedGeneLists class object contains following fields:
 
 ```{r}
 # Formal class 'AnnotatedGeneLists' [package "GeneSelectR"] with 2 slots
@@ -428,7 +447,7 @@ annotations_df_with_custom
 
 ## GO Enrichment Analysis
 
-There is a wrapper function to run GO enrichment analysis with [clusterprofiler](https://guangchuangyu.github.io/software/clusterProfiler/) package. To run GO enrichment with default setting simply run:
+There is a wrapper function to run GO enrichment analysis with the [clusterprofiler](https://guangchuangyu.github.io/software/clusterProfiler/) package. To run a GO enrichment analysis with default settings simply run:
 
 ```{r}
 annotated_GO <- GO_enrichment_analysis(annotated_df)
@@ -456,7 +475,7 @@ annot_child_fractions <- compute_GO_child_term_metrics(GO_data = annotated_GO,
                               plot = FALSE)
 ```
 
-This will produce a dataframe containing information on number of children terms of specified terms, number of all the terms and fraction of children terms related to the parent one in the total number of identified GO terms (without p-value filtering):
+This will produce a dataframe containing information on number of children terms of specified terms, number of all the terms and fraction of children terms related to the parent one in the total number of identified GO terms (without p-value filtering) and hypergeometric test p-value:
 
 ```{r}
 str(annot_child_fractions)
@@ -469,7 +488,7 @@ str(annot_child_fractions)
 #  $ GO_term               : chr  "GO:0002376" "GO:0002376" "GO:0002376" "GO:0002376" ...
 ```
 
-If the plot argument is set to TRUE it will produce a following plot:
+If the plot argument is set to TRUE it will produce a following plot: 
 
 ::: {style="text-align:center"}
 <img src="../vignettes/images/compute_GO_child_term_metrics.png" alt="Alt text" width="400px"/>
@@ -479,7 +498,7 @@ If the plot argument is set to TRUE it will produce a following plot:
 
 ## simplifyEnrichment Wrapper Function
 
-Final step is the analysis is the clustering and semantic similarity analysis of GO Terms from every list. This is done via [simplifyEnrichment R package](https://github.com/jokergoo/simplifyEnrichment). For the convenience of data input, there is a wrapper for [simplifyGOFromMultipleLists()]() function implemented:
+Final step of the analysis is the clustering and semantic similarity analysis of GO Terms from every list. This is done with the[simplifyEnrichment R package](https://github.com/jokergoo/simplifyEnrichment). For the convenience of data input, there is a wrapper for [simplifyGOFromMultipleLists()]() function implemented:
 
 ```{r}
 # simplifyEnrichment produces a heatmap
