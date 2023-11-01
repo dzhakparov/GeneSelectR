@@ -1,5 +1,8 @@
 ---
 output: github_document
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -16,6 +19,7 @@ knitr::opts_chunk$set(
 # GeneSelectR
 
 <!-- badges: start -->
+
 [![R-CMD-check](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml)
 ![Docker-Deploy](https://github.com/dzhakparov/GeneSelectR/actions/workflows/GeneSelectR-Docker-Deploy.yaml/badge.svg)
 
@@ -23,8 +27,7 @@ knitr::opts_chunk$set(
 
 ## Overview
 
-<img src="man/figures/GeneSelectR.png" style="float: right; margin: 0px 0px 10px 10px;" width="120px" />
-
+<img src="man/figures/GeneSelectR.png" style="float: right; margin: 0px 0px 10px 10px;" width="120px"/>
 
 GeneSelectR is an R package designed to streamline the process of gene
 selection and evaluation in bulk RNAseq datasets. Built on top of the
@@ -51,10 +54,10 @@ and experienced users.
 The package includes a variety of inbuilt feature selection methods,
 such as:
 
-- SelectFromModel with RandomForest
-- SelectFromModel with Logistic Regression (L1 penalty)
-- Boruta
-- Univariate Filtering
+-   SelectFromModel with RandomForest
+-   SelectFromModel with Logistic Regression (L1 penalty)
+-   Boruta
+-   Univariate Filtering
 
 ### Main Functionality
 
@@ -72,8 +75,7 @@ knitr::include_graphics("vignettes/images/package_workflow.png")
 GeneSelectR depends on reticulate that creates a conda working
 environment. Please, install
 [Anaconda](https://www.anaconda.com/download) distribution before you
-proceed.
-You can install the development version of GeneSelectR from
+proceed. You can install the development version of GeneSelectR from
 [GitHub](https://github.com/) with:
 
 ```{r, eval=FALSE}
@@ -86,24 +88,31 @@ devtools::install_github("dzhakparov/GeneSelectR")
 A tutorial detailing how to use GeneSelectR can be accessed in this
 [vignette](https://dzhakparov.github.io/GeneSelectR/vignettes/example.html).
 
+### Docker Image
 
-### Docker Image 
-GeneSelectR is available as a container image on Docker Hub. You can pull the image using the following command:
+GeneSelectR is available as a container image on Docker Hub. You can
+pull the image using the following command:
+
 ```{bash eval=FALSE, echo=TRUE, results='asis'}
 docker pull dzhakparov/geneselectr-image:v1.0
 docker run -e PASSWORD=your_password -p 8787:8787 dzhakparov/geneselectr-image:v1.0
 
 ```
-After running these commands, open your browser and go to localhost:8787 (http//local-ip-address:8787 in Windows). You will be prompted to enter username and password. The default username is rstudio and the password is the one you specified in the command above.
 
-### Citation 
-Please cite the following paper if you use GeneSelectR in your research: 
+After running these commands, open your browser and go to localhost:8787
+(http//local-ip-address:8787 in Windows). You will be prompted to enter
+username and password. The default username is rstudio and the password
+is the one you specified in the command above.
 
-### Feedback and Contribution 
+### Citation
 
-Any feedback is welcome and appreciated! Feel free to create issues or pull requests. For any other questions please write to: damir.zhakparov@uzh.ch.
+Please cite the following paper if you use GeneSelectR in your research:
 
+### Feedback and Contribution
 
+Any feedback is welcome and appreciated! Feel free to create issues or
+pull requests. For any other questions please write to:
+[damir.zhakparov\@uzh.ch](mailto:damir.zhakparov@uzh.ch){.email}.
 
 ---
 output: github_document

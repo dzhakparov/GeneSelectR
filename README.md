@@ -6,13 +6,13 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml)
-![Docker-Deploy](https://github.com/dzhakparov/GeneSelectR/actions/workflows/Docker-Deploy.yaml/badge.svg)
+![Docker-Deploy](https://github.com/dzhakparov/GeneSelectR/actions/workflows/GeneSelectR-Docker-Deploy.yaml/badge.svg)
 
 <!-- badges: end -->
 
 ## Overview
 
-<img src="man/figures/GeneSelectR.png" style="float: right; margin: 0px 0px 10px 10px;" width="120px" />
+<img src="man/figures/GeneSelectR.png" style="float: right; margin: 0px 0px 10px 10px;" width="120px"/>
 
 GeneSelectR is an R package designed to streamline the process of gene
 selection and evaluation in bulk RNAseq datasets. Built on top of the
