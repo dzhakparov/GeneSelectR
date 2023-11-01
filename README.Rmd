@@ -17,6 +17,8 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dzhakparov/GeneSelectR/actions/workflows/R-CMD-check.yaml)
+![Docker-Deploy](https://github.com/dzhakparov/GeneSelectR/actions/workflows/Docker-Deploy.yaml/badge.svg)
+
 <!-- badges: end -->
 
 ## Overview
