@@ -4,7 +4,7 @@ modules <- c('sklearn', 'pandas', 'numpy', 'boruta', 'sys', 'multiprocessing', '
 GeneSelectR::skip_if_no_modules(modules)
 GeneSelectR::set_reticulate_python()
 # load fixtures
-matrix_fixture <- readRDS('./fixtures/UrbanRandomSubset.rda')
+load('./fixtures/UrbanRandomSubset.rda')
 test_that("GeneSelectR returns expected output types", {
 
   X <- UrbanRandomSubset %>% dplyr::select(-treatment) # get the feature matrix

@@ -16,7 +16,7 @@ test_that("compute_GO_child_term_metrics works", {
   expect_is(result, "data.frame")
 
   # Check if the data.frame has the expected columns
-  expect_setequal(names(result), c("feature_list", "all_terms_number", "offspring_nodes_number", "offspring_terms", "fraction", "GO_term"))
+  expect_setequal(names(result), c("feature_list", "all_terms_number", "offspring_nodes_number", "offspring_terms", "fraction", "GO_term", 'p_value'))
 
   # Check if the data.frame has the expected number of rows
   expect_equal(nrow(result), 12)  # 2 feature lists * 2 GO terms

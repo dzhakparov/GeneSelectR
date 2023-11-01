@@ -19,7 +19,7 @@
 #' print(result$plot1)
 #' print(result$plot2)
 #' }
-#'
+#' @importFrom utils modifyList
 #' @export
 plot_upset <- function(pipeline_results, custom_lists = NULL) {
   # Check if UpSetR is installed

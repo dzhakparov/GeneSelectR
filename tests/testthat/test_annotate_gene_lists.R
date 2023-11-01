@@ -9,7 +9,7 @@ custom_lists <- list(
   custom2 = c("ENSG00000167286", "ENSG00000225972", "ENSG00000225630", "ENSG00000237973")
 )
 
-# Create a mock annotations_ahb data frame with more realistic gene names and IDs
+#
 ah <- AnnotationHub::AnnotationHub()
 human_ens <- AnnotationHub::query(ah, c("Homo sapiens", "EnsDb"))
 human_ens <- human_ens[['AH98047']]
