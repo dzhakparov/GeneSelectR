@@ -502,6 +502,9 @@ GeneSelectR <- function(X,
 
       params <- c(classifier_params, fs_params)
 
+      print(classifier)
+      print(classifier_params)
+
       search_cv <- perform_grid_search(
         X_train_sub_split,
         y_train_sub_split,
