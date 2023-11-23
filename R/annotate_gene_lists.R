@@ -48,7 +48,7 @@ convert_and_annotate <- function(gene_lists, annotated_lists) {
     # original_ids <- as.character(original_ids)
 
     # Remove version numbers from Ensembl IDs if format is "ensembl_id"
-    if (format == "ensembl_id") {
+    if (format == "ENSEMBL") {
       original_ids <- gsub("\\..*", "", original_ids)
     }
 
