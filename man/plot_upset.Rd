@@ -29,5 +29,4 @@ result <- plot_feature_overlap_upset(pipeline_results, custom_lists)
 print(result$plot1)
 print(result$plot2)
 }
-
 }
