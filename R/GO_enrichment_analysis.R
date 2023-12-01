@@ -12,7 +12,10 @@
 #' @param qvalueCutoff A numeric value specifying the q-value cutoff. Default: 0.2.
 #' @param pAdjMethod A p-value adjustment method. Should be the one from "holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none". Default is 'fdr
 #' @param ... Other parameters to be passed to clusterProfiler::enrichGO function.
-#' @return A list containing the enrichment results for all gene sets (excluding "background").
+#' @return A list containing the enrichment results for each gene set.
+#'         Each element in the list is named after a gene set and contains an object produced by the `enrichGO` function from `clusterProfiler`.
+#'         This object includes various details about the enrichment analysis, such as enriched GO terms, their associated p-values, q-values, and other relevant statistics.
+#'         The list excludes results for the "background" gene set, focusing only on the gene sets of interest.
 #'
 #' @importFrom dplyr setdiff
 #' @importFrom methods as slot
@@ -21,13 +24,40 @@
 #'             Yu G, Wang LG, Han Y, He QY. clusterProfiler: an R package for comparing biological themes among gene clusters. OMICS: A Journal of Integrative Biology. 2012;16(5):284-287. doi:10.1089/omi.2011.0118.
 #'
 #' @examples
-#' \dontrun{
-#' # Assuming annotated_gene_lists and background are defined
-#' results <- GO_enrichment_analysis(annotated_gene_lists,
-#'                                   background,
-#'                                   organism = "org.Hs.eg.db",
-#'                                   keyType = "ENTREZID")
+#' \donttest{
+#' # Creating a mock AnnotatedGeneLists object
+#' gene_symbols <- c("GENE1", "GENE2", "GENE3")
+#' ensembl_ids <- c("ENSG000001", "ENSG000002", "ENSG000003")
+#' entrez_ids <- c("1001", "1002", "1003")
+#'
+#' create_mock_gene_list <- function() {
+#'   new("GeneList",
+#'        SYMBOL = gene_symbols,
+#'        ENSEMBL = ensembl_ids,
+#'        ENTREZID = entrez_ids)
 #' }
+#'
+#' mock_gene_list1 <- create_mock_gene_list()
+#' mock_gene_list2 <- create_mock_gene_list()
+#'
+#' annotated_gene_lists <- new("AnnotatedGeneLists",
+#'                             inbuilt = list(Lasso = mock_gene_list1,
+#'                                            Univariate = mock_gene_list2),
+#'                             permutation = list(Lasso = mock_gene_list1,
+#'                                                Univariate = mock_gene_list2))
+#'
+#' # Define a background gene set
+#' background <- c("GENE1", "GENE2", "GENE3")
+#'
+#' # Perform GO enrichment analysis
+#' results <- GO_enrichment_analysis(annotated_gene_lists,
+#'                                   background = background,
+#'                                   organism = "org.Hs.eg.db",
+#'                                   keyType = "SYMBOL")
+#' print(results)
+#' }
+#' @export
+
 #' @export
 GO_enrichment_analysis <- function(annotated_gene_lists, list_type = 'inbuilt', background = NULL, organism = "org.Hs.eg.db", keyType = "ENTREZID", ont = "BP", pvalueCutoff = 0.05, qvalueCutoff = 0.2, pAdjMethod  = 'fdr', ...) {
 

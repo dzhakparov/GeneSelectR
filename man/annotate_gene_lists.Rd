@@ -21,8 +21,45 @@ annotate_gene_lists(
 \item{format}{The format of the gene list in 'pipeline_results' and 'custom_lists'. This should be one of "ENSEMBL", "ENTREZ", or "SYMBOL".}
 }
 \value{
-An object of the class AnnotatedGeneLists.
+An object of the class AnnotatedGeneLists, which contains the following components:
+- @field inbuilt: A list of AnnotatedGeneList objects derived from the 'inbuilt_feature_importance' field of the 'pipeline_results' parameter.
+- @field permutation: A list of AnnotatedGeneList objects derived from the 'permutation_importance' field of the 'pipeline_results' parameter, if available.
+Each AnnotatedGeneList object in these lists includes the gene identifiers in different formats (SYMBOL, ENSEMBL, ENTREZID) and is structured to facilitate further analysis and visualization of gene lists.
+If an error occurs during the conversion or annotation process, a warning message is given and the corresponding list entry will be NULL.
 }
 \description{
 This function converts a list of gene lists to different formats and returns an object of the class AnnotatedGeneLists.
+}
+\examples{
+\donttest{
+# Simple Usage with Mock Data
+# Create a mock PipelineResults object with minimal data
+mock_pipeline_results <- new("PipelineResults",
+                             inbuilt_feature_importance = list(
+                             "GeneSet1" = data.frame(feature = c("gene1", "gene2"))),
+                             permutation_importance = NULL)
+
+# Mock annotations data frame
+mock_annotations_ahb <- data.frame(gene_id = c("gene1", "gene2"),
+                                   gene_name = c("Gene One", "Gene Two"),
+                                   entrezid = c(101, 102))
+
+# Convert and annotate gene lists
+annotated_lists <- annotate_gene_lists(mock_pipeline_results,
+                                       NULL,
+                                       mock_annotations_ahb,
+                                       "SYMBOL")
+print(annotated_lists)
+
+# Using Custom Gene Lists
+# Create custom gene lists
+custom_gene_lists <- list("CustomList1" = c("gene3", "gene4"))
+
+# Convert and annotate gene lists with custom gene lists included
+annotated_lists_custom <- annotate_gene_lists(mock_pipeline_results,
+                                              custom_gene_lists,
+                                              mock_annotations_ahb,
+                                              "SYMBOL")
+print(annotated_lists_custom)}
+
 }

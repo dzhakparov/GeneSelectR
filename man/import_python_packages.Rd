@@ -7,8 +7,24 @@
 import_python_packages()
 }
 \value{
-A list of imported Python libraries.
+A list containing references to imported Python libraries used in the package:
+\itemize{
+\item @field sklearn: Scikit-learn machine learning library.
+\item @field pandas: Data manipulation and analysis library.
+\item @field numpy: Library for numerical computing.
+\item @field lightgbm: Gradient boosting framework.
+\item @field xgboost: Optimized distributed gradient boosting library.
+\item @field boruta: Feature selection algorithm.
+\item @field sys: Python system-specific parameters and functions.
+\item @field multiprocessing: Support for concurrent execution using processes.
+}
 }
 \description{
 This function imports the necessary Python libraries for the package.
+}
+\examples{
+\donttest{
+# Import Python libraries
+python_libs <- import_python_packages()
+}
 }

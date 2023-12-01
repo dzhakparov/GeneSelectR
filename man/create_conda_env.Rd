@@ -9,6 +9,9 @@ create_conda_env(conda_env = "GeneSelectR_env")
 \arguments{
 \item{conda_env}{The name of the Conda environment to create.}
 }
+\value{
+description
+}
 \description{
 This function creates a Conda environment if it doesn't already exist.
 }

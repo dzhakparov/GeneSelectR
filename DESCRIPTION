@@ -1,10 +1,10 @@
 Package: GeneSelectR
 Title: Comprehensive Feature Selection Worfkflow for Bulk RNAseq Datasets
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: 
     person("Damir", "Zhakparov", , "dzhakparov@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7175-0843"))
-Description: GeneSelectR is a versatile R package designed for efficient RNA sequencing data analysis. Its key innovation lies in the seamless integration of the Python sklearn machine learning framework with R-based bioinformatics tools. This integration enables GeneSelectR to perform robust ML-driven feature selection while simultaneously leveraging the power of Gene Ontology (GO) enrichment and semantic similarity analyses. By combining these diverse methodologies, GeneSelectR offers a comprehensive workflow that optimizes both the computational aspects of ML and the biological insights afforded by advanced bioinformatics analyses. Ideal for researchers in bioinformatics, GeneSelectR stands out as a unique tool for analyzing complex RNAseq datasets with enhanced precision and relevance.
+Description: The workflow is a versatile R package designed for comprehensive feature selection in bulk RNAseq datsets. Its key innovation lies in the seamless integration of the Python sklearn machine learning framework with R-based bioinformatics tools. This integration enables GeneSelectR to perform robust ML-driven feature selection while simultaneously leveraging the power of Gene Ontology (GO) enrichment and semantic similarity analyses. By combining these diverse methodologies, GeneSelectR offers a comprehensive workflow that optimizes both the computational aspects of ML and the biological insights afforded by advanced bioinformatics analyses. Ideal for researchers in bioinformatics, GeneSelectR stands out as a unique tool for analyzing complex RNAseq datasets with enhanced precision and relevance.
 License: MIT + file LICENSE
 URL: https://github.com/dzhakparov/GeneSelectR
 BugReports: https://github.com/dzhakparov/GeneSelectR/issues

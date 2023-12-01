@@ -10,15 +10,17 @@ configure_environment(env_name = "GeneSelectR_env")
 \item{env_name}{The name of the Conda environment to be created. Defaults to "GeneSelectR_env".}
 }
 \value{
-A message indicating the status of the environment configuration. If the configuration is successful,
-the function will prompt the user to restart their R session for the changes to take effect.
+A message indicating the status of the environment configuration.
+If successful, it informs the user that the environment was created and necessary packages were installed.
+If Conda is not installed or an error occurs, the function stops with an error message.
+The function also advises the user to restart their R session for the changes to take effect.
 }
 \description{
 This function checks if Conda is installed, creates a new Conda environment (if it does not already exist),
 installs necessary Python packages into the environment, and sets it as the active environment for reticulate.
 }
 \examples{
-\dontrun{
+\donttest{
 # Configure the default environment
 configure_environment()
 

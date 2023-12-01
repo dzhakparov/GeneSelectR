@@ -10,8 +10,9 @@ set_reticulate_python(env_name = "GeneSelectR_env")
 \item{env_name}{The name of the Conda environment. Default is 'GeneSelectR_env'.}
 }
 \value{
-This function does not return a value. It sets the RETICULATE_PYTHON environment variable for the
-current R session and prints a message indicating the new value of RETICULATE_PYTHON.
+This function does not return a value. Instead, it sets the RETICULATE_PYTHON environment variable for the
+current R session and prints a message indicating the new value of RETICULATE_PYTHON. If the specified
+environment does not exist, the function stops with an error message.
 }
 \description{
 This function sets the RETICULATE_PYTHON environment variable to the path of the Python interpreter
@@ -28,7 +29,7 @@ they should run this function before loading your package with library(), becaus
 environment variable needs to be set before reticulate is loaded.
 }
 \examples{
-\dontrun{
+\donttest{
 set_reticulate_python('GeneSelectR_env')
 }
 }

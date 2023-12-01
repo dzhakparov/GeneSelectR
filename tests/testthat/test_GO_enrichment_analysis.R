@@ -17,10 +17,10 @@ test_that("GO_enrichment_analysis returns expected results", {
   )
 
 
-  # Check if the result is a list
+  # Test 1 Check if the result is a list
   expect_is(result, "list")
 
-  # Check if the list is not empty
+  # Test 2 Check if the list is not empty
   expect_true(length(result) > 0)
 
   expected_names <- c('Lasso', 'Univariate', 'RandomForest', 'boruta', 'DEG_rural', 'DEG_urban')
@@ -33,6 +33,7 @@ test_that("GO_enrichment_analysis throws an error for invalid list_type", {
   skip_if_not_installed("clusterProfiler")
   skip_if_offline()
 
+  # Test 3
   expect_error(
     GO_enrichment_analysis(
       annotated_gene_lists = annotated_gene_lists_fixture,

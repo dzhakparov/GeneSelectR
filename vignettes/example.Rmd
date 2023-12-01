@@ -23,9 +23,9 @@ knitr::opts_chunk$set(
 
 ## Python requirements
 
-The feature selection procedure is implemented with Python's scikit-learn library. The package requires an Anaconda installation to work properly. The Python requirements are listed in the [requirements.txt](../inst/python/requirements.txt) file.
+The feature selection procedure is implemented with Python's scikit-learn library. The package requires an Anaconda installation to work properly. The Python requirements are listed in the [requirements.txt](https://github.com/dzhakparov/GeneSelectR/blob/master/inst/python/requirements.txt) file.
 
-You can install the development version of GeneSelectR from [GitHub](https://github.com/) with:
+You can install the development version of GeneSelectR from GitHub with:
 
 ```{r}
 # install.packages("devtools")
@@ -136,7 +136,7 @@ fs_param_grids <- list(
 )
 ```
 
-2.  *Pipeline Selection*: If custom pipelines are provided, they're used. Otherwise, default pipelines are created using the chosen feature selection methods. Pipelines contain two steps: [VarianceThreshold](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.VarianceThreshold.html) that is set to 0.85 to filter out low variance features and [MinMaxScaler](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html). As per sklearn workflow to prevent data leakage every pipeline is fit on train and test/validate data separately.
+2.  *Pipeline Selection*: If custom pipelines are provided, they're used. Otherwise, default pipelines are created using the chosen feature selection methods. Pipelines contain two steps: [VarianceThreshold](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.VarianceThreshold.html) that is set to 0.85 to filter out low variance features and [StandardScaler](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html). As per sklearn workflow to prevent data leakage every pipeline is fit on train and test/validate data separately.
 
 3.  *Repeated Train-Test Splitting*: The data undergoes repeated splitting into training and test sets, with the number of repetitions being defined by n_splits. For each split:
 
@@ -498,7 +498,7 @@ If the plot argument is set to TRUE it will produce a following plot:
 
 ## simplifyEnrichment Wrapper Function
 
-Final step of the analysis is the clustering and semantic similarity analysis of GO Terms from every list. This is done with the[simplifyEnrichment R package](https://github.com/jokergoo/simplifyEnrichment). For the convenience of data input, there is a wrapper for [simplifyGOFromMultipleLists()]() function implemented:
+Final step of the analysis is the clustering and semantic similarity analysis of GO Terms from every list. This is done with the[simplifyEnrichment R package](https://github.com/jokergoo/simplifyEnrichment). For the convenience of data input, there is a wrapper for simplifyGOFromMultipleLists() function implemented:
 
 ```{r}
 # simplifyEnrichment produces a heatmap

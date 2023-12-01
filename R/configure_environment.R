@@ -5,11 +5,13 @@
 #'
 #' @param env_name The name of the Conda environment to be created. Defaults to "GeneSelectR_env".
 #'
-#' @return A message indicating the status of the environment configuration. If the configuration is successful,
-#' the function will prompt the user to restart their R session for the changes to take effect.
+#' @return A message indicating the status of the environment configuration.
+#' If successful, it informs the user that the environment was created and necessary packages were installed.
+#' If Conda is not installed or an error occurs, the function stops with an error message.
+#' The function also advises the user to restart their R session for the changes to take effect.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Configure the default environment
 #' configure_environment()
 #'
@@ -94,11 +96,12 @@ configure_environment <- function(env_name = "GeneSelectR_env") {
 #' environment variable needs to be set before reticulate is loaded.
 #'
 #' @return
-#' This function does not return a value. It sets the RETICULATE_PYTHON environment variable for the
-#' current R session and prints a message indicating the new value of RETICULATE_PYTHON.
+#' This function does not return a value. Instead, it sets the RETICULATE_PYTHON environment variable for the
+#' current R session and prints a message indicating the new value of RETICULATE_PYTHON. If the specified
+#' environment does not exist, the function stops with an error message.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' set_reticulate_python('GeneSelectR_env')
 #' }
 #' @export

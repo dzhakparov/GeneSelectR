@@ -10,8 +10,30 @@ plot_metrics(pipeline_results)
 \item{pipeline_results}{An object of class "PipelineResults" containing the performance metrics. This object is expected to contain a dataframe with the columns 'method', 'f1_mean', 'f1_sd', 'recall_mean', 'recall_sd', 'precision_mean', 'precision_sd', 'accuracy_mean', 'accuracy_sd'.}
 }
 \value{
-A combined ggplot object. If no test metrics provided, only CV performance plot is returned
+A combined ggplot object displaying the performance metrics.
+- If test metrics are provided, it includes separate plots for F1 mean, recall mean, precision mean, and accuracy mean, along with cross-validation mean score, arranged in a grid layout.
+- If no test metrics are available, it returns only the cross-validation mean score plot.
 }
 \description{
 This function creates separate plots for f1_mean, recall_mean, precision_mean, and accuracy_mean from a given dataframe, then arranges these plots using cowplot::plot_grid. Requires ggplot2 and cowplot packages.
+}
+\examples{
+
+# Assuming `pipeline_results` is a PipelineResults object with test metrics and CV mean score
+pipeline_results <- new("PipelineResults",
+                        test_metrics = data.frame(
+                        method = c("Method1", "Method2"),
+                        f1_mean = c(0.8, 0.85), f1_sd = c(0.05, 0.04),
+                        recall_mean = c(0.75, 0.78), recall_sd = c(0.06, 0.05),
+                        precision_mean = c(0.85, 0.88), precision_sd = c(0.05, 0.04),
+                        accuracy_mean = c(0.9, 0.92), accuracy_sd = c(0.03, 0.02)),
+                        cv_mean_score = data.frame(
+                        method = c("Method1", "Method2"),
+                        mean_score = c(0.88, 0.9), sd_score = c(0.02, 0.02)))
+
+# Plot the performance metrics
+metric_plots <- plot_metrics(pipeline_results)
+print(metric_plots)
+
+
 }

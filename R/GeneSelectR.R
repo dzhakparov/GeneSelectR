@@ -1,6 +1,32 @@
 #' Define Python modules and scikit-learn submodules
 #'
-#' @return A list containing the definitions for the Python modules and submodules.
+#' #' @return A list containing the initialized Python modules and scikit-learn submodules, each as a separate list element.
+#' The list includes:
+#'   - @field preprocessing: Module for data preprocessing.
+#'   - @field model_selection: Module for model selection and evaluation.
+#'   - @field feature_selection: Module for feature selection methods.
+#'   - @field ensemble: Module for ensemble methods.
+#'   - @field pipeline: scikit-learn pipeline object.
+#'   - @field forest: Random Forest classifier for feature selection.
+#'   - @field randomized_grid: Randomized grid search for hyperparameter tuning.
+#'   - @field grid: Grid search for hyperparameter tuning.
+#'   - @field bayesianCV: Bayesian optimization using cross-validation.
+#'   - @field lasso: Lasso method for feature selection.
+#'   - @field univariate: Univariate feature selection method.
+#'   - @field select_model: Model-based feature selection method.
+#'   - @field GradBoost: Gradient Boosting classifier.
+#' @examples
+#' \donttest{
+#' # Define scikit-learn modules and submodules
+#' sklearn_modules <- define_sklearn_modules()
+#'
+#' # Access different modules and submodules
+#' preprocessing_module <- sklearn_modules$preprocessing
+#' model_selection_module <- sklearn_modules$model_selection
+#' feature_selection_module <- sklearn_modules$feature_selection
+#' ensemble_module <- sklearn_modules$ensemble
+#' # You can further explore each module as needed in your analysis
+#' }
 #' @export
 define_sklearn_modules <- function() {
   # define Python modules and sklearn submodules
@@ -128,7 +154,23 @@ set_default_param_grids <- function(max_features) {
 #' @param y A vector of outcomes.
 #' @param test_size Proportion of the data to be used as the test set.
 #' @param modules A list containing the definitions for the Python modules and submodules.
-#' @return A list containing the training and test sets for predictors and outcomes.
+#' @return A list containing the split datasets:
+#'   - @field X_train: Training set for predictors, converted to Python format.
+#'   - @field X_test: Test set for predictors, converted to Python format.
+#'   - @field y_train: Training set for outcomes, converted to Python format.
+#'   - @field y_test: Test set for outcomes, converted to Python format.
+#' The function ensures that the data is appropriately partitioned and formatted for use in Python-based analysis.
+#' @examples
+#' \donttest{
+#' # Assuming 'data' is your dataset with predictors and 'outcome' is the target variable
+#' # Define sklearn modules (assuming 'define_sklearn_modules' is defined)
+#' sklearn_modules <- define_sklearn_modules()
+#'
+#' # Split the data into training and test sets
+#' split_results <- split_data(data, outcome, test_size = 0.2, modules = sklearn_modules)
+#'
+#' }
+#'
 #' @export
 split_data <- function(X, y, test_size, modules) {
   split_data <- modules$model_selection$train_test_split(X, y, test_size = test_size)
@@ -152,7 +194,31 @@ split_data <- function(X, y, test_size, modules) {
 #' @param njobs The number of CPU cores to use.
 #' @param modules A list containing the definitions for the Python modules and submodules.
 #' @param random_state An integer value setting the random seed for feature selection algorithms and cross validation procedure. By default set to NULL to use different random seed every time an algorithm is used. For reproducibility could be fixed, otherwise for an unbiased estimation should be left as NULL.
-#' @return An object of the optimal model found during the search.
+#' @return Returns a scikit-learn GridSearchCV, RandomizedSearchCV, or BayesSearchCV object, depending on the `search_type` specified.
+#'         This object includes several attributes useful for analyzing the hyperparameter tuning process:
+#'         - @field best_estimator_: The best estimator chosen by the search.
+#'         - @field best_score_: The score of the best_estimator on the left-out data.
+#'         - @field best_params_: The parameter setting that gave the best results on the hold-out data.
+#'         - @field cv_results_: A dict with keys as column headers and values as columns, that can be imported into a pandas DataFrame.
+#'         - @field scorer_: Scoring method used on the held-out data.
+#'         - @field n_splits_: The number of cross-validation splits (folds/iterations).
+#'         These attributes provide insights into the model's performance and the effectiveness of the selected hyperparameters.
+#' @examples
+#' \donttest{
+#' # Assuming X_train, y_train, pipeline, and params are predefined
+#' # Define sklearn modules (assuming 'define_sklearn_modules' is defined)
+#' sklearn_modules <- define_sklearn_modules()
+#'
+#' # Perform a grid search
+#' optimal_model <- perform_grid_search(X_train, y_train, pipeline, "accuracy",
+#'                                     params, "grid", NULL, 1, sklearn_modules, NULL)
+#'
+#'
+#' # Perform a random search
+#' optimal_model_random <- perform_grid_search(X_train, y_train, pipeline, "accuracy",
+#'                                             params, "random", 10, 1, sklearn_modules, 42)
+#'
+#' }
 #' @export
 perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, search_type, n_iter, njobs, modules, random_state) {
   if (search_type == 'grid') {
@@ -201,9 +267,23 @@ perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, sea
 #'
 #' @param pipeline A Scikit-learn Pipeline object.
 #'
-#' @return A named list where each element represents a step in the pipeline.
-#' The names of the list elements correspond to the names of the steps in the pipeline.
+#' @return A named list where each element represents a step in the Scikit-learn Pipeline.
+#'         The names of the list elements correspond to the names of the steps in the pipeline.
+#'         Each element of the list is an R representation of the respective step in the pipeline.
 #' @importFrom reticulate py_to_r
+#' @examples
+#' \donttest{
+#' # Assuming a Scikit-learn pipeline object 'sklearn_pipeline' is defined in Python
+#' # and available in R via reticulate
+#' sklearn_pipeline <- reticulate::import("sklearn.pipeline")$Pipeline(steps = list(
+#'   list("scaler", reticulate::import("sklearn.preprocessing")$StandardScaler()),
+#'   list("classifier", reticulate::import("sklearn.ensemble")$RandomForestClassifier())
+#' ))
+#'
+#' # Convert the Scikit-learn pipeline to a named list in R
+#' pipeline_list <- pipeline_to_list(sklearn_pipeline)
+#' print(pipeline_list)
+#' }
 #' @export
 pipeline_to_list <- function(pipeline) {
   pipeline <- reticulate::py_to_r(pipeline)
@@ -230,11 +310,15 @@ pipeline_to_list <- function(pipeline) {
 #' @param y_test A vector of test labels.
 #' @param modules A list of Python modules used in the function.
 #'
-#' @return A list containing the weighted precision, weighted recall, weighted F1 score, and accuracy.
-#' @export
+#' @return A list containing key performance metrics of the best model:
+#'         - @field precision: The weighted precision score.
+#'         - @field recall: The weighted recall score.
+#'         - @field f1: The weighted F1 score.
+#'         - @field accuracy: The overall accuracy score.
+#'         These metrics are crucial for evaluating the effectiveness of the model on test data.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Assuming grid_search, X_test, y_test, and sklearn are defined
 #' metrics <- evaluate_test_metrics(grid_search, X_test, y_test, sklearn)
 #' }
@@ -321,23 +405,22 @@ calculate_mean_cv_scores <- function(selected_pipelines, cv_best_score) {
 #' @param max_features Maximum number of features to be selected by default feature selection methods.
 #' @param perform_test_split Whether to perform train and test split, to have an evaluation on unseen test set. The default value is set to FALSE
 #' @param random_state An integer value setting the random seed for feature selection algorithms and cross validation procedure. By default set to NULL to use different random seed every time an algorithm is used. For reproducibility could be fixed, otherwise for an unbiased estimation should be left as NULL.
-#' @return A list with the following elements:
-#' \item{fitted_pipelines}{A list of the fitted pipelines.}
-#' \item{cv_results}{A list of the cross-validation results for each pipeline.}
-#' \item{inbuilt_feature_importance}{A list of the inbuilt feature importance scores for each pipeline.}
-#' \item{gene_set_stability}{A list of the gene set stability for each pipeline.}
-#' \item{test_metrics}{A data frame of test metrics for each pipeline.}
-#' \item{permutation_importances}{A list of the permutation importance scores for each pipeline (if calculate_permutation_importance is TRUE).}
+#' @return Returns an object of class `PipelineResults` with the following elements:
+#'   - @field best_pipeline: A list of the best-fitted pipelines for each feature selection method and data split.
+#'   - @field cv_results: A list containing cross-validation results for each pipeline, including scores and other metrics.
+#'   - @field inbuilt_feature_importance: A list of the inbuilt feature importance scores for each pipeline, aggregated across all data splits.
+#'   - @field test_metrics: A data frame summarizing test metrics (precision, recall, F1 score, accuracy) for each pipeline, if a test split was performed.
+#'   - @field cv_mean_score: A data frame summarizing the mean cross-validation scores for each pipeline across all data splits.
+#'   - @field permutation_importance: A list of permutation importance scores for each pipeline, if permutation importance calculation was enabled.
+#' This comprehensive return structure allows for in-depth analysis of the feature selection methods and model performance.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Perform gene selection and evaluation using the default methods
 #' data(iris)
 #' X <- iris[,1:4]
 #' y <- iris[,5]
-#' results <- GeneSelectR(X_train = X, y_train = y)
+#' results <- GeneSelectR(X, y)
 #'
-#' # Perform gene selection and evaluation using a subset of the default methods
-#' results <- GeneSelectR(X_train = X, y_train = y, selected_methods = c("Univariate", "RFE"))
 #'
 #' # Perform gene selection and evaluation using user-defined methods
 #' fs_methods <- list("Lasso" = select_model(lasso(penalty = 'l1',
@@ -345,8 +428,8 @@ calculate_mean_cv_scores <- function(selected_pipelines, cv_best_score) {
 #'                                                 solver = 'saga'),
 #'                                           threshold = 'median'))
 #' custom_fs_grids <- list("Lasso" = list('C' = c(0.1, 1, 10)))
-#' results <- GeneSelectR(X_train = X,
-#'                        y_train = y,
+#' results <- GeneSelectR(X,
+#'                        y,
 #'                        custom_fs_methods = fs_methods,
 #'                        custom_fs_grids = custom_fs_grids)
 #'}

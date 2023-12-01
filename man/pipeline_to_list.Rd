@@ -10,10 +10,25 @@ pipeline_to_list(pipeline)
 \item{pipeline}{A Scikit-learn Pipeline object.}
 }
 \value{
-A named list where each element represents a step in the pipeline.
+A named list where each element represents a step in the Scikit-learn Pipeline.
 The names of the list elements correspond to the names of the steps in the pipeline.
+Each element of the list is an R representation of the respective step in the pipeline.
 }
 \description{
 This function takes a Scikit-learn Pipeline object and converts it to a named list in R.
 Each step in the pipeline becomes an element in the list with the name of the step as the name of the list element.
+}
+\examples{
+\donttest{
+# Assuming a Scikit-learn pipeline object 'sklearn_pipeline' is defined in Python
+# and available in R via reticulate
+sklearn_pipeline <- reticulate::import("sklearn.pipeline")$Pipeline(steps = list(
+  list("scaler", reticulate::import("sklearn.preprocessing")$StandardScaler()),
+  list("classifier", reticulate::import("sklearn.ensemble")$RandomForestClassifier())
+))
+
+# Convert the Scikit-learn pipeline to a named list in R
+pipeline_list <- pipeline_to_list(sklearn_pipeline)
+print(pipeline_list)
+}
 }

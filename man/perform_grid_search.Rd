@@ -39,8 +39,33 @@ perform_grid_search(
 \item{random_state}{An integer value setting the random seed for feature selection algorithms and cross validation procedure. By default set to NULL to use different random seed every time an algorithm is used. For reproducibility could be fixed, otherwise for an unbiased estimation should be left as NULL.}
 }
 \value{
-An object of the optimal model found during the search.
+Returns a scikit-learn GridSearchCV, RandomizedSearchCV, or BayesSearchCV object, depending on the \code{search_type} specified.
+This object includes several attributes useful for analyzing the hyperparameter tuning process:
+- @field best_estimator_: The best estimator chosen by the search.
+- @field best_score_: The score of the best_estimator on the left-out data.
+- @field best_params_: The parameter setting that gave the best results on the hold-out data.
+- @field cv_results_: A dict with keys as column headers and values as columns, that can be imported into a pandas DataFrame.
+- @field scorer_: Scoring method used on the held-out data.
+- @field n_splits_: The number of cross-validation splits (folds/iterations).
+These attributes provide insights into the model's performance and the effectiveness of the selected hyperparameters.
 }
 \description{
 Perform Grid Search or Random Search for Hyperparameter Tuning
+}
+\examples{
+\donttest{
+# Assuming X_train, y_train, pipeline, and params are predefined
+# Define sklearn modules (assuming 'define_sklearn_modules' is defined)
+sklearn_modules <- define_sklearn_modules()
+
+# Perform a grid search
+optimal_model <- perform_grid_search(X_train, y_train, pipeline, "accuracy",
+                                    params, "grid", NULL, 1, sklearn_modules, NULL)
+
+
+# Perform a random search
+optimal_model_random <- perform_grid_search(X_train, y_train, pipeline, "accuracy",
+                                            params, "random", 10, 1, sklearn_modules, 42)
+
+}
 }

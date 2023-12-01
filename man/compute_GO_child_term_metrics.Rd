@@ -36,7 +36,7 @@ This function retrieves the children nodes for a set of Gene Ontology (GO) terms
 from a list of GO terms and can plot the offspring nodes' numbers and fractions for each term.
 }
 \examples{
-\dontrun{
+\donttest{
 GO_terms_vec <- c("GO:0002376", "GO:0008150")
 df_res <- get_children_nodes(GO_data = all_selection.GO_inbuilt,
                              GO_terms = GO_terms_vec,

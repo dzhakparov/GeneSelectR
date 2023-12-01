@@ -3,12 +3,29 @@
 #' @param coefficients A list of matrices showing the Overlap, Jaccard, and Soerensen-Dice coefficients for the feature lists.
 #' @param save_plot A logical value indicating whether to save the heatmap plots to a file or not. Default is FALSE.
 #' @param filename A character string specifying the filename for the saved heatmap plots (if save_plot = TRUE).
-#' @return A grid of heatmaps showing the Overlap, Jaccard, and Soerensen-Dice coefficients for the feature lists.
+#' @return A grid of ggplot2 heatmap objects visualizing the Overlap, Jaccard, and Soerensen-Dice coefficients.
+#' The grid layout includes heatmaps for both 'inbuilt' and 'permutation' feature importance coefficients (if available).
+#' If `save_plot` is TRUE, the heatmaps are also saved to the specified file.
 #' @importFrom ggplot2 ggplot aes geom_tile geom_text scale_fill_gradientn theme_minimal theme labs coord_fixed
 #' @importFrom reshape2 melt
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom cowplot plot_grid
 #' @importFrom rlang .data
+#' @examples
+#' \donttest{
+#' # Assuming `coefficients` is a list containing matrices for Overlap, Jaccard,
+#' # and Soerensen-Dice coefficients
+#' # For demonstration, let's create a mock coefficients list
+#' mock_matrix <- matrix(runif(25), nrow = 5)
+#' coefficients <- list(inbuilt_feature_importance_coefficient = list(overlap = mock_matrix,
+#'                      jaccard = mock_matrix, soerensen = mock_matrix),
+#'                      permutation_importance_coefficients = list(overlap = mock_matrix,
+#'                      jaccard = mock_matrix, soerensen = mock_matrix))
+#'
+#' # Plot the overlap heatmaps
+#' heatmap_plots <- plot_overlap_heatmaps(coefficients)
+#' print(heatmap_plots)
+#' }
 #' @export
 plot_overlap_heatmaps <- function(coefficients, save_plot = FALSE, filename = NULL) {
   # Check if input is a list of lists, each containing matrices

@@ -1,6 +1,3 @@
-# Load the testthat package
-library(testthat)
-
 # Mock a minimal PipelineResults object
 mock_pipelineresults <- readRDS("./fixtures/PipelineResults.rds")
 

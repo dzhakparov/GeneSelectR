@@ -12,8 +12,30 @@ plot_feature_importance(pipelineresults, top_n_features = 10)
 \item{top_n_features}{An integer specifying the top N features to plot based on their mean importance.}
 }
 \value{
-A list of grid of ggplot objects.
+A list of grid plot objects (ggplot objects) for each feature selection method in the \code{PipelineResults} object.
+Each plot visualizes the top N features based on their mean importance scores, including both inbuilt and permutation importances (if available).
+The plots are arranged in a grid layout for easy comparison.
 }
 \description{
 This function plots the feature importance scores from \code{inbuilt_feature_importance} and \code{permutation_importance} in the \code{PipelineResults} object.
+}
+\examples{
+\donttest{
+# Assuming `pipelineresults` is a PipelineResults object
+
+pipelineresults <- new("PipelineResults",
+                       inbuilt_feature_importance = list("Method1" = data.frame(
+                                                         feature = LETTERS[1:10],
+                                                         mean_importance = runif(10)),
+                                                         "Method2" = data.frame(
+                                                         feature = LETTERS[1:10],
+                                                         mean_importance = runif(10))),
+                       permutation_importance = list("Method1" = data.frame(
+                                                                 feature = LETTERS[1:10],
+                                                                 mean_importance = runif(10))))
+
+# Plot the feature importance
+importance_plots <- plot_feature_importance(pipelineresults, top_n_features = 5)
+print(importance_plots)
+}
 }

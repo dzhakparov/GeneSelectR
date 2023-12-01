@@ -2,6 +2,7 @@
 #'
 #' @description This function creates a Conda environment if it doesn't already exist.
 #' @param conda_env The name of the Conda environment to create.
+#' @return description
 #' @importFrom reticulate conda_create conda_list
 #' @keywords hidden
 create_conda_env <- function(conda_env = "GeneSelectR_env") {
@@ -20,6 +21,7 @@ create_conda_env <- function(conda_env = "GeneSelectR_env") {
 #'
 #' @description This function installs the necessary Python packages in a specific Conda environment.
 #' @param conda_env The name of the Conda environment to use.
+#' @return description
 #' @importFrom reticulate py_install
 #' @export
 #'

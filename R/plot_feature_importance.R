@@ -8,7 +8,28 @@
 #' @importFrom dplyr arrange slice desc
 #' @importFrom cowplot plot_grid
 #' @importFrom stats reorder
-#' @return A list of grid of ggplot objects.
+#' @return A list of grid plot objects (ggplot objects) for each feature selection method in the `PipelineResults` object.
+#'         Each plot visualizes the top N features based on their mean importance scores, including both inbuilt and permutation importances (if available).
+#'         The plots are arranged in a grid layout for easy comparison.
+#' @examples
+#' \donttest{
+#' # Assuming `pipelineresults` is a PipelineResults object
+#'
+#' pipelineresults <- new("PipelineResults",
+#'                        inbuilt_feature_importance = list("Method1" = data.frame(
+#'                                                          feature = LETTERS[1:10],
+#'                                                          mean_importance = runif(10)),
+#'                                                          "Method2" = data.frame(
+#'                                                          feature = LETTERS[1:10],
+#'                                                          mean_importance = runif(10))),
+#'                        permutation_importance = list("Method1" = data.frame(
+#'                                                                  feature = LETTERS[1:10],
+#'                                                                  mean_importance = runif(10))))
+#'
+#' # Plot the feature importance
+#' importance_plots <- plot_feature_importance(pipelineresults, top_n_features = 5)
+#' print(importance_plots)
+#' }
 #' @export
 
 plot_feature_importance <- function(pipelineresults, top_n_features = 10) {

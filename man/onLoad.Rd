@@ -2,10 +2,10 @@
 % Please edit documentation in R/zzz.R
 \name{onLoad}
 \alias{onLoad}
-\alias{load_python_packages}
-\title{Load Python Modules}
+\alias{.onLoad}
+\title{Package Load Function}
 \usage{
-load_python_packages()
+.onLoad(libname, pkgname)
 }
 \arguments{
 \item{libname}{The name of the library.}
@@ -13,12 +13,12 @@ load_python_packages()
 \item{pkgname}{The name of the package.}
 }
 \value{
-If not in interactive mode, the function will return NULL. Otherwise, it will import the Python modules and return a message indicating that the import was successful.
+If not in interactive mode, the function will return NULL. Otherwise, it returns a message indicating that the import was successful.
 }
 \description{
-This function is called when the package is loaded. It checks if Conda is installed and imports necessary Python modules.
+This function is called when the package is loaded. It checks if Conda is installed and calls \code{load_python_packages} to import Python modules.
 }
 \details{
-If Conda is not installed, the function will stop and prompt the user to install Conda. If Conda is installed, the function will import the Python modules with delay_load set to TRUE.
+If Conda is not installed, the function will stop and prompt the user to install Conda. If Conda is installed, it will proceed to import Python modules.
 }
 \keyword{internal}

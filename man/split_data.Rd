@@ -16,8 +16,27 @@ split_data(X, y, test_size, modules)
 \item{modules}{A list containing the definitions for the Python modules and submodules.}
 }
 \value{
-A list containing the training and test sets for predictors and outcomes.
+A list containing the split datasets:
+\itemize{
+\item @field X_train: Training set for predictors, converted to Python format.
+\item @field X_test: Test set for predictors, converted to Python format.
+\item @field y_train: Training set for outcomes, converted to Python format.
+\item @field y_test: Test set for outcomes, converted to Python format.
+The function ensures that the data is appropriately partitioned and formatted for use in Python-based analysis.
+}
 }
 \description{
 Split Data into Training and Test Sets
+}
+\examples{
+\donttest{
+# Assuming 'data' is your dataset with predictors and 'outcome' is the target variable
+# Define sklearn modules (assuming 'define_sklearn_modules' is defined)
+sklearn_modules <- define_sklearn_modules()
+
+# Split the data into training and test sets
+split_results <- split_data(data, outcome, test_size = 0.2, modules = sklearn_modules)
+
+}
+
 }

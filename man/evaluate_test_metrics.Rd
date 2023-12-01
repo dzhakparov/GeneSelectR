@@ -16,14 +16,19 @@ evaluate_test_metrics(grid_search, X_test, y_test, modules)
 \item{modules}{A list of Python modules used in the function.}
 }
 \value{
-A list containing the weighted precision, weighted recall, weighted F1 score, and accuracy.
+A list containing key performance metrics of the best model:
+- @field precision: The weighted precision score.
+- @field recall: The weighted recall score.
+- @field f1: The weighted F1 score.
+- @field accuracy: The overall accuracy score.
+These metrics are crucial for evaluating the effectiveness of the model on test data.
 }
 \description{
 This function takes a grid search object, test data, and test labels to evaluate the performance
 of the best model found during grid search.
 }
 \examples{
-\dontrun{
+\donttest{
 # Assuming grid_search, X_test, y_test, and sklearn are defined
 metrics <- evaluate_test_metrics(grid_search, X_test, y_test, sklearn)
 }

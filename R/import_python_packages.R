@@ -1,7 +1,20 @@
 #' @title Import Python Libraries
 #' @description This function imports the necessary Python libraries for the package.
-#' @return A list of imported Python libraries.
+#' @return A list containing references to imported Python libraries used in the package:
+#'   - @field sklearn: Scikit-learn machine learning library.
+#'   - @field pandas: Data manipulation and analysis library.
+#'   - @field numpy: Library for numerical computing.
+#'   - @field lightgbm: Gradient boosting framework.
+#'   - @field xgboost: Optimized distributed gradient boosting library.
+#'   - @field boruta: Feature selection algorithm.
+#'   - @field sys: Python system-specific parameters and functions.
+#'   - @field multiprocessing: Support for concurrent execution using processes.
 #' @importFrom reticulate import
+#' @examples
+#' \donttest{
+#' # Import Python libraries
+#' python_libs <- import_python_packages()
+#' }
 #' @export
 import_python_packages <- function() {
   sklearn <- reticulate::import("sklearn", delay_load = TRUE)

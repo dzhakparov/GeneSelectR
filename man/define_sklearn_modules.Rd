@@ -6,9 +6,35 @@
 \usage{
 define_sklearn_modules()
 }
-\value{
-A list containing the definitions for the Python modules and submodules.
-}
 \description{
-Define Python modules and scikit-learn submodules
+#' @return A list containing the initialized Python modules and scikit-learn submodules, each as a separate list element.
+The list includes:
+\itemize{
+\item @field preprocessing: Module for data preprocessing.
+\item @field model_selection: Module for model selection and evaluation.
+\item @field feature_selection: Module for feature selection methods.
+\item @field ensemble: Module for ensemble methods.
+\item @field pipeline: scikit-learn pipeline object.
+\item @field forest: Random Forest classifier for feature selection.
+\item @field randomized_grid: Randomized grid search for hyperparameter tuning.
+\item @field grid: Grid search for hyperparameter tuning.
+\item @field bayesianCV: Bayesian optimization using cross-validation.
+\item @field lasso: Lasso method for feature selection.
+\item @field univariate: Univariate feature selection method.
+\item @field select_model: Model-based feature selection method.
+\item @field GradBoost: Gradient Boosting classifier.
+}
+}
+\examples{
+\donttest{
+# Define scikit-learn modules and submodules
+sklearn_modules <- define_sklearn_modules()
+
+# Access different modules and submodules
+preprocessing_module <- sklearn_modules$preprocessing
+model_selection_module <- sklearn_modules$model_selection
+feature_selection_module <- sklearn_modules$feature_selection
+ensemble_module <- sklearn_modules$ensemble
+# You can further explore each module as needed in your analysis
+}
 }

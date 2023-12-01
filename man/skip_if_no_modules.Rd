@@ -9,6 +9,9 @@ skip_if_no_modules(module_names)
 \arguments{
 \item{module_names}{A vector of names of the Python modules to check.}
 }
+\value{
+description
+}
 \description{
 This helper function checks if a list of Python modules are available. If any are not, it skips the tests.
 }

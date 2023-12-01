@@ -8,16 +8,30 @@
 #' @param custom_lists An optional named list of character vectors. Each character vector should contain feature names.
 #'   The names of the list will be used as names in the UpSet plots.
 #'
-#' @return A named list containing two UpSet plots accessible as \code{result$inbuilt_importance} for inbuilt feature importances
-#'   and \code{result$permutation_importance} for permutation importances.
+#' @return A named list containing two UpSet plots:
+#'   - @field inbuilt_importance: An UpSet plot visualizing overlaps of inbuilt feature importances.
+#'   - @field permutation_importance: An UpSet plot (if permutation importance is available) visualizing overlaps of permutation importances.
+#'   Each plot provides an interactive way to explore the intersections and unique elements of the feature lists.
+#'
 #'
 #' @examples
-#' \dontrun{
-#' pipeline_results <- PipelineResults$new(...)
+#' \donttest{
+#' # Mock data for PipelineResults
+#' pipeline_results <- new("PipelineResults",
+#'                         inbuilt_feature_importance = list(
+#'                           Method1 = data.frame(feature = c("gene1", "gene2", "gene3")),
+#'                           Method2 = data.frame(feature = c("gene2", "gene4"))),
+#'                         permutation_importance = list(
+#'                           Method1 = data.frame(feature = c("gene1", "gene5")),
+#'                           Method2 = data.frame(feature = c("gene3", "gene6"))))
+#'
+#' # Mock custom lists
 #' custom_lists <- list("custom1" = c("gene1", "gene2"), "custom2" = c("gene3", "gene4"))
-#' result <- plot_feature_overlap_upset(pipeline_results, custom_lists)
-#' print(result$plot1)
-#' print(result$plot2)
+#'
+#' # Generate UpSet plots
+#' result <- plot_upset(pipeline_results, custom_lists)
+#' print(result$inbuilt_importance)
+#' print(result$permutation_importance)
 #' }
 #' @importFrom utils modifyList
 #' @export

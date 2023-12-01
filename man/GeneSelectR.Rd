@@ -69,13 +69,16 @@ GeneSelectR(
 \item{random_state}{An integer value setting the random seed for feature selection algorithms and cross validation procedure. By default set to NULL to use different random seed every time an algorithm is used. For reproducibility could be fixed, otherwise for an unbiased estimation should be left as NULL.}
 }
 \value{
-A list with the following elements:
-\item{fitted_pipelines}{A list of the fitted pipelines.}
-\item{cv_results}{A list of the cross-validation results for each pipeline.}
-\item{inbuilt_feature_importance}{A list of the inbuilt feature importance scores for each pipeline.}
-\item{gene_set_stability}{A list of the gene set stability for each pipeline.}
-\item{test_metrics}{A data frame of test metrics for each pipeline.}
-\item{permutation_importances}{A list of the permutation importance scores for each pipeline (if calculate_permutation_importance is TRUE).}
+Returns an object of class \code{PipelineResults} with the following elements:
+\itemize{
+\item @field best_pipeline: A list of the best-fitted pipelines for each feature selection method and data split.
+\item @field cv_results: A list containing cross-validation results for each pipeline, including scores and other metrics.
+\item @field inbuilt_feature_importance: A list of the inbuilt feature importance scores for each pipeline, aggregated across all data splits.
+\item @field test_metrics: A data frame summarizing test metrics (precision, recall, F1 score, accuracy) for each pipeline, if a test split was performed.
+\item @field cv_mean_score: A data frame summarizing the mean cross-validation scores for each pipeline across all data splits.
+\item @field permutation_importance: A list of permutation importance scores for each pipeline, if permutation importance calculation was enabled.
+This comprehensive return structure allows for in-depth analysis of the feature selection methods and model performance.
+}
 }
 \description{
 This function performs gene selection using different methods on a given
@@ -83,15 +86,13 @@ training set and evaluates their performance using cross-validation. Optionally,
 also calculates permutation feature importances.
 }
 \examples{
-\dontrun{
+\donttest{
 # Perform gene selection and evaluation using the default methods
 data(iris)
 X <- iris[,1:4]
 y <- iris[,5]
-results <- GeneSelectR(X_train = X, y_train = y)
+results <- GeneSelectR(X, y)
 
-# Perform gene selection and evaluation using a subset of the default methods
-results <- GeneSelectR(X_train = X, y_train = y, selected_methods = c("Univariate", "RFE"))
 
 # Perform gene selection and evaluation using user-defined methods
 fs_methods <- list("Lasso" = select_model(lasso(penalty = 'l1',
@@ -99,8 +100,8 @@ fs_methods <- list("Lasso" = select_model(lasso(penalty = 'l1',
                                                 solver = 'saga'),
                                           threshold = 'median'))
 custom_fs_grids <- list("Lasso" = list('C' = c(0.1, 1, 10)))
-results <- GeneSelectR(X_train = X,
-                       y_train = y,
+results <- GeneSelectR(X,
+                       y,
                        custom_fs_methods = fs_methods,
                        custom_fs_grids = custom_fs_grids)
 }

@@ -24,7 +24,7 @@
 #' }
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' GO_terms_vec <- c("GO:0002376", "GO:0008150")
 #' df_res <- get_children_nodes(GO_data = all_selection.GO_inbuilt,
 #'                              GO_terms = GO_terms_vec,

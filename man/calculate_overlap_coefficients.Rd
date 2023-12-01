@@ -14,11 +14,41 @@ mean performance, and mean feature importances.}
 The names of the list will be used as names in the resulting overlap coefficient matrices.}
 }
 \value{
-A list of lists of matrices showing the Overlap, Jaccard, and Soerensen-Dice coefficients for the feature lists.
-This includes coefficients for feature importance, permutation importance (if present), and custom lists (if provided).
+A list containing lists of matrices, where each list corresponds to a different type of feature list (inbuilt feature importance, permutation importance, and custom lists if provided).
+Within each of these lists, there are three matrices showing the Overlap, Jaccard, and Soerensen-Dice coefficients for the feature lists:
+- @field overlap: A matrix showing the Overlap coefficients.
+- @field jaccard: A matrix showing the Jaccard coefficients.
+- @field soerensen: A matrix showing the Soerensen-Dice coefficients.
+These matrices compare the feature lists against each other, providing a numerical measure of their similarity.
+Note: If permutation importance data is not present in the \code{pipeline_results}, the corresponding list entry will be absent.
 }
 \description{
 This function calculates the Overlap, Jaccard, and Soerensen-Dice coefficients to quantify
 the similarity between feature lists. In addition to feature importance and permutation importance,
 you can provide a custom list of feature names to be included in the overlap calculation.
+}
+\examples{
+# Basic Usage with Mock Data
+# Create a mock PipelineResults object with minimal data
+mock_pipeline_results <- new("PipelineResults",
+                             inbuilt_feature_importance = list(
+                             "FeatureSet1" = data.frame(feature = c("feature1", "feature2")),
+                             "FeatureSet2" = data.frame(feature = c("feature2", "feature3"))),
+                             permutation_importance = list(
+                             "FeatureSet1" = data.frame(feature = c("feature3", "feature4")),
+                             "FeatureSet2" = data.frame(feature = c("feature1", "feature4"))))
+
+# Calculate overlap coefficients without custom lists
+overlap_results <- calculate_overlap_coefficients(mock_pipeline_results)
+
+
+# Including Custom Lists
+# Create custom feature lists
+custom_feature_lists <- list("CustomList1" = c("feature5", "feature6"),
+                             "CustomList2" = c("feature6", "feature7"))
+
+# Calculate overlap coefficients with custom lists
+overlap_results_custom <- calculate_overlap_coefficients(mock_pipeline_results,
+                                                         custom_feature_lists)
+
 }

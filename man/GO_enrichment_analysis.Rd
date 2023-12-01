@@ -39,18 +39,46 @@ GO_enrichment_analysis(
 \item{...}{Other parameters to be passed to clusterProfiler::enrichGO function.}
 }
 \value{
-A list containing the enrichment results for all gene sets (excluding "background").
+A list containing the enrichment results for each gene set.
+Each element in the list is named after a gene set and contains an object produced by the \code{enrichGO} function from \code{clusterProfiler}.
+This object includes various details about the enrichment analysis, such as enriched GO terms, their associated p-values, q-values, and other relevant statistics.
+The list excludes results for the "background" gene set, focusing only on the gene sets of interest.
 }
 \description{
 This function performs gene set enrichment analysis on a list of gene sets extracted from an AnnotatedGeneLists object.
 }
 \examples{
-\dontrun{
-# Assuming annotated_gene_lists and background are defined
+\donttest{
+# Creating a mock AnnotatedGeneLists object
+gene_symbols <- c("GENE1", "GENE2", "GENE3")
+ensembl_ids <- c("ENSG000001", "ENSG000002", "ENSG000003")
+entrez_ids <- c("1001", "1002", "1003")
+
+create_mock_gene_list <- function() {
+  new("GeneList",
+       SYMBOL = gene_symbols,
+       ENSEMBL = ensembl_ids,
+       ENTREZID = entrez_ids)
+}
+
+mock_gene_list1 <- create_mock_gene_list()
+mock_gene_list2 <- create_mock_gene_list()
+
+annotated_gene_lists <- new("AnnotatedGeneLists",
+                            inbuilt = list(Lasso = mock_gene_list1,
+                                           Univariate = mock_gene_list2),
+                            permutation = list(Lasso = mock_gene_list1,
+                                               Univariate = mock_gene_list2))
+
+# Define a background gene set
+background <- c("GENE1", "GENE2", "GENE3")
+
+# Perform GO enrichment analysis
 results <- GO_enrichment_analysis(annotated_gene_lists,
-                                  background,
+                                  background = background,
                                   organism = "org.Hs.eg.db",
-                                  keyType = "ENTREZID")
+                                  keyType = "SYMBOL")
+print(results)
 }
 }
 \references{
