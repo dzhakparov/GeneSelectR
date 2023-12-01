@@ -10,7 +10,8 @@ steps_to_tuples(steps)
 \item{steps}{A list of steps to convert to tuples.}
 }
 \value{
-A list of tuples.
+A list of tuples, where each tuple represents a step in a Scikit-learn pipeline.
+The tuple contains the name of the step and the corresponding step object.
 }
 \description{
 This function converts a list of steps to tuples for use in a Scikit-learn pipeline.

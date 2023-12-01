@@ -17,20 +17,12 @@ as the final step.}
 \item{iter}{An integer that is indicating current iteration of the train-test split}
 }
 \value{
-A list containing the selected feature names and their importances, or NULL
-if the classifier is not a Gradient Boosting Classifier or the feature selector
-doesn't have the 'get_support' method.
+A dataframe containing the selected feature names and their importances, ranked by importance, or NULL
+if the classifier does not have the appropriate attributes or the feature selector
+does not have the 'get_support' or 'support_' method. Each row represents a feature, with columns for
+feature names, importances, and ranks.
 }
 \description{
 This function extracts feature importances from a Scikit-learn pipeline
 that has a Gradient Boosting Classifier as the final step.
-}
-\examples{
-\dontrun{
-# Assuming you have a Scikit-learn pipeline 'my_pipeline' and training data 'X_train'
-feature_importances <- get_feature_importances(my_pipeline, X_train)
-# Extract the selected feature names and their importances
-selected_features <- feature_importances$selected_features
-importances <- feature_importances$importances
-}
 }

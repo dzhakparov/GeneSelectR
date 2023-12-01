@@ -10,15 +10,11 @@ aggregate_feature_importances(selected_features)
 \item{selected_features}{A list of selected features. Each element of the list represents a split and should be a named list where the names are the methods and the values are data frames containing the feature importances for that method in that split.}
 }
 \value{
-A list of aggregated feature importances for each method. Each element of the list is a data frame that contains the mean and standard deviation of the feature importances for a particular method across all splits.
+A list containing aggregated feature importances for each feature selection method.
+Each element in the list is a dataframe with mean and standard deviation of the feature importances
+for a particular method across all splits. The dataframe includes columns for feature names, mean importances,
+standard deviations, and ranks.
 }
 \description{
 This function aggregates the feature importances for each method across all splits.
-}
-\examples{
-\dontrun{
-  # Assuming selected_features is a list of selected features for each split
-  aggregated_importances <- aggregate_feature_importances(selected_features)
-}
-
 }

@@ -24,7 +24,8 @@ create_pipelines(
 \item{fs_param_grids}{param grid}
 }
 \value{
-A list of Scikit-learn pipelines.
+A list of Scikit-learn pipeline objects. Each pipeline is constructed based on the provided
+feature selection methods, preprocessing steps, and classifier. The list is named by feature selection methods.
 }
 \description{
 This function creates a list of Scikit-learn pipelines using the specified feature selection methods, preprocessing steps, and classifier.

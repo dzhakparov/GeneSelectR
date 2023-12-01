@@ -10,7 +10,7 @@ install_python_packages(conda_env = "GeneSelectR_env")
 \item{conda_env}{The name of the Conda environment to use.}
 }
 \value{
-description
+Installs necessary version of Python packages into the GeneSelectR_env.
 }
 \description{
 This function installs the necessary Python packages in a specific Conda environment.

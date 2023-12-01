@@ -30,10 +30,14 @@ run_simplify_enrichment(
 \item{...}{Other parameters that can be passed to simplifyGOFromMultipleLists}
 }
 \value{
-The result of the simplifyGOFromMultipleLists function.
+The result from the simplifyGOFromMultipleLists function, typically including a heatmap or other visualization
+of the simplified GO enrichment results, depending on the specified measure and method.
 }
 \description{
 This function is simply a wrapper for the simplifyGOFromMultipleLists function in the simplifyEnrichment package,
 created for the ease of data input. All credit for the underlying functionality goes to the authors
 of the simplifyEnrichment package.
+}
+\references{
+reference
 }

@@ -10,7 +10,7 @@ skip_if_no_modules(module_names)
 \item{module_names}{A vector of names of the Python modules to check.}
 }
 \value{
-description
+Nothing is returned explicitly, but if a specified module is not available, the function invokes \code{testthat::skip} to skip the tests that require that module.
 }
 \description{
 This helper function checks if a list of Python modules are available. If any are not, it skips the tests.

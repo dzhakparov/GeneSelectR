@@ -33,15 +33,10 @@ calculate_permutation_feature_importance(
 \item{iter}{An integer that is indicating current iteration of the train-test split}
 }
 \value{
-A list containing the feature names and their importance scores.
+A dataframe containing the feature names and their permutation importance scores, ranked by importance.
+Each row represents a feature, with columns for feature names, importances, and ranks.
 }
 \description{
 This function calculates permutation feature importance for a Scikit-learn
 pipeline with a trained classifier as the final step.
-}
-\examples{
-\dontrun{
-# Assuming you have a Scikit-learn pipeline 'my_pipeline' and training data 'X_train'
-permutation_importances <- calculate_permutation_feature_importance(my_pipeline, X_train, y_train)
-}
 }

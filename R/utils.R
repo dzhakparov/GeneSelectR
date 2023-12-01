@@ -6,19 +6,11 @@
 #' @param X_train A DataFrame containing the training data.
 #' @param pipeline_name Strings (names of the selected_pipelines list) representing pipeline names that were constructed for the feature selection
 #' @param iter An integer that is indicating current iteration of the train-test split
-#' @return A list containing the selected feature names and their importances, or NULL
-#'         if the classifier is not a Gradient Boosting Classifier or the feature selector
-#'         doesn't have the 'get_support' method.
+#' @return A dataframe containing the selected feature names and their importances, ranked by importance, or NULL
+#'         if the classifier does not have the appropriate attributes or the feature selector
+#'         does not have the 'get_support' or 'support_' method. Each row represents a feature, with columns for
+#'         feature names, importances, and ranks.
 #' @importFrom reticulate py_has_attr py_to_r
-#' @examples
-#' \dontrun{
-#' # Assuming you have a Scikit-learn pipeline 'my_pipeline' and training data 'X_train'
-#' feature_importances <- get_feature_importances(my_pipeline, X_train)
-#' # Extract the selected feature names and their importances
-#' selected_features <- feature_importances$selected_features
-#' importances <- feature_importances$importances
-#' }
-#' @export
 get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
   classifier <- pipeline$named_steps[['classifier']]
 
@@ -30,7 +22,7 @@ get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
   } else if (reticulate::py_has_attr(classifier, "feature_importances_")) {
     feature_importances <- classifier$feature_importances_
   } else {
-    cat("Classifier doesn't have coef_ or feature_importances_ attributes")
+    message("Classifier doesn't have coef_ or feature_importances_ attributes")
     return(NULL)
   }
 
@@ -42,7 +34,7 @@ get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
   } else if (reticulate::py_has_attr(feature_selector, "support_")) {
     selected_indices <- which(feature_selector$support_)
   } else {
-    cat("Feature selector doesn't have get_support() or support_ attribute")
+    message("Feature selector doesn't have get_support() or support_ attribute")
     return(NULL)
 }
 
@@ -56,48 +48,7 @@ get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
   return(importances)
 }
 
-# get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
-#   classifier <- pipeline$named_steps[['classifier']]
-#
-#   if (reticulate::py_has_attr(classifier, "coef_")) {
-#     feature_importances <- classifier$coef_
-#   } else if (reticulate::py_has_attr(classifier, "feature_importances_")) {
-#     feature_importances <- classifier$feature_importances_
-#   } else {
-#     cat("Classifier doesn't have coef_ or feature_importances_ attributes")
-#     return(NULL)
-#   }
-#
-#   feature_selector <- pipeline$named_steps[["feature_selector"]]
-#   original_feature_names <- colnames(reticulate::py_to_r(X_train))
-#   # Check if the feature selector has the get_support method
-#   if (reticulate::py_has_attr(feature_selector, "get_support")) {
-#     selected_indices <- which(feature_selector$get_support())
-#     selected_feature_names <- original_feature_names[selected_indices]
-#     importances <- data.frame(feature=selected_feature_names, importance=feature_importances)
-#     print(importances)
-#     importances <- importances[order(-importances$importance),]
-#     importances$rank <- seq_len(nrow(importances))
-#     column_name <- as.character(glue::glue('rank_{pipeline_name}_split_{iter}'))
-#     colnames(importances)[colnames(importances) == 'rank'] <- column_name
-#     return(importances)
-#   }
-#   else if (reticulate::py_has_attr(feature_selector, "support_")) {
-#     selected_indices <- which(feature_selector$support_)
-#     selected_feature_names <- original_feature_names[selected_indices]
-#
-#     importances <- data.frame(feature=selected_feature_names, importance=feature_importances)
-#     importances <- importances[order(-importances$importance),]
-#     importances$rank <- seq_len(nrow(importances))
-#     column_name <- as.character(glue::glue('rank_{pipeline_name}_split_{iter}'))
-#     colnames(importances)[colnames(importances) == 'rank'] <- column_name
-#     return(importances)
-#   } else {
-#     cat("Feature selector doesn't have get_support() attribute")
-#   }
-#   return(NULL)
-#
-# }
+
 
 #' @title Calculate Permutation Feature Importance
 #' @description This function calculates permutation feature importance for a Scikit-learn
@@ -110,15 +61,9 @@ get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
 #' @param njobs An integer specifying number of cores to use. Set up by the master GeneSelectR function.
 #' @param pipeline_name Strings (names of the selected_pipelines list) representing pipeline names that were constructed for the feature selection
 #' @param iter An integer that is indicating current iteration of the train-test split
-#' @return A list containing the feature names and their importance scores.
+#' @return A dataframe containing the feature names and their permutation importance scores, ranked by importance.
+#'         Each row represents a feature, with columns for feature names, importances, and ranks.
 #' @importFrom reticulate import py_to_r
-#' @examples
-#' \dontrun{
-#' # Assuming you have a Scikit-learn pipeline 'my_pipeline' and training data 'X_train'
-#' permutation_importances <- calculate_permutation_feature_importance(my_pipeline, X_train, y_train)
-#' }
-#' @export
-
 calculate_permutation_feature_importance <- function(pipeline,
                                                      X_train,
                                                      y_train,
@@ -159,7 +104,8 @@ calculate_permutation_feature_importance <- function(pipeline,
 #' @param selected_methods A vector of names of feature selection methods to use from the default set.
 #' @param classifier A Scikit-learn classifier to use as the final step in the pipelines.
 #' @param fs_param_grids param grid
-#' @return A list of Scikit-learn pipelines.
+#' @return A list of Scikit-learn pipeline objects. Each pipeline is constructed based on the provided
+#'         feature selection methods, preprocessing steps, and classifier. The list is named by feature selection methods.
 #' @importFrom reticulate import tuple py_bool
 create_pipelines <- function(feature_selection_methods, preprocessing_steps, selected_methods, classifier, fs_param_grids) {
   sklearn <- reticulate::import('sklearn')
@@ -191,7 +137,7 @@ create_pipelines <- function(feature_selection_methods, preprocessing_steps, sel
 
       named_pipelines[[feature_selector_name]] <- pipeline(steps = tuple_steps)
     } else {
-      cat("Warning: Feature selection method", feature_selector_name, "not found.\n")
+      message("Warning: Feature selection method", feature_selector_name, "not found.\n")
     }
   }
 
@@ -203,7 +149,8 @@ create_pipelines <- function(feature_selection_methods, preprocessing_steps, sel
 #' @title Convert Steps to Tuples
 #' @description This function converts a list of steps to tuples for use in a Scikit-learn pipeline.
 #' @param steps A list of steps to convert to tuples.
-#' @return A list of tuples.
+#' @return A list of tuples, where each tuple represents a step in a Scikit-learn pipeline.
+#'         The tuple contains the name of the step and the corresponding step object.
 #' @importFrom reticulate tuple
 steps_to_tuples <- function(steps) {
   tuple_steps <- c()
@@ -221,18 +168,14 @@ steps_to_tuples <- function(steps) {
 #'
 #' @param selected_features A list of selected features. Each element of the list represents a split and should be a named list where the names are the methods and the values are data frames containing the feature importances for that method in that split.
 #'
-#' @return A list of aggregated feature importances for each method. Each element of the list is a data frame that contains the mean and standard deviation of the feature importances for a particular method across all splits.
-#'
+#' @return A list containing aggregated feature importances for each feature selection method.
+#'         Each element in the list is a dataframe with mean and standard deviation of the feature importances
+#'         for a particular method across all splits. The dataframe includes columns for feature names, mean importances,
+#'         standard deviations, and ranks.
 #' @importFrom magrittr %>%
 #' @importFrom dplyr group_by summarize filter
 #' @importFrom stats sd
 #' @importFrom rlang .data
-#' @examples
-#' \dontrun{
-#'   # Assuming selected_features is a list of selected features for each split
-#'   aggregated_importances <- aggregate_feature_importances(selected_features)
-#' }
-#'
 aggregate_feature_importances <- function(selected_features) {
   aggregated_importances <- list()
 
@@ -274,39 +217,3 @@ aggregate_feature_importances <- function(selected_features) {
   return(aggregated_importances)
 }
 
-#' Save HTML Representation of a GridSearchCV Object
-#'
-#' This function takes a GridSearchCV object from scikit-learn and saves its HTML representation to a specified directory.
-#'
-# @param grid_search A GridSearchCV object from scikit-learn.
-# @param output_dir A string specifying the directory where the HTML file will be saved.
-# @return A message indicating the location where the HTML file has been saved.
-# @examples
-# \dontrun{
-# library(reticulate)
-# # Assuming 'grid_search' is your GridSearchCV object
-# save_pipeline_html(grid_search, "path/to/output/directory")
-# }
-# @importFrom glue glue
-
-# save_pipeline_html <- function(grid_search, filename, output_dir) {
-#   # Import necessary Python modules
-#   #sklearn <- import('sklearn')
-#   sklearn$set_config('diagram') # Enable HTML representation
-#
-#   # Convert the GridSearchCV object to HTML
-#   print(grid_search)
-#
-#   # Create the output directory if it doesn't exist
-#   if (!dir.exists(output_dir)) {
-#     dir.create(output_dir)
-#   }
-#
-#   # Define the output file path
-#   output_file <- file.path(glue::glue('{output_dir}/{filename}_pipeline.html'))
-#
-#   # Save HTML to the file
-#   writeLines(print(grid_search), output_file)
-#
-#   cat("HTML representation saved to", output_file, "\n")
-# }

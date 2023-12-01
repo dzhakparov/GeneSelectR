@@ -24,7 +24,7 @@ This function takes a list of matrices of overlap and similarity coefficients an
 \examples{
 \donttest{
 # Assuming `coefficients` is a list containing matrices for Overlap, Jaccard,
-and Soerensen-Dice coefficients
+# and Soerensen-Dice coefficients
 # For demonstration, let's create a mock coefficients list
 mock_matrix <- matrix(runif(25), nrow = 5)
 coefficients <- list(inbuilt_feature_importance_coefficient = list(overlap = mock_matrix,

@@ -12,8 +12,9 @@
 #' @param measure Character. The semantic similarity measure for the simplifyGOFromMultipleLists function.
 #' @param method Character. The clustering method for the simplifyGOFromMultipleLists function.
 #' @param ... Other parameters that can be passed to simplifyGOFromMultipleLists
-#'
-#' @return The result of the simplifyGOFromMultipleLists function.
+#' @references reference
+#' @return The result from the simplifyGOFromMultipleLists function, typically including a heatmap or other visualization
+#'         of the simplified GO enrichment results, depending on the specified measure and method.
 #'
 #' @export
 run_simplify_enrichment <- function(fs_GO_results, padj_column = 'p.adjust', padj_cutoff, ont, measure, method, ...) {

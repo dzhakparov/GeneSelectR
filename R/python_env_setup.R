@@ -2,7 +2,7 @@
 #'
 #' @description This function creates a Conda environment if it doesn't already exist.
 #' @param conda_env The name of the Conda environment to create.
-#' @return description
+#' @return Creates conda environment for GeneSelectR package called 'GeneSelectR_env'. If environment already exists, returns a message indicating that the environment is there.
 #' @importFrom reticulate conda_create conda_list
 #' @keywords hidden
 create_conda_env <- function(conda_env = "GeneSelectR_env") {
@@ -21,9 +21,9 @@ create_conda_env <- function(conda_env = "GeneSelectR_env") {
 #'
 #' @description This function installs the necessary Python packages in a specific Conda environment.
 #' @param conda_env The name of the Conda environment to use.
-#' @return description
+#' @return Installs necessary version of Python packages into the GeneSelectR_env.
 #' @importFrom reticulate py_install
-#' @export
+#'
 #'
 install_python_packages <- function(conda_env = "GeneSelectR_env") {
   # List of Python packages to be installed
