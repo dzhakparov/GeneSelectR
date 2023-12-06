@@ -4,10 +4,10 @@
 \alias{define_sklearn_modules}
 \title{Define Python modules and scikit-learn submodules}
 \usage{
-define_sklearn_modules()
+define_sklearn_modules(modules)
 }
-\description{
-#' @return A list containing the initialized Python modules and scikit-learn submodules, each as a separate list element.
+\value{
+A list containing the initialized Python modules and scikit-learn submodules, each as a separate list element.
 The list includes:
 \itemize{
 \item @field preprocessing: Module for data preprocessing.
@@ -24,6 +24,9 @@ The list includes:
 \item @field select_model: Model-based feature selection method.
 \item @field GradBoost: Gradient Boosting classifier.
 }
+}
+\description{
+Define Python modules and scikit-learn submodules
 }
 \examples{
 \donttest{

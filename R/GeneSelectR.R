@@ -1,6 +1,6 @@
 #' Define Python modules and scikit-learn submodules
 #'
-#' #' @return A list containing the initialized Python modules and scikit-learn submodules, each as a separate list element.
+#' @return A list containing the initialized Python modules and scikit-learn submodules, each as a separate list element.
 #' The list includes:
 #'   - @field preprocessing: Module for data preprocessing.
 #'   - @field model_selection: Module for model selection and evaluation.
@@ -28,48 +28,53 @@
 #' # You can further explore each module as needed in your analysis
 #' }
 #' @export
-define_sklearn_modules <- function() {
-  # define Python modules and sklearn submodules
+define_sklearn_modules <- function(python_modules) {
+  # Extract the sklearn module from the provided list
+  sklearn <- python_modules$sklearn
+  skopt <- python_modules$skopt
+
+
+  # Define the scikit-learn submodules using the extracted sklearn module
   preprocessing <- sklearn$preprocessing
   model_selection <- sklearn$model_selection
   feature_selection <- sklearn$feature_selection
   ensemble <- sklearn$ensemble
   pipeline <- sklearn$pipeline$Pipeline
-
-  # define default models for the feature selection process
   forest <- sklearn$ensemble$RandomForestClassifier
+  boruta <- python_modules$boruta
   randomized_grid <- sklearn$model_selection$RandomizedSearchCV
   grid <- sklearn$model_selection$GridSearchCV
   bayesianCV <- skopt$BayesSearchCV
   lasso <- sklearn$linear_model$LogisticRegression
   univariate <- sklearn$feature_selection$GenericUnivariateSelect
   select_model <- sklearn$feature_selection$SelectFromModel
-
-  # define a classifier for the accuracy estimation
   GradBoost <- ensemble$GradientBoostingClassifier
 
+  # Return the list of scikit-learn submodules
   return(list(preprocessing = preprocessing,
               model_selection = model_selection,
               feature_selection = feature_selection,
               ensemble = ensemble,
               pipeline = pipeline,
               forest = forest,
+              boruta = boruta,
               randomized_grid = randomized_grid,
               grid = grid,
               bayesianCV = bayesianCV,
               lasso = lasso,
               univariate = univariate,
               select_model = select_model,
-              GradBoost = GradBoost))
-
-}
+              GradBoost = GradBoost)) }
 
 #' Enable Multiprocessing in Python Environment
 #'
 #' This function sets up the necessary executable for Python's multiprocessing functionality.
 #' Only used on Windows
-#'
-enable_multiprocess <- function() {
+#' @param python_modules a list containing imported Python modules
+#' @return Doesn't return anything, enables multiprocessing on Windows
+enable_multiprocess <- function(python_modules) {
+  sys <- python_modules$sys
+  multiprocessing <- python_modules$multiprocessing
   exe <- file.path(sys$exec_prefix, "pythonw.exe")
   sys$executable <- exe
   sys$`_base_executable` <- exe
@@ -84,12 +89,14 @@ enable_multiprocess <- function() {
 #' @return A list containing preprocessing steps and default feature selection methods.
 #'
 set_default_fs_methods <- function(modules, max_features, random_state) {
+
   VarianceThreshold <- modules$feature_selection$VarianceThreshold(0.85)
   StandardScaler <- modules$preprocessing$StandardScaler()
   Lasso <- modules$select_model(modules$lasso(penalty = 'l1', C = 0.01, solver = 'saga', max_iter = 1000L, random_state = random_state), threshold = 'median', max_features = max_features)
   Univariate <- modules$univariate(mode = 'k_best',param = max_features)
+  print(modules$univariate)
   RandomForest <- modules$select_model(modules$forest(n_estimators=100L, random_state=random_state), threshold = 'median', max_features = max_features)
-  boruta <- boruta$BorutaPy(modules$forest(random_state = random_state), n_estimators = 'auto', verbose = 0,perc = 100L)
+  boruta <- modules$boruta$BorutaPy(modules$forest(random_state = random_state), n_estimators = 'auto', verbose = 0,perc = 100L)
 
   preprocessing_steps <- list(
     "VarianceThreshold" = VarianceThreshold,
@@ -402,7 +409,7 @@ calculate_mean_cv_scores <- function(selected_pipelines, cv_best_score) {
 #' @param search_type A string indicating the type of search to use. 'grid' for GridSearchCV and 'random' for RandomizedSearchCV. Default is 'random'.
 #' @param n_iter An integer indicating the number of parameter settings that are sampled in RandomizedSearchCV. Only applies when search_type is 'random'.
 #' @param calculate_permutation_importance A boolean indicating whether to calculate permutation feature importance. Default is FALSE.
-#' @param max_features Maximum number of features to be selected by default feature selection methods.
+#' @param max_features Maximum number of features to be selected by default feature selection methods. Max features cannot exceed the total number of features in a dataset.
 #' @param perform_test_split Whether to perform train and test split, to have an evaluation on unseen test set. The default value is set to FALSE
 #' @param random_state An integer value setting the random seed for feature selection algorithms and cross validation procedure. By default set to NULL to use different random seed every time an algorithm is used. For reproducibility could be fixed, otherwise for an unbiased estimation should be left as NULL.
 #' @return Returns an object of class `PipelineResults` with the following elements:
@@ -415,11 +422,19 @@ calculate_mean_cv_scores <- function(selected_pipelines, cv_best_score) {
 #' This comprehensive return structure allows for in-depth analysis of the feature selection methods and model performance.
 #' @examples
 #' \donttest{
-#' # Perform gene selection and evaluation using the default methods
-#' data(iris)
-#' X <- iris[,1:4]
-#' y <- iris[,5]
-#' results <- GeneSelectR(X, y)
+#' # Create a mock dataset with 29 feature columns and 1 binary label column
+#' set.seed(123) # for reproducibility
+#' n_rows <- 10
+#' n_features <- 29
+#'
+#' # Randomly generate feature data
+#' X <- as.data.frame(matrix(runif(n_rows * n_features), nrow = n_rows, ncol = n_features))
+#' colnames(X) <- paste0("Feature", 1:n_features)
+#'
+#' # Create a mock binary label column
+#' y <- factor(sample(c("Class1", "Class2"), n_rows, replace = TRUE))
+#'
+#' results <- GeneSelectR(X, y, max_features = 15)
 #'
 #'
 #' # Perform gene selection and evaluation using user-defined methods
@@ -430,6 +445,7 @@ calculate_mean_cv_scores <- function(selected_pipelines, cv_best_score) {
 #' custom_fs_grids <- list("Lasso" = list('C' = c(0.1, 1, 10)))
 #' results <- GeneSelectR(X,
 #'                        y,
+#'                        max_features = 15,
 #'                        custom_fs_methods = fs_methods,
 #'                        custom_fs_grids = custom_fs_grids)
 #'}
@@ -466,7 +482,8 @@ GeneSelectR <- function(X,
                         random_state = NULL) {
 
   message('Performing feature selection procedure. Please wait, it takes some time')
-
+  # import Python modules
+  python_packages <- load_python_packages()
   # Convert certain parameters to integers
   njobs <- as.integer(njobs)
   n_splits <- as.integer(n_splits)
@@ -477,11 +494,12 @@ GeneSelectR <- function(X,
   }
 
   if (Sys.info()["sysname"] == "Windows") {
-    enable_multiprocess()
+    enable_multiprocess(python_packages)
   }
 
-  modules <- define_sklearn_modules()
-  default_feature_selection_methods <- set_default_fs_methods(modules, max_features,random_state = random_state)
+  modules <- define_sklearn_modules(python_packages)
+  print(modules)
+  default_feature_selection_methods <- set_default_fs_methods(modules = modules, max_features,random_state = random_state)
   default_classifier <- modules$forest(random_state = random_state)
   default_grids <- set_default_param_grids(max_features)
 

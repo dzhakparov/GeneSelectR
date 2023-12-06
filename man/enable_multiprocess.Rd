@@ -4,7 +4,13 @@
 \alias{enable_multiprocess}
 \title{Enable Multiprocessing in Python Environment}
 \usage{
-enable_multiprocess()
+enable_multiprocess(python_modules)
+}
+\arguments{
+\item{python_modules}{a list containing imported Python modules}
+}
+\value{
+Doesn't return anything, enables multiprocessing on Windows
 }
 \description{
 This function sets up the necessary executable for Python's multiprocessing functionality.

@@ -60,7 +60,7 @@ GeneSelectR(
 
 \item{n_iter}{An integer indicating the number of parameter settings that are sampled in RandomizedSearchCV. Only applies when search_type is 'random'.}
 
-\item{max_features}{Maximum number of features to be selected by default feature selection methods.}
+\item{max_features}{Maximum number of features to be selected by default feature selection methods. Max features cannot exceed the total number of features in a dataset.}
 
 \item{calculate_permutation_importance}{A boolean indicating whether to calculate permutation feature importance. Default is FALSE.}
 
@@ -87,11 +87,19 @@ also calculates permutation feature importances.
 }
 \examples{
 \donttest{
-# Perform gene selection and evaluation using the default methods
-data(iris)
-X <- iris[,1:4]
-y <- iris[,5]
-results <- GeneSelectR(X, y)
+# Create a mock dataset with 29 feature columns and 1 binary label column
+set.seed(123) # for reproducibility
+n_rows <- 10
+n_features <- 29
+
+# Randomly generate feature data
+X <- as.data.frame(matrix(runif(n_rows * n_features), nrow = n_rows, ncol = n_features))
+colnames(X) <- paste0("Feature", 1:n_features)
+
+# Create a mock binary label column
+y <- factor(sample(c("Class1", "Class2"), n_rows, replace = TRUE))
+
+results <- GeneSelectR(X, y, max_features = 15)
 
 
 # Perform gene selection and evaluation using user-defined methods
@@ -102,6 +110,7 @@ fs_methods <- list("Lasso" = select_model(lasso(penalty = 'l1',
 custom_fs_grids <- list("Lasso" = list('C' = c(0.1, 1, 10)))
 results <- GeneSelectR(X,
                        y,
+                       max_features = 15,
                        custom_fs_methods = fs_methods,
                        custom_fs_grids = custom_fs_grids)
 }
