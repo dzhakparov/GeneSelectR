@@ -50,60 +50,45 @@ skopt <- NULL
 #' @keywords internal
 load_python_packages <- function() {
   # Import the Python modules with delay_load = TRUE
-  sklearn <- reticulate::import("sklearn", delay_load = TRUE)
-  pandas <- reticulate::import("pandas", delay_load = TRUE)
-  numpy <- reticulate::import("numpy", delay_load = TRUE)
-  boruta <- reticulate::import("boruta", delay_load = TRUE)
-  sys <- reticulate::import("sys", delay_load = TRUE)
-  multiprocessing <- reticulate::import("multiprocessing", delay_load = TRUE)
-  skopt <- reticulate::import('skopt', delay_load = TRUE)
-
+  modules <- list(
+    sklearn = reticulate::import("sklearn", delay_load = TRUE),
+    pandas = reticulate::import("pandas", delay_load = TRUE),
+    numpy = reticulate::import("numpy", delay_load = TRUE),
+    boruta = reticulate::import("boruta", delay_load = TRUE),
+    sys = reticulate::import("sys", delay_load = TRUE),
+    multiprocessing = reticulate::import("multiprocessing", delay_load = TRUE),
+    skopt = reticulate::import('skopt', delay_load = TRUE)
+  )
+  return(modules)
   #message("Imported Python libraries with delay_load = TRUE")
 }
 
-#' @title Package Load Function
+#' @title Package Attachment Function
 #'
 #' @description
-#' This function is called when the package is loaded. It checks if Conda is installed and calls `load_python_packages` to import Python modules.
+#' This function is called when the package is attached. It checks for the availability of essential Bioconductor packages.
 #'
 #' @param libname The name of the library.
 #' @param pkgname The name of the package.
 #'
 #' @details
-#' If Conda is not installed, the function will stop and prompt the user to install Conda. If Conda is installed, it will proceed to import Python modules.
+#' The function verifies the presence of specific Bioconductor packages required for the package's full functionality. If any of these packages are missing, the function will stop and provide a message to the user to install the missing packages using `BiocManager::install()`.
 #'
-#' @return
-#' If not in interactive mode, the function will return NULL. Otherwise, it returns a message indicating that the import was successful.
+#' If essential Bioconductor packages are missing, the function halts the package loading process and informs the user about the missing packages, recommending their installation via `BiocManager::install()`.
 #'
-#' @name onLoad
 #' @keywords internal
-.onLoad <- function(libname, pkgname) {
-  load_python_packages()
-}
-
-#'@importFrom utils install.packages menu
 .onAttach <- function(libname, pkgname) {
   bioconductor_packages <- c("clusterProfiler", "GO.db", "simplifyEnrichment")
 
   missing_packages <- bioconductor_packages[!sapply(bioconductor_packages, requireNamespace, quietly = TRUE)]
 
   if (length(missing_packages) > 0) {
-    packageStartupMessage("The following Bioconductor packages are required for full functionality of ",
-            pkgname, ": ", paste(missing_packages, collapse = ", "), ".")
-
-    if (interactive()) {
-      response <- menu(c("Yes", "No"), title = "Do you want to install them now?")
-      if (response == 1) {
-        if (!requireNamespace("BiocManager", quietly = TRUE)) {
-          install.packages("BiocManager")
-        }
-        BiocManager::install(missing_packages)
-      }
-    } else {
-      packageStartupMessage("Run BiocManager::install(c(", paste(sQuote(missing_packages), collapse = ", "), ")) to install missing packages.")
-    }
+    stop("The following Bioconductor packages are required for full functionality of ",
+         pkgname, " but are not installed: ", paste(missing_packages, collapse = ", "),
+         ". Please install them using BiocManager::install().", call. = FALSE)
   }
 }
+
 
 
 
