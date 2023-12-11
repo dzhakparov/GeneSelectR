@@ -1,5 +1,5 @@
 #' Define Python modules and scikit-learn submodules
-#'
+#' @param python_modules A list containing imported Python modules.
 #' @return A list containing the initialized Python modules and scikit-learn submodules, each as a separate list element.
 #' The list includes:
 #'   - @field preprocessing: Module for data preprocessing.
@@ -434,6 +434,11 @@ calculate_mean_cv_scores <- function(selected_pipelines, cv_best_score) {
 #' # Create a mock binary label column
 #' y <- factor(sample(c("Class1", "Class2"), n_rows, replace = TRUE))
 #'
+#' # set up the environment
+#' GeneSelectR::configure_environment()
+#' GeneSelectR::set_reticulate_python()
+#'
+#' # run GeneSelectR
 #' results <- GeneSelectR(X, y, max_features = 15)
 #'
 #'

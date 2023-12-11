@@ -1,15 +1,17 @@
 testthat::skip_on_cran()
 modules <- c('sklearn', 'pandas', 'numpy', 'boruta', 'sys', 'multiprocessing', 'skopt')
 # Skip all tests if Python is not available
-GeneSelectR::skip_if_no_modules(modules)
 GeneSelectR::set_reticulate_python()
+GeneSelectR::skip_if_no_modules(modules)
+
 # load fixtures
 load('./fixtures/UrbanRandomSubset.rda')
 test_that("GeneSelectR returns expected output types", {
 
   X <- UrbanRandomSubset %>% dplyr::select(-treatment) # get the feature matrix
   y <- UrbanRandomSubset['treatment'] # store the data point label in a separate vector
-
+  y <- as.factor(y$treatment)
+  y <- as.integer(y)
   # Run the function
   result <- GeneSelectR(X,
                         y,
@@ -27,7 +29,8 @@ test_that("GeneSelectR handles custom feature selection methods", {
   # Generate some mock data
   X <- UrbanRandomSubset %>% dplyr::select(-treatment) # get the feature matrix
   y <- UrbanRandomSubset['treatment'] # store the data point label in a separate vector
-
+  y <- as.factor(y$treatment)
+  y <- as.integer(y)
   sklearn <- reticulate::import('sklearn')
   feature_selection <- sklearn$feature_selection
   select_from_model <- feature_selection$SelectFromModel
@@ -59,7 +62,8 @@ test_that("GeneSelectR handles custom feature selection methods", {
   # Generate some mock data
   X <- UrbanRandomSubset %>% dplyr::select(-treatment) # get the feature matrix
   y <- UrbanRandomSubset['treatment'] # store the data point label in a separate vector
-
+  y <- as.factor(y$treatment)
+  y <- as.integer(y)
   sklearn <- reticulate::import('sklearn')
 
   # import lasso

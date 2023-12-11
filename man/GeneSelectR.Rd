@@ -99,6 +99,11 @@ colnames(X) <- paste0("Feature", 1:n_features)
 # Create a mock binary label column
 y <- factor(sample(c("Class1", "Class2"), n_rows, replace = TRUE))
 
+# set up the environment
+GeneSelectR::configure_environment()
+GeneSelectR::set_reticulate_python()
+
+# run GeneSelectR
 results <- GeneSelectR(X, y, max_features = 15)
 
 

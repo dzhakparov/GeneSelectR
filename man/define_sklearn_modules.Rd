@@ -4,7 +4,10 @@
 \alias{define_sklearn_modules}
 \title{Define Python modules and scikit-learn submodules}
 \usage{
-define_sklearn_modules(modules)
+define_sklearn_modules(python_modules)
+}
+\arguments{
+\item{python_modules}{A list containing imported Python modules.}
 }
 \value{
 A list containing the initialized Python modules and scikit-learn submodules, each as a separate list element.

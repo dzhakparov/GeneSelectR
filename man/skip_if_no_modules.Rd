@@ -15,3 +15,11 @@ Nothing is returned explicitly, but if a specified module is not available, the 
 \description{
 This helper function checks if a list of Python modules are available. If any are not, it skips the tests.
 }
+\examples{
+\donttest{
+# Example usage within a test file:
+module_names <- c("numpy", "pandas", "sklearn")
+skip_if_no_modules(module_names)
+}
+
+}

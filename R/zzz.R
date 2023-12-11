@@ -66,15 +66,15 @@ load_python_packages <- function() {
 #' @title Package Attachment Function
 #'
 #' @description
-#' This function is called when the package is attached. It checks for the availability of essential Bioconductor packages.
+#' This function is called when the package is attached. It checks for the availability of essential Bioconductor packages and alerts if any are missing.
 #'
 #' @param libname The name of the library.
 #' @param pkgname The name of the package.
 #'
 #' @details
-#' The function verifies the presence of specific Bioconductor packages required for the package's full functionality. If any of these packages are missing, the function will stop and provide a message to the user to install the missing packages using `BiocManager::install()`.
+#' The function checks for the presence of specific Bioconductor packages that are essential for the package's functionality. If any required packages are missing, it displays a startup message advising the user to install the missing packages using `BiocManager::install()`.
 #'
-#' If essential Bioconductor packages are missing, the function halts the package loading process and informs the user about the missing packages, recommending their installation via `BiocManager::install()`.
+#' Instead of stopping the package loading process, it alerts the user about any missing dependencies, recommending their installation for full functionality.
 #'
 #' @keywords internal
 .onAttach <- function(libname, pkgname) {
@@ -83,11 +83,13 @@ load_python_packages <- function() {
   missing_packages <- bioconductor_packages[!sapply(bioconductor_packages, requireNamespace, quietly = TRUE)]
 
   if (length(missing_packages) > 0) {
-    stop("The following Bioconductor packages are required for full functionality of ",
-         pkgname, " but are not installed: ", paste(missing_packages, collapse = ", "),
-         ". Please install them using BiocManager::install().", call. = FALSE)
+    packageStartupMessage("Warning: The following Bioconductor packages are required for full functionality of ",
+                          pkgname, " but are not installed: ", paste(missing_packages, collapse = ", "),
+                          ". Please install them using BiocManager::install().")
   }
 }
+
+
 
 
 

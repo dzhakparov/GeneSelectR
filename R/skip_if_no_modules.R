@@ -4,6 +4,13 @@
 #' @return Nothing is returned explicitly, but if a specified module is not available, the function invokes `testthat::skip` to skip the tests that require that module.
 #' @importFrom reticulate py_module_available
 #' @importFrom testthat skip
+#' @examples
+#' \donttest{
+#' # Example usage within a test file:
+#' module_names <- c("numpy", "pandas", "sklearn")
+#' skip_if_no_modules(module_names)
+#'}
+#'
 #' @export
 skip_if_no_modules <- function(module_names) {
   lapply(module_names, function(module_name) {
