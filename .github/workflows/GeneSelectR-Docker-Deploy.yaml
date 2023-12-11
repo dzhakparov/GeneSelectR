@@ -2,7 +2,7 @@ name: GeneSelectR-Docker-Deploy
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, CRAN]
     tags:
       - 'v*.*'  
 

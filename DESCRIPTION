@@ -4,7 +4,8 @@ Version: 1.0.0
 Authors@R: 
     person("Damir", "Zhakparov", , "dzhakparov@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7175-0843"))
-Description: The workflow is a versatile R package designed for comprehensive feature selection in bulk RNAseq datsets. Its key innovation lies in the seamless integration of the Python sklearn machine learning framework with R-based bioinformatics tools. This integration enables GeneSelectR to perform robust ML-driven feature selection while simultaneously leveraging the power of Gene Ontology (GO) enrichment and semantic similarity analyses. By combining these diverse methodologies, GeneSelectR offers a comprehensive workflow that optimizes both the computational aspects of ML and the biological insights afforded by advanced bioinformatics analyses. Ideal for researchers in bioinformatics, GeneSelectR stands out as a unique tool for analyzing complex RNAseq datasets with enhanced precision and relevance.
+Description: The workflow is a versatile R package designed for comprehensive feature selection in bulk RNAseq datasets. Its key innovation lies in the seamless integration of the 'Python' 'scikit-learn' machine learning framework with R-based bioinformatics tools (<https://scikit-learn.org/stable/index.html>). GeneSelectR performs robust ML-driven feature selection while leveraging 'Gene Ontology' (GO) enrichment analysis as described by Thomas PD et al. (2022) <doi:10.1002/pro.4218>, using 'clusterProfiler' (Wu et al., 2021) <doi:10.1016/j.xinn.2021.100141> and semantic similarity analysis powered by 'simplifyEnrichment' (Gu, Huebschmann, 2021) <doi:10.1016/j.gpb.2022.04.008>. 
+This combination of methodologies optimizes computational and biological insights for analyzing complex RNAseq datasets.
 License: MIT + file LICENSE
 URL: https://github.com/dzhakparov/GeneSelectR
 BugReports: https://github.com/dzhakparov/GeneSelectR/issues
