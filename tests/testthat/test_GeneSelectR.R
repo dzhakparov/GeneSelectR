@@ -1,13 +1,12 @@
 testthat::skip_on_cran()
 modules <- c('sklearn', 'pandas', 'numpy', 'boruta', 'sys', 'multiprocessing', 'skopt')
 # Skip all tests if Python is not available
-GeneSelectR::set_reticulate_python()
 GeneSelectR::skip_if_no_modules(modules)
 
 # load fixtures
 load('./fixtures/UrbanRandomSubset.rda')
 test_that("GeneSelectR returns expected output types", {
-
+  GeneSelectR::set_reticulate_python()
   X <- UrbanRandomSubset %>% dplyr::select(-treatment) # get the feature matrix
   y <- UrbanRandomSubset['treatment'] # store the data point label in a separate vector
   y <- as.factor(y$treatment)
@@ -26,6 +25,7 @@ test_that("GeneSelectR returns expected output types", {
 })
 
 test_that("GeneSelectR handles custom feature selection methods", {
+  GeneSelectR::set_reticulate_python()
   # Generate some mock data
   X <- UrbanRandomSubset %>% dplyr::select(-treatment) # get the feature matrix
   y <- UrbanRandomSubset['treatment'] # store the data point label in a separate vector
@@ -59,6 +59,7 @@ test_that("GeneSelectR handles custom feature selection methods", {
 })
 
  test_that("GeneSelectR uses custom classifiers if provided", {
+   GeneSelectR::set_reticulate_python()
   # Generate some mock data
   X <- UrbanRandomSubset %>% dplyr::select(-treatment) # get the feature matrix
   y <- UrbanRandomSubset['treatment'] # store the data point label in a separate vector
