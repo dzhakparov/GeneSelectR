@@ -1,10 +1,10 @@
 Package: GeneSelectR
-Title: Comprehensive Feature Selection Workflow for Bulk RNAseq Datasets
+Title: 'GeneSelectR' - Comprehensive Feature Selection Workflow for Bulk RNAseq Datasets
 Version: 1.0.0
 Authors@R: 
     person("Damir", "Zhakparov", , "dzhakparov@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7175-0843"))
-Description: The workflow is a versatile R package designed for comprehensive feature selection in bulk RNAseq datasets. Its key innovation lies in the seamless integration of the 'Python' 'scikit-learn' (<https://scikit-learn.org/stable/index.html>) machine learning framework with R-based bioinformatics tools. GeneSelectR performs robust Machine Learning-driven (ML) feature selection while leveraging 'Gene Ontology' (GO) enrichment analysis as described by Thomas PD et al. (2022) <doi:10.1002/pro.4218>, using 'clusterProfiler' (Wu et al., 2021) <doi:10.1016/j.xinn.2021.100141> and semantic similarity analysis powered by 'simplifyEnrichment' (Gu, Huebschmann, 2021) <doi:10.1016/j.gpb.2022.04.008>. This combination of methodologies optimizes computational and biological insights for analyzing complex RNAseq datasets.
+Description: The workflow is a versatile R package designed for comprehensive feature selection in bulk RNAseq datasets. Its key innovation lies in the seamless integration of the 'Python' 'scikit-learn' (<https://scikit-learn.org/stable/index.html>) machine learning framework with R-based bioinformatics tools. 'GeneSelectR' performs robust Machine Learning-driven (ML) feature selection while leveraging 'Gene Ontology' (GO) enrichment analysis as described by Thomas PD et al. (2022) <doi:10.1002/pro.4218>, using 'clusterProfiler' (Wu et al., 2021) <doi:10.1016/j.xinn.2021.100141> and semantic similarity analysis powered by 'simplifyEnrichment' (Gu, Huebschmann, 2021) <doi:10.1016/j.gpb.2022.04.008>. This combination of methodologies optimizes computational and biological insights for analyzing complex RNAseq datasets.
 License: MIT + file LICENSE
 URL: https://github.com/dzhakparov/GeneSelectR
 BugReports: https://github.com/dzhakparov/GeneSelectR/issues
