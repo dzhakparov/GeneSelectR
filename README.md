@@ -58,7 +58,15 @@ calculation, and more.
 GeneSelectR depends on reticulate that creates a conda working
 environment. Please, install
 [Anaconda](https://www.anaconda.com/download) distribution before you
-proceed. You can install the development version of GeneSelectR from
+proceed.
+
+A stable CRAN release can be installed with:
+
+``` r
+install.packages('GeneSelectR')
+```
+
+You can install the development version of GeneSelectR from
 [GitHub](https://github.com/) with:
 
 ``` r

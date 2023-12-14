@@ -75,13 +75,21 @@ knitr::include_graphics("vignettes/images/package_workflow.png")
 GeneSelectR depends on reticulate that creates a conda working
 environment. Please, install
 [Anaconda](https://www.anaconda.com/download) distribution before you
-proceed. You can install the development version of GeneSelectR from
+proceed. 
+
+A stable CRAN release can be installed with: 
+```{r, eval=FALSE}
+install.packages('GeneSelectR')
+```
+
+You can install the development version of GeneSelectR from
 [GitHub](https://github.com/) with:
 
 ```{r, eval=FALSE}
 # install.packages("devtools")
 devtools::install_github("dzhakparov/GeneSelectR")
 ```
+
 
 ### Usage and Example
 
