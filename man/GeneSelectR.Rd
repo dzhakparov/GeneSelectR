@@ -87,36 +87,45 @@ also calculates permutation feature importances.
 }
 \examples{
 \donttest{
-# Create a mock dataset with 29 feature columns and 1 binary label column
-set.seed(123) # for reproducibility
-n_rows <- 10
-n_features <- 29
+if (GeneSelectR:::check_python_modules_available(c("numpy", "pandas", "sklearn", 'boruta'))) {
+  # Create a mock dataset with 29 feature columns and 1 binary label column
+  set.seed(123) # for reproducibility
+  n_rows <- 10
+  n_features <- 100
 
-# Randomly generate feature data
-X <- as.data.frame(matrix(runif(n_rows * n_features), nrow = n_rows, ncol = n_features))
-colnames(X) <- paste0("Feature", 1:n_features)
+  # Randomly generate feature data
+  X <- as.data.frame(matrix(rnorm(n_rows * n_features), nrow = n_rows, ncol = n_features))
+  # Ensure each feature has a variance greater than 0.85
+  for(i in 1:ncol(X)) {
+    while(var(X[[i]]) <= 0.85) {
+      X[[i]] <- X[[i]] * 1.1
+    }
+  }
+  colnames(X) <- paste0("Feature", 1:n_features)
 
-# Create a mock binary label column
-y <- factor(sample(c("Class1", "Class2"), n_rows, replace = TRUE))
+  # Create a mock binary label column
+  y <- factor(sample(c("Class1", "Class2"), n_rows, replace = TRUE))
 
-# set up the environment
-GeneSelectR::configure_environment()
-GeneSelectR::set_reticulate_python()
+  # Set up the environment
+  GeneSelectR::configure_environment()
+  GeneSelectR::set_reticulate_python()
 
-# run GeneSelectR
-results <- GeneSelectR(X, y, max_features = 15)
+  # Run GeneSelectR
+  results <- GeneSelectR(X, y)
 
-
-# Perform gene selection and evaluation using user-defined methods
-fs_methods <- list("Lasso" = select_model(lasso(penalty = 'l1',
-                                                C = 0.1,
-                                                solver = 'saga'),
-                                          threshold = 'median'))
-custom_fs_grids <- list("Lasso" = list('C' = c(0.1, 1, 10)))
-results <- GeneSelectR(X,
-                       y,
-                       max_features = 15,
-                       custom_fs_methods = fs_methods,
-                       custom_fs_grids = custom_fs_grids)
+  # Perform gene selection and evaluation using user-defined methods
+  fs_methods <- list("Lasso" = select_model(lasso(penalty = 'l1',
+                                                  C = 0.1,
+                                                  solver = 'saga'),
+                                            threshold = 'median'))
+  custom_fs_grids <- list("Lasso" = list('C' = c(0.1, 1, 10)))
+  results <- GeneSelectR(X,
+                         y,
+                         max_features = 15,
+                         custom_fs_methods = fs_methods,
+                         custom_fs_grids = custom_fs_grids)
+} else {
+  message("Skipping example as not all required Python modules are available.")
+}
 }
 }

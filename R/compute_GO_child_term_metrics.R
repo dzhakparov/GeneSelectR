@@ -25,10 +25,24 @@
 #'
 #' @examples
 #' \donttest{
+#' # Mock GO terms data frame
+#' all_selection.GO_inbuilt <- data.frame(
+#'   GO_ID = c("GO:0002376", "GO:0008150", "GO:0006955", "GO:0009628"),
+#'   Description = c("immune system process",
+#'                   "biological_process",
+#'                   "immune response",
+#'                   "response to virus"),
+#'   Parent_GO_ID = c(NA, NA, "GO:0002376", "GO:0006955"), # Simplified parent-child
+#'   stringsAsFactors = FALSE
+#' )
+#'
+#' # Mock vector of GO terms to compute metrics for
 #' GO_terms_vec <- c("GO:0002376", "GO:0008150")
-#' df_res <- get_children_nodes(GO_data = all_selection.GO_inbuilt,
-#'                              GO_terms = GO_terms_vec,
-#'                              plot = TRUE)
+#'
+#' # Assuming compute_GO_child_term_metrics is defined and available
+#' # df_res <- compute_GO_child_term_metrics(GO_data = all_selection.GO_inbuilt,
+#' #                                        GO_terms = GO_terms_vec,
+#' #                                        plot = TRUE)
 #' }
 #'
 #' @importFrom ggplot2 ggplot aes geom_bar theme_minimal labs theme element_text

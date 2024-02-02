@@ -10,12 +10,6 @@
 #'   - @field sys: Python system-specific parameters and functions.
 #'   - @field multiprocessing: Support for concurrent execution using processes.
 #' @importFrom reticulate import
-#' @examples
-#' \donttest{
-#' # Import Python libraries
-#' python_libs <- import_python_packages()
-#' }
-#' @export
 import_python_packages <- function() {
   sklearn <- reticulate::import("sklearn", delay_load = TRUE)
   pandas <- reticulate::import("pandas", delay_load = TRUE)

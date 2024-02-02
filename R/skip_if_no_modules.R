@@ -19,3 +19,17 @@ skip_if_no_modules <- function(module_names) {
       testthat::skip(paste0(module_name, " not available for testing"))
   })
 }
+
+
+#' Check Python Module Availability for Examples
+#'
+#' Checks if the specified Python modules are available and returns TRUE if all are available,
+#' otherwise returns FALSE.
+#'
+#' @param module_names Character vector of Python module names to check.
+#' @return Logical TRUE if all modules are available, FALSE otherwise.
+#' @importFrom reticulate py_module_available
+check_python_modules_available <- function(module_names) {
+  requireNamespace("reticulate", quietly = TRUE)
+  all(sapply(module_names, reticulate::py_module_available))
+}

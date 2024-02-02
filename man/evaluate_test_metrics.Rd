@@ -27,9 +27,3 @@ These metrics are crucial for evaluating the effectiveness of the model on test 
 This function takes a grid search object, test data, and test labels to evaluate the performance
 of the best model found during grid search.
 }
-\examples{
-\donttest{
-# Assuming grid_search, X_test, y_test, and sklearn are defined
-metrics <- evaluate_test_metrics(grid_search, X_test, y_test, sklearn)
-}
-}

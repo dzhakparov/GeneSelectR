@@ -16,31 +16,33 @@
 #' # Create a mock PipelineResults object with minimal data
 #' mock_pipeline_results <- new("PipelineResults",
 #'                              inbuilt_feature_importance = list(
-#'                              "GeneSet1" = data.frame(feature = c("gene1", "gene2"))),
-#'                              permutation_importance = NULL)
+#'                                "GeneSet1" = data.frame(feature = c("BRCA1", "TP53"))),
+#'                              permutation_importance = list(
+#'                                "GeneSet1" = data.frame(feature = c("BRCA1", "TP53"))))
 #'
 #' # Mock annotations data frame
-#' mock_annotations_ahb <- data.frame(gene_id = c("gene1", "gene2"),
-#'                                    gene_name = c("Gene One", "Gene Two"),
+#' mock_annotations_ahb <- data.frame(gene_id = c("BRCA1", "TP53"),
+#'                                    gene_name = c("BRCA1", "TP53"),
 #'                                    entrezid = c(101, 102))
 #'
 #' # Convert and annotate gene lists
 #' annotated_lists <- annotate_gene_lists(mock_pipeline_results,
-#'                                        NULL,
+#'                                        custom_lists = NULL,
 #'                                        mock_annotations_ahb,
 #'                                        "SYMBOL")
 #' print(annotated_lists)
 #'
 #' # Using Custom Gene Lists
 #' # Create custom gene lists
-#' custom_gene_lists <- list("CustomList1" = c("gene3", "gene4"))
+#' custom_gene_lists <- list("CustomList1" = c("BRCA1", "TP53"))
 #'
 #' # Convert and annotate gene lists with custom gene lists included
 #' annotated_lists_custom <- annotate_gene_lists(mock_pipeline_results,
 #'                                               custom_gene_lists,
 #'                                               mock_annotations_ahb,
 #'                                               "SYMBOL")
-#' print(annotated_lists_custom)}
+#' print(annotated_lists_custom)
+#' }
 #'
 #' @export
 #'

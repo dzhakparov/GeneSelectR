@@ -33,14 +33,25 @@ Define Python modules and scikit-learn submodules
 }
 \examples{
 \donttest{
-# Define scikit-learn modules and submodules
-sklearn_modules <- define_sklearn_modules()
+required_modules <- c("sklearn", "boruta")
+modules_available <- sapply(required_modules, reticulate::py_module_available)
 
-# Access different modules and submodules
-preprocessing_module <- sklearn_modules$preprocessing
-model_selection_module <- sklearn_modules$model_selection
-feature_selection_module <- sklearn_modules$feature_selection
-ensemble_module <- sklearn_modules$ensemble
-# You can further explore each module as needed in your analysis
+if (all(modules_available)) {
+  # All required Python modules are available
+  # Define scikit-learn modules and submodules
+  sklearn_modules <- define_sklearn_modules()
+
+  # Access different modules and submodules
+  preprocessing_module <- sklearn_modules$preprocessing
+  model_selection_module <- sklearn_modules$model_selection
+  feature_selection_module <- sklearn_modules$feature_selection
+  ensemble_module <- sklearn_modules$ensemble
+  # Additional code to explore each module as needed in your analysis
+} else {
+  unavailable_modules <- names(modules_available[!modules_available])
+  message(paste(
+  "Required Python modules not available:",
+  paste(unavailable_modules, collapse=', '), ". Skipping example."))
+}
 }
 }

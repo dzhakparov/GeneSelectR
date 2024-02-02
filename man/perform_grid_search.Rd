@@ -36,7 +36,7 @@ perform_grid_search(
 
 \item{modules}{A list containing the definitions for the Python modules and submodules.}
 
-\item{random_state}{An integer value setting the random seed for feature selection algorithms and cross validation procedure. By default set to NULL to use different random seed every time an algorithm is used. For reproducibility could be fixed, otherwise for an unbiased estimation should be left as NULL.}
+\item{random_state}{An integer value setting the random seed for feature selection algorithms and randomized search CV procedure. By default set to NULL to use different random seed every time an algorithm is used. For reproducibility could be fixed, otherwise for an unbiased estimation should be left as NULL.}
 }
 \value{
 Returns a scikit-learn GridSearchCV, RandomizedSearchCV, or BayesSearchCV object, depending on the \code{search_type} specified.
@@ -54,6 +54,10 @@ Perform Grid Search or Random Search for Hyperparameter Tuning
 }
 \examples{
 \donttest{
+required_modules <- c("sklearn", "boruta")
+modules_available <- sapply(required_modules, reticulate::py_module_available)
+
+if (all(modules_available)) {
 # Assuming X_train, y_train, pipeline, and params are predefined
 # Define sklearn modules (assuming 'define_sklearn_modules' is defined)
 sklearn_modules <- define_sklearn_modules()
@@ -67,5 +71,10 @@ optimal_model <- perform_grid_search(X_train, y_train, pipeline, "accuracy",
 optimal_model_random <- perform_grid_search(X_train, y_train, pipeline, "accuracy",
                                             params, "random", 10, 1, sklearn_modules, 42)
 
+} else {
+unavailable_modules <- names(modules_available[!modules_available])
+message(paste("Required Python modules not available:",
+  paste(unavailable_modules, collapse=', '), ". Skipping example."))
+}
 }
 }

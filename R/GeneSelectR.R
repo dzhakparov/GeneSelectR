@@ -17,15 +17,26 @@
 #'   - @field GradBoost: Gradient Boosting classifier.
 #' @examples
 #' \donttest{
-#' # Define scikit-learn modules and submodules
-#' sklearn_modules <- define_sklearn_modules()
+#' required_modules <- c("sklearn", "boruta")
+#' modules_available <- sapply(required_modules, reticulate::py_module_available)
 #'
-#' # Access different modules and submodules
-#' preprocessing_module <- sklearn_modules$preprocessing
-#' model_selection_module <- sklearn_modules$model_selection
-#' feature_selection_module <- sklearn_modules$feature_selection
-#' ensemble_module <- sklearn_modules$ensemble
-#' # You can further explore each module as needed in your analysis
+#' if (all(modules_available)) {
+#'   # All required Python modules are available
+#'   # Define scikit-learn modules and submodules
+#'   sklearn_modules <- define_sklearn_modules()
+#'
+#'   # Access different modules and submodules
+#'   preprocessing_module <- sklearn_modules$preprocessing
+#'   model_selection_module <- sklearn_modules$model_selection
+#'   feature_selection_module <- sklearn_modules$feature_selection
+#'   ensemble_module <- sklearn_modules$ensemble
+#'   # Additional code to explore each module as needed in your analysis
+#' } else {
+#'   unavailable_modules <- names(modules_available[!modules_available])
+#'   message(paste(
+#'   "Required Python modules not available:",
+#'   paste(unavailable_modules, collapse=', '), ". Skipping example."))
+#' }
 #' }
 #' @export
 define_sklearn_modules <- function(python_modules) {
@@ -200,7 +211,7 @@ split_data <- function(X, y, test_size, modules) {
 #' @param n_iter The number of parameter settings that are sampled in a random search.
 #' @param njobs The number of CPU cores to use.
 #' @param modules A list containing the definitions for the Python modules and submodules.
-#' @param random_state An integer value setting the random seed for feature selection algorithms and cross validation procedure. By default set to NULL to use different random seed every time an algorithm is used. For reproducibility could be fixed, otherwise for an unbiased estimation should be left as NULL.
+#' @param random_state An integer value setting the random seed for feature selection algorithms and randomized search CV procedure. By default set to NULL to use different random seed every time an algorithm is used. For reproducibility could be fixed, otherwise for an unbiased estimation should be left as NULL.
 #' @return Returns a scikit-learn GridSearchCV, RandomizedSearchCV, or BayesSearchCV object, depending on the `search_type` specified.
 #'         This object includes several attributes useful for analyzing the hyperparameter tuning process:
 #'         - @field best_estimator_: The best estimator chosen by the search.
@@ -212,6 +223,10 @@ split_data <- function(X, y, test_size, modules) {
 #'         These attributes provide insights into the model's performance and the effectiveness of the selected hyperparameters.
 #' @examples
 #' \donttest{
+#' required_modules <- c("sklearn", "boruta")
+#' modules_available <- sapply(required_modules, reticulate::py_module_available)
+#'
+#' if (all(modules_available)) {
 #' # Assuming X_train, y_train, pipeline, and params are predefined
 #' # Define sklearn modules (assuming 'define_sklearn_modules' is defined)
 #' sklearn_modules <- define_sklearn_modules()
@@ -225,6 +240,11 @@ split_data <- function(X, y, test_size, modules) {
 #' optimal_model_random <- perform_grid_search(X_train, y_train, pipeline, "accuracy",
 #'                                             params, "random", 10, 1, sklearn_modules, 42)
 #'
+#' } else {
+#' unavailable_modules <- names(modules_available[!modules_available])
+#' message(paste("Required Python modules not available:",
+#'   paste(unavailable_modules, collapse=', '), ". Skipping example."))
+#' }
 #' }
 #' @export
 perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, search_type, n_iter, njobs, modules, random_state) {
@@ -235,8 +255,7 @@ perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, sea
       param_grid = params,
       cv = 5L,
       n_jobs = njobs,
-      verbose = 1L,
-      random_state = random_state
+      verbose = 1L
     )
   } else if (search_type == 'random') {
     search_cv <- modules$randomized_grid(
@@ -324,12 +343,6 @@ pipeline_to_list <- function(pipeline) {
 #'         - @field accuracy: The overall accuracy score.
 #'         These metrics are crucial for evaluating the effectiveness of the model on test data.
 #'
-#' @examples
-#' \donttest{
-#' # Assuming grid_search, X_test, y_test, and sklearn are defined
-#' metrics <- evaluate_test_metrics(grid_search, X_test, y_test, sklearn)
-#' }
-#'@export
 evaluate_test_metrics <- function(grid_search, X_test, y_test, modules) {
   best_model <- grid_search$best_estimator_
   y_pred <- best_model$predict(X_test)
@@ -422,37 +435,46 @@ calculate_mean_cv_scores <- function(selected_pipelines, cv_best_score) {
 #' This comprehensive return structure allows for in-depth analysis of the feature selection methods and model performance.
 #' @examples
 #' \donttest{
-#' # Create a mock dataset with 29 feature columns and 1 binary label column
-#' set.seed(123) # for reproducibility
-#' n_rows <- 10
-#' n_features <- 29
+#' if (GeneSelectR:::check_python_modules_available(c("numpy", "pandas", "sklearn", 'boruta'))) {
+#'   # Create a mock dataset with 29 feature columns and 1 binary label column
+#'   set.seed(123) # for reproducibility
+#'   n_rows <- 10
+#'   n_features <- 100
 #'
-#' # Randomly generate feature data
-#' X <- as.data.frame(matrix(runif(n_rows * n_features), nrow = n_rows, ncol = n_features))
-#' colnames(X) <- paste0("Feature", 1:n_features)
+#'   # Randomly generate feature data
+#'   X <- as.data.frame(matrix(rnorm(n_rows * n_features), nrow = n_rows, ncol = n_features))
+#'   # Ensure each feature has a variance greater than 0.85
+#'   for(i in 1:ncol(X)) {
+#'     while(var(X[[i]]) <= 0.85) {
+#'       X[[i]] <- X[[i]] * 1.1
+#'     }
+#'   }
+#'   colnames(X) <- paste0("Feature", 1:n_features)
 #'
-#' # Create a mock binary label column
-#' y <- factor(sample(c("Class1", "Class2"), n_rows, replace = TRUE))
+#'   # Create a mock binary label column
+#'   y <- factor(sample(c("Class1", "Class2"), n_rows, replace = TRUE))
 #'
-#' # set up the environment
-#' GeneSelectR::configure_environment()
-#' GeneSelectR::set_reticulate_python()
+#'   # Set up the environment
+#'   GeneSelectR::configure_environment()
+#'   GeneSelectR::set_reticulate_python()
 #'
-#' # run GeneSelectR
-#' results <- GeneSelectR(X, y, max_features = 15)
+#'   # Run GeneSelectR
+#'   results <- GeneSelectR(X, y)
 #'
-#'
-#' # Perform gene selection and evaluation using user-defined methods
-#' fs_methods <- list("Lasso" = select_model(lasso(penalty = 'l1',
-#'                                                 C = 0.1,
-#'                                                 solver = 'saga'),
-#'                                           threshold = 'median'))
-#' custom_fs_grids <- list("Lasso" = list('C' = c(0.1, 1, 10)))
-#' results <- GeneSelectR(X,
-#'                        y,
-#'                        max_features = 15,
-#'                        custom_fs_methods = fs_methods,
-#'                        custom_fs_grids = custom_fs_grids)
+#'   # Perform gene selection and evaluation using user-defined methods
+#'   fs_methods <- list("Lasso" = select_model(lasso(penalty = 'l1',
+#'                                                   C = 0.1,
+#'                                                   solver = 'saga'),
+#'                                             threshold = 'median'))
+#'   custom_fs_grids <- list("Lasso" = list('C' = c(0.1, 1, 10)))
+#'   results <- GeneSelectR(X,
+#'                          y,
+#'                          max_features = 15,
+#'                          custom_fs_methods = fs_methods,
+#'                          custom_fs_grids = custom_fs_grids)
+#' } else {
+#'   message("Skipping example as not all required Python modules are available.")
+#' }
 #'}
 #' @importFrom reticulate import r_to_py
 #' @importFrom glue glue
