@@ -1,6 +1,6 @@
 Package: GeneSelectR
 Title: 'GeneSelectR' - Comprehensive Feature Selection Workflow for Bulk RNAseq Datasets
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: 
     person("Damir", "Zhakparov", , "dzhakparov@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7175-0843"))
@@ -27,7 +27,6 @@ biocViews:
 Suggests: 
     clusterProfiler (>= 4.6.2),
     GO.db (>= 3.17.0),
-    simplifyEnrichment (>= 1.8.0),
     knitr,
     rmarkdown,
     BiocManager (>= 1.30.21),
@@ -35,6 +34,8 @@ Suggests:
     AnnotationHub (>= 3.8.0),
     ensembldb (>= 2.24.0),
     org.Hs.eg.db (>= 3.17.0)
+Enhances: 
+    simplifyEnrichment (>= 1.8.0)	
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
