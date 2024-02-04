@@ -88,7 +88,7 @@ is the one you specified in the command above.
 
 ### Citation
 
-Please cite the following paper if you use GeneSelectR in your research:
+Please cite the following paper if you use GeneSelectR in your research: doi.org/10.1101/2024.01.22.576646
 
 ### Feedback and Contribution
 
