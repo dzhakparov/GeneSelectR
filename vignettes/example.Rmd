@@ -355,10 +355,10 @@ plot_overlap_heatmaps(overlap1)
 To get the exact numbers of intersections between the feature lists you can use the upset plot function:
 
 ```{r}
-upset_upet(selection_results)
+plot_upset(selection_results)
 
 # plot upset with custom lists 
-upset_upet(selection_results, custom_lists = custom_list)
+plot_upset(selection_results, custom_lists = custom_list)
 
 ```
 
