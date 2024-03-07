@@ -55,9 +55,10 @@ library(GeneSelectR)
 
 ## Input Data Requirements
 
-The data matrix should be a data frame with samples as rows and features as columns. Example dataset can be accessed via:
+The data matrix should be a data frame with samples as rows and features as columns. Example dataset can be accessed via or [here](https://github.com/dzhakparov/GeneSelectR/blob/master/tests/testthat/fixtures/UrbanRandomSubset.rda):
 
 ```{r}
+# NOTE: only works in development version 
 data("UrbanRandomSubset")
 head(UrbanRandomSubset[,1:10])
 ```

@@ -397,10 +397,8 @@ Function</a></li>
 <h2>Python requirements</h2>
 <p>The feature selection procedure is implemented with Python’s
 scikit-learn library. The package requires an Anaconda installation to
-work properly. The Python requirements are listed in the <a href="https://github.com/dzhakparov/GeneSelectR/blob/master/inst/python/requirements.txt">requirements.txt</a>
-file.</p>
-<p>You can install the development version of GeneSelectR from GitHub
-with:</p>
+work properly. The Python requirements are listed in the <a href="../inst/python/requirements.txt">requirements.txt</a> file.</p>
+<p>You can install the development version of GeneSelectR from <a href="https://github.com/">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># install.packages(&quot;devtools&quot;)</span></span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;dzhakparov/GeneSelectR&quot;</span>, <span class="at">build_vignettes =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 </div>
@@ -428,9 +426,10 @@ with setting up the correct conda working environment:</p>
 <div id="input-data-requirements" class="section level2">
 <h2>Input Data Requirements</h2>
 <p>The data matrix should be a data frame with samples as rows and
-features as columns. Example dataset can be accessed via:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;UrbanRandomSubset&quot;</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">head</span>(UrbanRandomSubset[,<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>])</span></code></pre></div>
+features as columns. Example dataset can be accessed via or <a href="https://github.com/dzhakparov/GeneSelectR/blob/master/tests/testthat/fixtures/UrbanRandomSubset.rda">here</a>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># </span><span class="al">NOTE</span><span class="co">: only works in development version </span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;UrbanRandomSubset&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">head</span>(UrbanRandomSubset[,<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>])</span></code></pre></div>
 <p>This dataset is a bulk RNAseq dataset that was obtained from blood
 samples of the 149 African children that were stratified into ones
 having Atopic Dermatitis (AD) and healthy controls (HC). Additionally,
@@ -512,7 +511,7 @@ are as follows:</li>
 <li><p><em>Pipeline Selection</em>: If custom pipelines are provided,
 they’re used. Otherwise, default pipelines are created using the chosen
 feature selection methods. Pipelines contain two steps: <a href="https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.VarianceThreshold.html">VarianceThreshold</a>
-that is set to 0.85 to filter out low variance features and <a href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html">StandardScaler</a>.
+that is set to 0.85 to filter out low variance features and <a href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html">MinMaxScaler</a>.
 As per sklearn workflow to prevent data leakage every pipeline is fit on
 train and test/validate data separately.</p></li>
 <li><p><em>Repeated Train-Test Splitting</em>: The data undergoes
@@ -767,7 +766,7 @@ expression list) you can pass it as an argument like this:</p>
 <h2>Upset plot</h2>
 <p>To get the exact numbers of intersections between the feature lists
 you can use the upset plot function:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="fu">upset_upet</span>(selection_results)</span>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="fu">plot_upset</span>(selection_results)</span>
 <span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a></span>
 <span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a><span class="co"># plot upset with custom lists </span></span>
 <span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a><span class="fu">plot_upset</span>(selection_results, <span class="at">custom_lists =</span> custom_list)</span></code></pre></div>
@@ -897,7 +896,7 @@ plot:</p>
 <p>Final step of the analysis is the clustering and semantic similarity
 analysis of GO Terms from every list. This is done with the<a href="https://github.com/jokergoo/simplifyEnrichment">simplifyEnrichment
 R package</a>. For the convenience of data input, there is a wrapper for
-simplifyGOFromMultipleLists() function implemented:</p>
+<a href>simplifyGOFromMultipleLists()</a> function implemented:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a><span class="co"># simplifyEnrichment produces a heatmap</span></span>
 <span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a>hmap <span class="ot">&lt;-</span> <span class="fu">run_simplify_enrichment</span>(annotated_GO,</span>
 <span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a>                                <span class="at">method =</span> <span class="st">&#39;lovain&#39;</span>,</span>
