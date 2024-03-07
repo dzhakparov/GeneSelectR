@@ -358,7 +358,7 @@ To get the exact numbers of intersections between the feature lists you can use 
 upset_upet(selection_results)
 
 # plot upset with custom lists 
-upset_upet(selection_results, custom_lists = custom_list)
+plot_upset(selection_results, custom_lists = custom_list)
 
 ```
 
