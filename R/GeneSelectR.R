@@ -154,7 +154,7 @@ split_data <- function(X, y, test_size, modules) {
 #' @param random_state An integer value setting the random seed for feature selection algorithms and cross validation procedure. By default set to NULL to use different random seed every time an algorithm is used. For reproducibility could be fixed, otherwise for an unbiased estimation should be left as NULL.
 #' @return An object of the optimal model found during the search.
 #' @export
-perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, search_type, n_iter, njobs, modules, random_state) {
+perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, search_type, n_iter = NULL, njobs, modules, random_state = NULL) {
   if (search_type == 'grid') {
     search_cv <- modules$grid(
       estimator = pipeline,
@@ -162,10 +162,10 @@ perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, sea
       param_grid = params,
       cv = 5L,
       n_jobs = njobs,
-      verbose = 1L,
-      random_state = random_state
+      verbose = 1L
     )
   } else if (search_type == 'random') {
+    if (is.null(n_iter)) stop("n_iter must be provided for random search")
     search_cv <- modules$randomized_grid(
       estimator = pipeline,
       scoring = scoring,
@@ -174,15 +174,16 @@ perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, sea
       n_iter = n_iter,
       n_jobs = njobs,
       verbose = 1L,
-      random_state = random_state
+      random_state = if (!is.null(random_state)) random_state else NULL
     )
   } else if (search_type == 'bayesian') {
+    if (is.null(n_iter)) stop("n_iter must be provided for bayesian search")
     search_cv <- modules$bayesianCV(
       estimator = pipeline,
       scoring = scoring,
       search_spaces = params,
       cv = 5L,
-      n_iter = 50L,
+      n_iter = n_iter,
       n_points = 5L,
       n_jobs = njobs,
       verbose = 1L
@@ -190,9 +191,11 @@ perform_grid_search <- function(X_train, y_train, pipeline, scoring, params, sea
   } else {
     stop("Invalid search_type. Choose either 'grid', 'random' or 'bayesian'.")
   }
+
   search_cv$fit(X_train, y_train)
   return(search_cv)
 }
+
 
 #' Convert Scikit-learn Pipeline to Named List
 #'
@@ -381,6 +384,10 @@ GeneSelectR <- function(X,
                         calculate_permutation_importance = FALSE,
                         perform_test_split = FALSE,
                         random_state = NULL) {
+  # Check if the number of features is less than 50
+  if (ncol(X) < 50) {
+    stop("The number of features in the input data must be at least 50. Please rerun without 'Univariate' feature selection method.")
+  }
 
   message('Performing feature selection procedure. Please wait, it takes some time')
 
