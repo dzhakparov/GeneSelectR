@@ -1,6 +1,6 @@
 Package: GeneSelectR
 Title: 'GeneSelectR' - Comprehensive Feature Selection Workflow for Bulk RNAseq Datasets
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: 
     person("Damir", "Zhakparov", , "dzhakparov@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7175-0843"))
