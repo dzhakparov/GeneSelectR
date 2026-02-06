@@ -1,312 +1,424 @@
-#' @title Get Feature Importances
-#' @description This function extracts feature importances from a Scikit-learn pipeline
-#' that has a Gradient Boosting Classifier as the final step.
-#' @param pipeline A Scikit-learn pipeline object with a Gradient Boosting Classifier
-#'                 as the final step.
-#' @param X_train A DataFrame containing the training data.
-#' @param pipeline_name Strings (names of the selected_pipelines list) representing pipeline names that were constructed for the feature selection
-#' @param iter An integer that is indicating current iteration of the train-test split
-#' @return A list containing the selected feature names and their importances, or NULL
-#'         if the classifier is not a Gradient Boosting Classifier or the feature selector
-#'         doesn't have the 'get_support' method.
-#' @importFrom reticulate py_has_attr py_to_r
-#' @examples
-#' \dontrun{
-#' # Assuming you have a Scikit-learn pipeline 'my_pipeline' and training data 'X_train'
-#' feature_importances <- get_feature_importances(my_pipeline, X_train)
-#' # Extract the selected feature names and their importances
-#' selected_features <- feature_importances$selected_features
-#' importances <- feature_importances$importances
-#' }
-#' @export
-get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
-  classifier <- pipeline$named_steps[['classifier']]
+# GeneSelectR 2.0 (core utilities) - FINAL VERSION
+#
+# ==============================================================================
+# INPUT VALIDATION
+# ==============================================================================
 
-  if (reticulate::py_has_attr(classifier, "coef_")) {
-    feature_importances <- classifier$coef_
-    if (dim(feature_importances)[1] == 1) {
-      feature_importances <- feature_importances[1,]
-    }
-  } else if (reticulate::py_has_attr(classifier, "feature_importances_")) {
-    feature_importances <- classifier$feature_importances_
-  } else {
-    cat("Classifier doesn't have coef_ or feature_importances_ attributes")
-    return(NULL)
+validate_geneselectr_inputs <- function(X, y, K = 5, R = 20) {
+  if (!is.matrix(X)) stop("X must be a matrix")
+  if (!is.factor(y)) stop("y must be a factor")
+  if (nlevels(y) != 2) stop("y must have exactly 2 levels (binary)")
+  if (nrow(X) != length(y)) stop("Number of samples mismatch")
+  if (is.null(colnames(X))) stop("X must have column names (gene symbols)")
+  if (any(duplicated(colnames(X)))) stop("Duplicate gene names found")
+
+  n_per_class <- table(y)
+  if (any(n_per_class < K)) {
+    stop(sprintf("Insufficient samples: need at least %d per class for %d-fold CV", K, K))
   }
 
-  feature_selector <- pipeline$named_steps[["feature_selector"]]
-  original_feature_names <- colnames(reticulate::py_to_r(X_train))
+  if (any(is.na(X))) warning("X contains NA values")
+  if (any(is.infinite(X))) stop("X contains infinite values")
 
-  if (reticulate::py_has_attr(feature_selector, "get_support")) {
-    selected_indices <- which(feature_selector$get_support())
-  } else if (reticulate::py_has_attr(feature_selector, "support_")) {
-    selected_indices <- which(feature_selector$support_)
-  } else {
-    cat("Feature selector doesn't have get_support() or support_ attribute")
-    return(NULL)
+  zero_var <- apply(X, 2, sd, na.rm = TRUE) == 0
+  if (any(zero_var)) {
+    warning(sprintf("%d genes have zero variance", sum(zero_var)))
+  }
+
+  invisible(TRUE)
 }
 
-  selected_feature_names <- original_feature_names[selected_indices]
-  importances <- data.frame(feature=selected_feature_names, importance=feature_importances[selected_indices])
-  importances <- importances[order(-importances$importance),]
-  importances$rank <- seq_len(nrow(importances))
-  column_name <- as.character(glue::glue('rank_{pipeline_name}_split_{iter}'))
-  colnames(importances)[colnames(importances) == 'rank'] <- column_name
+# ==============================================================================
+# PERCENTILE NORMALIZATION
+# ==============================================================================
 
-  return(importances)
+percentile01 <- function(x) {
+  if (length(unique(x[!is.na(x)])) <= 1) return(rep(0, length(x)))
+
+  non_zero <- x > 0
+  if (!any(non_zero)) return(x)
+
+  result <- numeric(length(x))
+  ranks <- rank(x[non_zero], ties.method = "average", na.last = "keep")
+  result[non_zero] <- ranks / max(ranks, na.rm = TRUE)
+
+  return(result)
 }
 
-# get_feature_importances <- function(pipeline, X_train, pipeline_name, iter) {
-#   classifier <- pipeline$named_steps[['classifier']]
-#
-#   if (reticulate::py_has_attr(classifier, "coef_")) {
-#     feature_importances <- classifier$coef_
-#   } else if (reticulate::py_has_attr(classifier, "feature_importances_")) {
-#     feature_importances <- classifier$feature_importances_
-#   } else {
-#     cat("Classifier doesn't have coef_ or feature_importances_ attributes")
-#     return(NULL)
-#   }
-#
-#   feature_selector <- pipeline$named_steps[["feature_selector"]]
-#   original_feature_names <- colnames(reticulate::py_to_r(X_train))
-#   # Check if the feature selector has the get_support method
-#   if (reticulate::py_has_attr(feature_selector, "get_support")) {
-#     selected_indices <- which(feature_selector$get_support())
-#     selected_feature_names <- original_feature_names[selected_indices]
-#     importances <- data.frame(feature=selected_feature_names, importance=feature_importances)
-#     print(importances)
-#     importances <- importances[order(-importances$importance),]
-#     importances$rank <- seq_len(nrow(importances))
-#     column_name <- as.character(glue::glue('rank_{pipeline_name}_split_{iter}'))
-#     colnames(importances)[colnames(importances) == 'rank'] <- column_name
-#     return(importances)
-#   }
-#   else if (reticulate::py_has_attr(feature_selector, "support_")) {
-#     selected_indices <- which(feature_selector$support_)
-#     selected_feature_names <- original_feature_names[selected_indices]
-#
-#     importances <- data.frame(feature=selected_feature_names, importance=feature_importances)
-#     importances <- importances[order(-importances$importance),]
-#     importances$rank <- seq_len(nrow(importances))
-#     column_name <- as.character(glue::glue('rank_{pipeline_name}_split_{iter}'))
-#     colnames(importances)[colnames(importances) == 'rank'] <- column_name
-#     return(importances)
-#   } else {
-#     cat("Feature selector doesn't have get_support() attribute")
-#   }
-#   return(NULL)
-#
-# }
+# ==============================================================================
+# MUTUAL INFORMATION - MULTIPLE METHODS (POINT 9)
+# ==============================================================================
 
-#' @title Calculate Permutation Feature Importance
-#' @description This function calculates permutation feature importance for a Scikit-learn
-#' pipeline with a trained classifier as the final step.
-#' @param pipeline A Scikit-learn pipeline object with a trained classifier as the final step.
-#' @param X_train A DataFrame containing the training data.
-#' @param y_train A DataFrame containing the training labels.
-#' @param n_repeats An integer specifying the number of times to permute each feature.
-#' @param random_state An integer specifying the seed for the random number generator.
-#' @param njobs An integer specifying number of cores to use. Set up by the master GeneSelectR function.
-#' @param pipeline_name Strings (names of the selected_pipelines list) representing pipeline names that were constructed for the feature selection
-#' @param iter An integer that is indicating current iteration of the train-test split
-#' @return A list containing the feature names and their importance scores.
-#' @importFrom reticulate import py_to_r
-#' @examples
-#' \dontrun{
-#' # Assuming you have a Scikit-learn pipeline 'my_pipeline' and training data 'X_train'
-#' permutation_importances <- calculate_permutation_feature_importance(my_pipeline, X_train, y_train)
-#' }
-#' @export
-
-calculate_permutation_feature_importance <- function(pipeline,
-                                                     X_train,
-                                                     y_train,
-                                                     n_repeats=10L,
-                                                     random_state=0L,
-                                                     njobs = njobs,
-                                                     pipeline_name,
-                                                     iter) {
-  # Import the required function
-  permutation_importance <- reticulate::import("sklearn.inspection", convert = FALSE)$permutation_importance
-
-  # Compute the permutation feature importance
-  perm_importance <- permutation_importance(pipeline, X_train, y_train, n_repeats = n_repeats, random_state = random_state, n_jobs = njobs)
-
-  # Extract the importances and feature names
-  importances <- reticulate::py_to_r(perm_importance$importances_mean)
-  feature_names <- colnames(reticulate::py_to_r(X_train))
-
-  # Create a data frame
-  importance_df <- data.frame(feature=feature_names, importance=importances)
-  importance_df <- importance_df[order(-importance_df$importance),]
-
-  # Calculate the rank of the feature importances
-  importance_df$rank <- seq_len(nrow(importance_df))
-  # Get the pipeline name and append it to the rank column name
-  column_name <- as.character(glue::glue('rank_{pipeline_name}_split_{iter}'))
-  colnames(importance_df)[colnames(importance_df) == 'rank'] <- column_name
-
-
-  return(importance_df)
+#' Adaptive bin count based on sample size
+adaptive_bin_count <- function(n, default_bins = 5) {
+  # Sample size based: sqrt(n) bounded between 3 and default_bins
+  optimal <- max(3, min(default_bins, floor(sqrt(n))))
+  return(optimal)
 }
 
+#' Quantile-based binning
+qbin <- function(x, bins = 5, adaptive = TRUE) {
+  unique_vals <- length(unique(x[!is.na(x)]))
+  if (unique_vals < 2) return(rep.int(1L, length(x)))
 
-#' @title Create Pipelines
-#' @description This function creates a list of Scikit-learn pipelines using the specified feature selection methods, preprocessing steps, and classifier.
-#' @param feature_selection_methods A list of feature selection methods to use for the pipelines.
-#' @param preprocessing_steps A list of preprocessing steps to use for the pipelines.
-#' @param selected_methods A vector of names of feature selection methods to use from the default set.
-#' @param classifier A Scikit-learn classifier to use as the final step in the pipelines.
-#' @param fs_param_grids param grid
-#' @return A list of Scikit-learn pipelines.
-#' @importFrom reticulate import tuple py_bool
-create_pipelines <- function(feature_selection_methods, preprocessing_steps, selected_methods, classifier, fs_param_grids) {
-  sklearn <- reticulate::import('sklearn')
-  pipeline <- sklearn$pipeline$Pipeline
-  named_pipelines <- list()
-  selected_methods <- names(feature_selection_methods)
+  if (adaptive) {
+    n <- length(x[!is.na(x)])
+    bins <- adaptive_bin_count(n, default_bins = bins)
+  }
 
-  for (feature_selector_name in selected_methods) {
-    if (feature_selector_name %in% names(feature_selection_methods)) {
-      feature_selector_method <- feature_selection_methods[[feature_selector_name]]
-      base_model <- classifier
+  qs <- stats::quantile(x, probs = seq(0, 1, length.out = bins + 1),
+                        na.rm = TRUE, type = 7)
+  qs <- unique(qs)
 
-      steps <- c(preprocessing_steps, list("feature_selector" = feature_selector_method))
-      steps <- c(steps, list("classifier" = base_model))
+  if (length(qs) < 3) return(rep.int(1L, length(x)))
 
-      tuple_steps <- steps_to_tuples(steps)
+  binned <- as.integer(cut(x, breaks = qs, include.lowest = TRUE, labels = FALSE))
+  return(binned)
+}
 
-      # Add feature selection parameters to the pipeline if they are provided
-      if (feature_selector_name %in% names(fs_param_grids)) {
-        fs_params <- fs_param_grids[[feature_selector_name]]
+#' Discrete mutual information
+mi_discrete <- function(xd, yd) {
+  tab <- table(xd, yd)
+  pxy <- tab / sum(tab)
+  px <- rowSums(pxy)
+  py <- colSums(pxy)
 
-        # Incorporate the parameters from fs_params into the appropriate estimator objects
-        for (i in seq_along(tuple_steps)) {
-          if (reticulate::py_bool(tuple_steps[[i]][[1]] == "feature_selector")) {
-            tuple_steps[[i]][[2]] <- do.call(tuple_steps[[i]][[2]], fs_params)
-          }
-        }
-      }
+  nz <- pxy > 0
+  rr <- row(pxy)[nz]
+  cc <- col(pxy)[nz]
 
-      named_pipelines[[feature_selector_name]] <- pipeline(steps = tuple_steps)
-    } else {
-      cat("Warning: Feature selection method", feature_selector_name, "not found.\n")
+  sum(pxy[nz] * log(pxy[nz] / (px[rr] * py[cc])))
+}
+
+#' Continuous MI estimator using kernel density
+#' Requires 'entropy' package
+mi_continuous <- function(x, y) {
+  if (!requireNamespace("entropy", quietly = TRUE)) {
+    warning("Package 'entropy' not available. Falling back to discrete MI.")
+    return(mi_discrete(qbin(x, bins = 5), as.integer(y)))
+  }
+
+  # Use entropy package's empirical MI estimator
+  tryCatch({
+    entropy::mi.empirical(cbind(x, as.numeric(y)))
+  }, error = function(e) {
+    # Fallback to discrete
+    mi_discrete(qbin(x, bins = 5), as.integer(y))
+  })
+}
+
+#' Distance correlation (alternative dependence measure)
+#' Requires 'energy' package
+distance_correlation <- function(x, y) {
+  if (!requireNamespace("energy", quietly = TRUE)) {
+    warning("Package 'energy' not available. Falling back to discrete MI.")
+    return(mi_discrete(qbin(x, bins = 5), as.integer(y)))
+  }
+
+  tryCatch({
+    energy::dcor(x, as.numeric(y))
+  }, error = function(e) {
+    mi_discrete(qbin(x, bins = 5), as.integer(y))
+  })
+}
+
+#' Compute MI per gene with multiple methods (POINT 9 - OPTION 4)
+#'
+#' @param X numeric matrix samples x genes
+#' @param y factor with 2 levels
+#' @param method character: "discrete" (default), "continuous", "dcor"
+#' @param bins integer for discrete method
+#' @param adaptive logical for adaptive binning
+#' @return named numeric vector MI per gene
+compute_mi_per_gene <- function(X, y,
+                                method = c("discrete", "continuous", "dcor"),
+                                bins = 5,
+                                adaptive = TRUE) {
+  # --------------------------------------------------------------------------
+  # VALIDATE INPUTS
+  # --------------------------------------------------------------------------
+  stopifnot(is.matrix(X), is.factor(y), nlevels(y) == 2)
+
+  method <- match.arg(method)
+
+  # --------------------------------------------------------------------------
+  # SELECT MI COMPUTATION METHOD
+  # --------------------------------------------------------------------------
+
+  yd <- as.integer(y)  # Convert to 1, 2
+  p <- ncol(X)
+  mi_scores <- numeric(p)
+
+  if (method == "discrete") {
+    # -----------------------------------------------------------------------
+    # METHOD 1: DISCRETE (original - fast, works well)
+    # -----------------------------------------------------------------------
+    for (j in seq_len(p)) {
+      gene_binned <- qbin(X[, j], bins = bins, adaptive = adaptive)
+      mi_scores[j] <- mi_discrete(gene_binned, yd)
+    }
+
+  } else if (method == "continuous") {
+    # -----------------------------------------------------------------------
+    # METHOD 2: CONTINUOUS (kernel density - slower, more accurate)
+    # -----------------------------------------------------------------------
+    for (j in seq_len(p)) {
+      mi_scores[j] <- mi_continuous(X[, j], yd)
+    }
+
+  } else if (method == "dcor") {
+    # -----------------------------------------------------------------------
+    # METHOD 3: DISTANCE CORRELATION (different measure)
+    # -----------------------------------------------------------------------
+    for (j in seq_len(p)) {
+      mi_scores[j] <- distance_correlation(X[, j], yd)
     }
   }
 
-  return(named_pipelines)
+  names(mi_scores) <- colnames(X)
+  return(mi_scores)
 }
 
+# ==============================================================================
+# CROSS-VALIDATION FOLDS
+# ==============================================================================
 
+make_repeated_stratified_folds <- function(y, K = 5, R = 20, seed = 1) {
+  stopifnot(is.factor(y), nlevels(y) == 2)
+  set.seed(seed)
 
-#' @title Convert Steps to Tuples
-#' @description This function converts a list of steps to tuples for use in a Scikit-learn pipeline.
-#' @param steps A list of steps to convert to tuples.
-#' @return A list of tuples.
-#' @importFrom reticulate tuple
-steps_to_tuples <- function(steps) {
-  tuple_steps <- c()
-  for (step_name in names(steps)) {
-    step_obj <- steps[[step_name]]
-    tuple_steps <- c(tuple_steps, reticulate::tuple(step_name, step_obj))
+  n <- length(y)
+  folds <- vector("list", K * R)
+
+  levs <- levels(y)
+  idx0 <- which(y == levs[1])
+  idx1 <- which(y == levs[2])
+
+  k <- 1L
+  for (r in seq_len(R)) {
+    idx0_sh <- sample(idx0)
+    idx1_sh <- sample(idx1)
+
+    parts0 <- split(idx0_sh, cut(seq_along(idx0_sh), K, labels = FALSE))
+    parts1 <- split(idx1_sh, cut(seq_along(idx1_sh), K, labels = FALSE))
+
+    for (f in seq_len(K)) {
+      test_idx <- c(parts0[[f]], parts1[[f]])
+      train_idx <- setdiff(seq_len(n), test_idx)
+      folds[[k]] <- list(train = train_idx, test = test_idx)
+      k <- k + 1L
+    }
   }
-  return(tuple_steps)
+
+  return(folds)
 }
 
+# ==============================================================================
+# LASSO/ELASTIC NET/GROUP LASSO FITTING (POINT 8)
+# ==============================================================================
 
-#' Aggregate Feature Importances
+#' Fit penalized regression (lasso/elastic net/group lasso)
 #'
-#' This function aggregates the feature importances for each method across all splits.
-#'
-#' @param selected_features A list of selected features. Each element of the list represents a split and should be a named list where the names are the methods and the values are data frames containing the feature importances for that method in that split.
-#'
-#' @return A list of aggregated feature importances for each method. Each element of the list is a data frame that contains the mean and standard deviation of the feature importances for a particular method across all splits.
-#'
-#' @importFrom magrittr %>%
-#' @importFrom dplyr group_by summarize filter
-#' @importFrom stats sd
-#' @importFrom rlang .data
-#' @examples
-#' \dontrun{
-#'   # Assuming selected_features is a list of selected features for each split
-#'   aggregated_importances <- aggregate_feature_importances(selected_features)
-#' }
-#'
-aggregate_feature_importances <- function(selected_features) {
-  aggregated_importances <- list()
+#' @param X_train training features
+#' @param y_train training labels
+#' @param method "lasso", "elastic_net", or "group_lasso"
+#' @param alpha elastic net parameter (1=lasso, 0.5=elastic net)
+#' @param gene_groups for group lasso: integer vector of group assignments
+#' @param seed random seed
+#' @param use_lambda_1se use conservative lambda
+#' @param inner_folds inner CV folds
+#' @return list with model, selected genes, coefficients, lambda
+fit_penalized_regression <- function(
+    X_train, y_train,
+    method = c("lasso", "elastic_net", "group_lasso"),
+    alpha = 1,
+    gene_groups = NULL,
+    seed = 1,
+    use_lambda_1se = FALSE,
+    inner_folds = 5
+) {
+  # --------------------------------------------------------------------------
+  # VALIDATE
+  # --------------------------------------------------------------------------
+  stopifnot(is.matrix(X_train), is.factor(y_train), nlevels(y_train) == 2)
+  method <- match.arg(method)
 
-  for (method in names(selected_features[[1]])) {
-    feature_importances <- lapply(selected_features, function(split) {
-      # Reshape the data from wide format to long format
-      split_df <- tidyr::pivot_longer(split[[method]],
-                                      cols = starts_with("rank_"),
-                                      names_to = "method",
-                                      values_to = "rank")
-      as.data.frame(split_df)
+  set.seed(seed)
+  y01 <- as.integer(y_train) - 1L
+
+  # --------------------------------------------------------------------------
+  # METHOD 1 & 2: LASSO OR ELASTIC NET (using glmnet)
+  # --------------------------------------------------------------------------
+
+  if (method %in% c("lasso", "elastic_net")) {
+    if (!requireNamespace("glmnet", quietly = TRUE)) {
+      stop("Package 'glmnet' required")
+    }
+
+    # Fit with CV to select lambda
+    cvfit <- tryCatch({
+      glmnet::cv.glmnet(
+        x = X_train,
+        y = y01,
+        family = "binomial",
+        alpha = alpha,
+        nfolds = inner_folds,
+        type.measure = "deviance"
+      )
+    }, error = function(e) {
+      warning("cv.glmnet failed: ", e$message)
+      return(NULL)
     })
 
-    combined_importances <- do.call(rbind, feature_importances)
+    if (is.null(cvfit)) return(NULL)
 
-    importances_df <- combined_importances %>%
-      dplyr::group_by(.data$feature) %>%
-      dplyr::summarize(mean_importance = mean(.data$importance, na.rm = TRUE),
-                       std = stats::sd(.data$importance, na.rm = TRUE))
+    # Select lambda
+    lam <- if (use_lambda_1se) cvfit$lambda.1se else cvfit$lambda.min
 
-    # Add rank columns back
-    rank_df <- combined_importances %>%
-      dplyr::select(.data$feature, .data$method, .data$rank)
+    # Refit at selected lambda
+    fit <- tryCatch({
+      glmnet::glmnet(X_train, y01, family = "binomial",
+                     alpha = alpha, lambda = lam)
+    }, error = function(e) NULL)
 
-    # Join importances_df with rank_df
-    importances_df <- dplyr::left_join(importances_df, rank_df, by = "feature")
+    if (is.null(fit)) return(NULL)
 
-    # Reshape back to wide format
-    importances_df <- tidyr::pivot_wider(importances_df,
-                                         names_from = method,
-                                         values_from = rank)
-    importances_df <- importances_df %>%
-      dplyr::filter(.data$mean_importance > 0)
+    # Extract coefficients
+    beta <- as.matrix(stats::coef(fit))[, 1]
+    beta <- beta[names(beta) != "(Intercept)"]
+    selected <- names(beta)[beta != 0]
+    abs_coef <- abs(beta[selected])
 
-    # Add the aggregated importances for the current method to the results list
-    aggregated_importances[[method]] <- importances_df
+    return(list(
+      model = fit,
+      selected = selected,
+      abs_coef = abs_coef,
+      lambda = lam,
+      method = method,
+      alpha = alpha
+    ))
   }
 
-  return(aggregated_importances)
+  # --------------------------------------------------------------------------
+  # METHOD 3: GROUP LASSO (using gglasso)
+  # --------------------------------------------------------------------------
+
+  if (method == "group_lasso") {
+    if (is.null(gene_groups)) {
+      stop("gene_groups required for group_lasso method")
+    }
+
+    if (!requireNamespace("gglasso", quietly = TRUE)) {
+      stop("Package 'gglasso' required. Install: install.packages('gglasso')")
+    }
+
+    # Fit group lasso with CV
+    cvfit <- tryCatch({
+      gglasso::cv.gglasso(
+        x = X_train,
+        y = y01,
+        group = gene_groups,
+        loss = "logit",
+        nfolds = inner_folds
+      )
+    }, error = function(e) {
+      warning("cv.gglasso failed: ", e$message)
+      return(NULL)
+    })
+
+    if (is.null(cvfit)) return(NULL)
+
+    # Select lambda
+    lam_idx <- if (use_lambda_1se) {
+      cvfit$lambda.1se.index
+    } else {
+      cvfit$lambda.min.index
+    }
+
+    lam <- cvfit$lambda[lam_idx]
+
+    # Refit at selected lambda
+    fit <- tryCatch({
+      gglasso::gglasso(
+        x = X_train,
+        y = y01,
+        group = gene_groups,
+        loss = "logit",
+        lambda = lam
+      )
+    }, error = function(e) NULL)
+
+    if (is.null(fit)) return(NULL)
+
+    # Extract coefficients
+    beta <- as.vector(fit$beta)
+    names(beta) <- colnames(X_train)
+    selected <- names(beta)[beta != 0]
+    abs_coef <- abs(beta[selected])
+
+    return(list(
+      model = fit,
+      selected = selected,
+      abs_coef = abs_coef,
+      lambda = lam,
+      method = "group_lasso",
+      gene_groups = gene_groups
+    ))
+  }
 }
 
-#' Save HTML Representation of a GridSearchCV Object
-#'
-#' This function takes a GridSearchCV object from scikit-learn and saves its HTML representation to a specified directory.
-#'
-# @param grid_search A GridSearchCV object from scikit-learn.
-# @param output_dir A string specifying the directory where the HTML file will be saved.
-# @return A message indicating the location where the HTML file has been saved.
-# @examples
-# \dontrun{
-# library(reticulate)
-# # Assuming 'grid_search' is your GridSearchCV object
-# save_pipeline_html(grid_search, "path/to/output/directory")
-# }
-# @importFrom glue glue
+# ==============================================================================
+# GENE GROUPING FOR GROUP LASSO (POINT 8)
+# ==============================================================================
 
-# save_pipeline_html <- function(grid_search, filename, output_dir) {
-#   # Import necessary Python modules
-#   #sklearn <- import('sklearn')
-#   sklearn$set_config('diagram') # Enable HTML representation
-#
-#   # Convert the GridSearchCV object to HTML
-#   print(grid_search)
-#
-#   # Create the output directory if it doesn't exist
-#   if (!dir.exists(output_dir)) {
-#     dir.create(output_dir)
-#   }
-#
-#   # Define the output file path
-#   output_file <- file.path(glue::glue('{output_dir}/{filename}_pipeline.html'))
-#
-#   # Save HTML to the file
-#   writeLines(print(grid_search), output_file)
-#
-#   cat("HTML representation saved to", output_file, "\n")
-# }
+#' Create gene groups based on correlation for group lasso
+#'
+#' @param X expression matrix
+#' @param cor_threshold correlation threshold for grouping
+#' @param method correlation method
+#' @return integer vector of group assignments
+create_gene_groups <- function(X, cor_threshold = 0.8, method = "pearson") {
+  # --------------------------------------------------------------------------
+  # COMPUTE CORRELATION MATRIX
+  # --------------------------------------------------------------------------
+  cor_matrix <- cor(X, method = method, use = "pairwise.complete.obs")
+  cor_matrix_abs <- abs(cor_matrix)
+  diag(cor_matrix_abs) <- 0
+
+  # --------------------------------------------------------------------------
+  # HIERARCHICAL CLUSTERING
+  # --------------------------------------------------------------------------
+  # Distance = 1 - |correlation|
+  dist_matrix <- as.dist(1 - cor_matrix_abs)
+  hclust_result <- hclust(dist_matrix, method = "complete")
+
+  # Cut tree at height corresponding to correlation threshold
+  # height = 1 - cor_threshold
+  gene_groups <- cutree(hclust_result, h = 1 - cor_threshold)
+
+  return(gene_groups)
+}
+
+# ==============================================================================
+# AUC CALCULATION
+# ==============================================================================
+
+auc_from_probs <- function(y_true, prob_pos, pos_level = NULL) {
+  stopifnot(is.factor(y_true), nlevels(y_true) == 2)
+
+  if (!requireNamespace("pROC", quietly = TRUE)) {
+    stop("Package 'pROC' required")
+  }
+
+  if (is.null(pos_level)) pos_level <- levels(y_true)[2]
+
+  roc_obj <- pROC::roc(
+    response = y_true,
+    predictor = prob_pos,
+    levels = levels(y_true),
+    direction = "<",
+    quiet = TRUE
+  )
+
+  as.numeric(pROC::auc(roc_obj))
+}
