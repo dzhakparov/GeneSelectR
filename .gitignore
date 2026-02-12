@@ -9,3 +9,5 @@ inst/doc
 /vignettes/example_cache
 R/draft.R
 inst/extras
+/results_realistic 
+/results_realdata

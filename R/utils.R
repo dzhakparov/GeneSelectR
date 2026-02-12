@@ -1,10 +1,11 @@
-# GeneSelectR 2.0 (core utilities) - FINAL VERSION
-#
-# ==============================================================================
-# INPUT VALIDATION
-# ==============================================================================
-
-validate_geneselectr_inputs <- function(X, y, K = 5, R = 20) {
+#' Validate GeneSelectR Inputs
+#'
+#' @param X Expression matrix
+#' @param y Outcome vector
+#' @param gene_names Gene names
+#' @param n_folds Number of CV folds
+#' @keywords internal
+validate_inputs <- function(X, y, gene_names = NULL, n_folds = 5) {
   if (!is.matrix(X)) stop("X must be a matrix")
   if (!is.factor(y)) stop("y must be a factor")
   if (nlevels(y) != 2) stop("y must have exactly 2 levels (binary)")
@@ -13,8 +14,8 @@ validate_geneselectr_inputs <- function(X, y, K = 5, R = 20) {
   if (any(duplicated(colnames(X)))) stop("Duplicate gene names found")
 
   n_per_class <- table(y)
-  if (any(n_per_class < K)) {
-    stop(sprintf("Insufficient samples: need at least %d per class for %d-fold CV", K, K))
+  if (any(n_per_class < n_folds)) {
+    stop(sprintf("Insufficient samples: need at least %d per class for %d-fold CV", n_folds, n_folds))
   }
 
   if (any(is.na(X))) warning("X contains NA values")
@@ -28,397 +29,541 @@ validate_geneselectr_inputs <- function(X, y, K = 5, R = 20) {
   invisible(TRUE)
 }
 
-# ==============================================================================
-# PERCENTILE NORMALIZATION
-# ==============================================================================
-
+#' Percentile Normalization
+#'
+#' Normalizes values to [0,1] range using percentile ranks, handling zeros.
+#'
+#' @param x Numeric vector
+#' @return Normalized vector in [0,1]
+#'
+#' @examples
+#' x <- c(0, 1, 2, 3, 4, 5)
+#' percentile01(x)
+#'
+#' @export
 percentile01 <- function(x) {
   if (length(unique(x[!is.na(x)])) <= 1) return(rep(0, length(x)))
 
-  non_zero <- x > 0
-  if (!any(non_zero)) return(x)
+  non_zero_mask <- x > 0 & !is.na(x)
+  if (!any(non_zero_mask)) return(x * 0)
 
   result <- numeric(length(x))
-  ranks <- rank(x[non_zero], ties.method = "average", na.last = "keep")
-  result[non_zero] <- ranks / max(ranks, na.rm = TRUE)
+  result[non_zero_mask] <- rank(x[non_zero_mask], ties.method = "average") / sum(non_zero_mask)
 
   return(result)
 }
 
-# ==============================================================================
-# MUTUAL INFORMATION - MULTIPLE METHODS (POINT 9)
-# ==============================================================================
-
-#' Adaptive bin count based on sample size
+#' Adaptive Bin Count
+#'
+#' @param n Sample size
+#' @param default_bins Maximum bins
+#' @return Optimal number of bins
+#' @keywords internal
 adaptive_bin_count <- function(n, default_bins = 5) {
-  # Sample size based: sqrt(n) bounded between 3 and default_bins
-  optimal <- max(3, min(default_bins, floor(sqrt(n))))
-  return(optimal)
+  optimal <- floor(sqrt(n))
+  return(max(3, min(default_bins, optimal)))
 }
 
-#' Quantile-based binning
-qbin <- function(x, bins = 5, adaptive = TRUE) {
+#' Discretize Continuous Values
+#'
+#' @param x Numeric vector
+#' @param n_bins Number of bins
+#' @param adaptive Use adaptive binning
+#' @return Integer vector of bin assignments
+#' @keywords internal
+discretize_continuous <- function(x, n_bins = 5, adaptive = TRUE) {
   unique_vals <- length(unique(x[!is.na(x)]))
-  if (unique_vals < 2) return(rep.int(1L, length(x)))
+  if (unique_vals < 2) return(rep(0L, length(x)))
 
   if (adaptive) {
-    n <- length(x[!is.na(x)])
-    bins <- adaptive_bin_count(n, default_bins = bins)
+    n_bins <- adaptive_bin_count(length(x[!is.na(x)]), default_bins = n_bins)
   }
 
-  qs <- stats::quantile(x, probs = seq(0, 1, length.out = bins + 1),
-                        na.rm = TRUE, type = 7)
-  qs <- unique(qs)
+  quantiles <- seq(0, 1, length.out = n_bins + 1)
+  breaks <- quantile(x, probs = quantiles, na.rm = TRUE)
+  breaks <- unique(breaks)
 
-  if (length(qs) < 3) return(rep.int(1L, length(x)))
+  if (length(breaks) < 3) return(rep(0L, length(x)))
 
-  binned <- as.integer(cut(x, breaks = qs, include.lowest = TRUE, labels = FALSE))
-  return(binned)
+  binned <- cut(x, breaks = breaks, labels = FALSE, include.lowest = TRUE)
+  binned[is.na(binned)] <- 0L
+
+  return(as.integer(binned))
 }
 
-#' Discrete mutual information
-mi_discrete <- function(xd, yd) {
-  tab <- table(xd, yd)
-  pxy <- tab / sum(tab)
-  px <- rowSums(pxy)
-  py <- colSums(pxy)
-
-  nz <- pxy > 0
-  rr <- row(pxy)[nz]
-  cc <- col(pxy)[nz]
-
-  sum(pxy[nz] * log(pxy[nz] / (px[rr] * py[cc])))
-}
-
-#' Continuous MI estimator using kernel density
-#' Requires 'entropy' package
-mi_continuous <- function(x, y) {
-  if (!requireNamespace("entropy", quietly = TRUE)) {
-    warning("Package 'entropy' not available. Falling back to discrete MI.")
-    return(mi_discrete(qbin(x, bins = 5), as.integer(y)))
-  }
-
-  # Use entropy package's empirical MI estimator
-  tryCatch({
-    entropy::mi.empirical(cbind(x, as.numeric(y)))
-  }, error = function(e) {
-    # Fallback to discrete
-    mi_discrete(qbin(x, bins = 5), as.integer(y))
-  })
-}
-
-#' Distance correlation (alternative dependence measure)
-#' Requires 'energy' package
-distance_correlation <- function(x, y) {
-  if (!requireNamespace("energy", quietly = TRUE)) {
-    warning("Package 'energy' not available. Falling back to discrete MI.")
-    return(mi_discrete(qbin(x, bins = 5), as.integer(y)))
-  }
-
-  tryCatch({
-    energy::dcor(x, as.numeric(y))
-  }, error = function(e) {
-    mi_discrete(qbin(x, bins = 5), as.integer(y))
-  })
-}
-
-#' Compute MI per gene with multiple methods (POINT 9 - OPTION 4)
+#' Compute Mutual Information
 #'
-#' @param X numeric matrix samples x genes
-#' @param y factor with 2 levels
-#' @param method character: "discrete" (default), "continuous", "dcor"
-#' @param bins integer for discrete method
-#' @param adaptive logical for adaptive binning
-#' @return named numeric vector MI per gene
-compute_mi_per_gene <- function(X, y,
-                                method = c("discrete", "continuous", "dcor"),
-                                bins = 5,
-                                adaptive = TRUE) {
-  # --------------------------------------------------------------------------
-  # VALIDATE INPUTS
-  # --------------------------------------------------------------------------
-  stopifnot(is.matrix(X), is.factor(y), nlevels(y) == 2)
-
-  method <- match.arg(method)
-
-  # --------------------------------------------------------------------------
-  # SELECT MI COMPUTATION METHOD
-  # --------------------------------------------------------------------------
-
-  yd <- as.integer(y)  # Convert to 1, 2
-  p <- ncol(X)
-  mi_scores <- numeric(p)
+#' Computes mutual information between continuous x and binary y.
+#'
+#' @param x Numeric vector (gene expression)
+#' @param y Factor or integer (binary outcome)
+#' @param method "discrete" or "continuous"
+#' @param n_bins Number of bins for discrete method
+#' @param adaptive Use adaptive binning
+#' @return Mutual information in nats
+#'
+#' @examples
+#' \dontrun{
+#' x <- rnorm(100)
+#' y <- factor(rep(c(0, 1), each = 50))
+#' mi <- compute_mutual_information(x, y)
+#' }
+#'
+#' @export
+compute_mutual_information <- function(x, y, method = "discrete", n_bins = 5, adaptive = TRUE) {
+  y <- as.integer(as.factor(y)) - 1
 
   if (method == "discrete") {
-    # -----------------------------------------------------------------------
-    # METHOD 1: DISCRETE (original - fast, works well)
-    # -----------------------------------------------------------------------
-    for (j in seq_len(p)) {
-      gene_binned <- qbin(X[, j], bins = bins, adaptive = adaptive)
-      mi_scores[j] <- mi_discrete(gene_binned, yd)
+    x_binned <- discretize_continuous(x, n_bins = n_bins, adaptive = adaptive)
+
+    if (length(unique(x_binned)) < 2) return(0)
+
+    tbl <- table(x_binned, y)
+    n <- sum(tbl)
+
+    p_xy <- tbl / n
+    p_x <- rowSums(p_xy)
+    p_y <- colSums(p_xy)
+
+    mi <- 0
+    for (i in seq_along(p_x)) {
+      for (j in seq_along(p_y)) {
+        if (p_xy[i, j] > 0) {
+          mi <- mi + p_xy[i, j] * log(p_xy[i, j] / (p_x[i] * p_y[j]))
+        }
+      }
     }
+
+    return(mi)
 
   } else if (method == "continuous") {
-    # -----------------------------------------------------------------------
-    # METHOD 2: CONTINUOUS (kernel density - slower, more accurate)
-    # -----------------------------------------------------------------------
-    for (j in seq_len(p)) {
-      mi_scores[j] <- mi_continuous(X[, j], yd)
-    }
-
-  } else if (method == "dcor") {
-    # -----------------------------------------------------------------------
-    # METHOD 3: DISTANCE CORRELATION (different measure)
-    # -----------------------------------------------------------------------
-    for (j in seq_len(p)) {
-      mi_scores[j] <- distance_correlation(X[, j], yd)
-    }
+    warning("Continuous MI not fully implemented, using discrete")
+    return(compute_mutual_information(x, y, method = "discrete", n_bins, adaptive))
   }
+}
 
-  names(mi_scores) <- colnames(X)
+#' Compute Mutual Information (Vectorized)
+#'
+#' @param X Matrix (n_samples x n_genes)
+#' @param y Binary outcome
+#' @param method MI estimation method
+#' @param n_bins Number of bins
+#' @param adaptive Adaptive binning
+#' @return Vector of MI scores (n_genes)
+#' @keywords internal
+compute_mi_vectorized <- function(X, y, method = "discrete", n_bins = 5, adaptive = TRUE) {
+  n_genes <- ncol(X)
+
+  mi_scores <- vapply(1:n_genes, function(j) {
+    compute_mutual_information(X[, j], y, method = method, n_bins = n_bins, adaptive = adaptive)
+  }, FUN.VALUE = numeric(1))
+
   return(mi_scores)
 }
 
-# ==============================================================================
-# CROSS-VALIDATION FOLDS
-# ==============================================================================
-
-make_repeated_stratified_folds <- function(y, K = 5, R = 20, seed = 1) {
-  stopifnot(is.factor(y), nlevels(y) == 2)
-  set.seed(seed)
+#' Create Cross-Validation Folds
+#'
+#' Creates stratified K-fold CV with R repeats.
+#'
+#' @param y Factor, outcome variable
+#' @param K Number of folds
+#' @param R Number of repeats
+#' @param random_seed Random seed
+#' @return List of train/test indices
+#'
+#' @examples
+#' \dontrun{
+#' y <- factor(rep(c("A", "B"), each = 50))
+#' folds <- create_cv_folds(y, K = 5, R = 10)
+#' }
+#'
+#' @export
+create_cv_folds <- function(y, K = 5, R = 20, random_seed = 123) {
+  set.seed(random_seed)
 
   n <- length(y)
-  folds <- vector("list", K * R)
+  folds <- list()
+  fold_counter <- 1
 
-  levs <- levels(y)
-  idx0 <- which(y == levs[1])
-  idx1 <- which(y == levs[2])
+  for (r in 1:R) {
+    class_indices <- split(1:n, y)
 
-  k <- 1L
-  for (r in seq_len(R)) {
-    idx0_sh <- sample(idx0)
-    idx1_sh <- sample(idx1)
+    fold_assignments <- list()
+    for (class in names(class_indices)) {
+      idx <- class_indices[[class]]
+      n_class <- length(idx)
 
-    parts0 <- split(idx0_sh, cut(seq_along(idx0_sh), K, labels = FALSE))
-    parts1 <- split(idx1_sh, cut(seq_along(idx1_sh), K, labels = FALSE))
+      idx <- sample(idx)
+      fold_assignments[[class]] <- split(idx, cut(1:n_class, breaks = K, labels = FALSE))
+    }
 
-    for (f in seq_len(K)) {
-      test_idx <- c(parts0[[f]], parts1[[f]])
-      train_idx <- setdiff(seq_len(n), test_idx)
-      folds[[k]] <- list(train = train_idx, test = test_idx)
-      k <- k + 1L
+    for (k in 1:K) {
+      test_idx <- unlist(lapply(fold_assignments, function(x) x[[k]]))
+      train_idx <- setdiff(1:n, test_idx)
+
+      folds[[fold_counter]] <- list(
+        train = train_idx,
+        test = test_idx,
+        fold = k,
+        repeat_num = r
+      )
+      fold_counter <- fold_counter + 1
     }
   }
 
   return(folds)
 }
 
-# ==============================================================================
-# LASSO/ELASTIC NET/GROUP LASSO FITTING (POINT 8)
-# ==============================================================================
-
-#' Fit penalized regression (lasso/elastic net/group lasso)
+#' Fit Regularized Logistic Regression
 #'
-#' @param X_train training features
-#' @param y_train training labels
+#' Supports lasso, elastic net (via glmnet), and group lasso (via grpreg).
+#' Returns a model-agnostic predict_fn so the caller doesn't need to know
+#' which package was used.
+#'
+#' @param X_train Training feature matrix (n_train x n_genes)
+#' @param y_train Training labels (factor with 2 levels)
 #' @param method "lasso", "elastic_net", or "group_lasso"
-#' @param alpha elastic net parameter (1=lasso, 0.5=elastic net)
-#' @param gene_groups for group lasso: integer vector of group assignments
-#' @param seed random seed
-#' @param use_lambda_1se use conservative lambda
-#' @param inner_folds inner CV folds
-#' @return list with model, selected genes, coefficients, lambda
-fit_penalized_regression <- function(
-    X_train, y_train,
-    method = c("lasso", "elastic_net", "group_lasso"),
-    alpha = 1,
-    gene_groups = NULL,
-    seed = 1,
-    use_lambda_1se = FALSE,
-    inner_folds = 5
-) {
-  # --------------------------------------------------------------------------
-  # VALIDATE
-  # --------------------------------------------------------------------------
-  stopifnot(is.matrix(X_train), is.factor(y_train), nlevels(y_train) == 2)
-  method <- match.arg(method)
-
-  set.seed(seed)
-  y01 <- as.integer(y_train) - 1L
-
-  # --------------------------------------------------------------------------
-  # METHOD 1 & 2: LASSO OR ELASTIC NET (using glmnet)
-  # --------------------------------------------------------------------------
-
-  if (method %in% c("lasso", "elastic_net")) {
-    if (!requireNamespace("glmnet", quietly = TRUE)) {
-      stop("Package 'glmnet' required")
-    }
-
-    # Fit with CV to select lambda
-    cvfit <- tryCatch({
-      glmnet::cv.glmnet(
-        x = X_train,
-        y = y01,
-        family = "binomial",
-        alpha = alpha,
-        nfolds = inner_folds,
-        type.measure = "deviance"
-      )
-    }, error = function(e) {
-      warning("cv.glmnet failed: ", e$message)
-      return(NULL)
-    })
-
-    if (is.null(cvfit)) return(NULL)
-
-    # Select lambda
-    lam <- if (use_lambda_1se) cvfit$lambda.1se else cvfit$lambda.min
-
-    # Refit at selected lambda
-    fit <- tryCatch({
-      glmnet::glmnet(X_train, y01, family = "binomial",
-                     alpha = alpha, lambda = lam)
-    }, error = function(e) NULL)
-
-    if (is.null(fit)) return(NULL)
-
-    # Extract coefficients
-    beta <- as.matrix(stats::coef(fit))[, 1]
-    beta <- beta[names(beta) != "(Intercept)"]
-    selected <- names(beta)[beta != 0]
-    abs_coef <- abs(beta[selected])
-
-    return(list(
-      model = fit,
-      selected = selected,
-      abs_coef = abs_coef,
-      lambda = lam,
-      method = method,
-      alpha = alpha
-    ))
-  }
-
-  # --------------------------------------------------------------------------
-  # METHOD 3: GROUP LASSO (using gglasso)
-  # --------------------------------------------------------------------------
-
-  if (method == "group_lasso") {
-    if (is.null(gene_groups)) {
-      stop("gene_groups required for group_lasso method")
-    }
-
-    if (!requireNamespace("gglasso", quietly = TRUE)) {
-      stop("Package 'gglasso' required. Install: install.packages('gglasso')")
-    }
-
-    # Fit group lasso with CV
-    cvfit <- tryCatch({
-      gglasso::cv.gglasso(
-        x = X_train,
-        y = y01,
-        group = gene_groups,
-        loss = "logit",
-        nfolds = inner_folds
-      )
-    }, error = function(e) {
-      warning("cv.gglasso failed: ", e$message)
-      return(NULL)
-    })
-
-    if (is.null(cvfit)) return(NULL)
-
-    # Select lambda
-    lam_idx <- if (use_lambda_1se) {
-      cvfit$lambda.1se.index
-    } else {
-      cvfit$lambda.min.index
-    }
-
-    lam <- cvfit$lambda[lam_idx]
-
-    # Refit at selected lambda
-    fit <- tryCatch({
-      gglasso::gglasso(
-        x = X_train,
-        y = y01,
-        group = gene_groups,
-        loss = "logit",
-        lambda = lam
-      )
-    }, error = function(e) NULL)
-
-    if (is.null(fit)) return(NULL)
-
-    # Extract coefficients
-    beta <- as.vector(fit$beta)
-    names(beta) <- colnames(X_train)
-    selected <- names(beta)[beta != 0]
-    abs_coef <- abs(beta[selected])
-
-    return(list(
-      model = fit,
-      selected = selected,
-      abs_coef = abs_coef,
-      lambda = lam,
-      method = "group_lasso",
-      gene_groups = gene_groups
-    ))
-  }
-}
-
-# ==============================================================================
-# GENE GROUPING FOR GROUP LASSO (POINT 8)
-# ==============================================================================
-
-#' Create gene groups based on correlation for group lasso
+#' @param alpha Elastic net mixing parameter (ignored for group_lasso)
+#' @param cv_folds CV folds for lambda selection
+#' @param gene_groups Integer vector of length ncol(X_train) assigning each gene
+#'   to a group (required for group_lasso; ignored for lasso/elastic_net).
+#'   If NULL and method is "group_lasso", groups are auto-generated from
+#'   correlation clustering.
+#' @param group_penalty "grLasso" (default), "grMCP", or "grSCAD" for group_lasso
+#' @return List with: selected (gene indices), coefficients (|beta|), lambda,
+#'   n_selected, cv_fit (model object), predict_fn (function: X_test -> probabilities)
 #'
-#' @param X expression matrix
-#' @param cor_threshold correlation threshold for grouping
-#' @param method correlation method
-#' @return integer vector of group assignments
-create_gene_groups <- function(X, cor_threshold = 0.8, method = "pearson") {
-  # --------------------------------------------------------------------------
-  # COMPUTE CORRELATION MATRIX
-  # --------------------------------------------------------------------------
-  cor_matrix <- cor(X, method = method, use = "pairwise.complete.obs")
-  cor_matrix_abs <- abs(cor_matrix)
-  diag(cor_matrix_abs) <- 0
+#' @importFrom glmnet glmnet cv.glmnet coef.glmnet
+#'
+#' @keywords internal
+fit_regularized_model <- function(X_train, y_train, method = "elastic_net",
+                                  alpha = 0.5, cv_folds = 5,
+                                  gene_groups = NULL, group_penalty = "grLasso") {
 
-  # --------------------------------------------------------------------------
-  # HIERARCHICAL CLUSTERING
-  # --------------------------------------------------------------------------
-  # Distance = 1 - |correlation|
-  dist_matrix <- as.dist(1 - cor_matrix_abs)
-  hclust_result <- hclust(dist_matrix, method = "complete")
+  y_numeric <- as.numeric(y_train) - 1
+  n_genes <- ncol(X_train)
 
-  # Cut tree at height corresponding to correlation threshold
-  # height = 1 - cor_threshold
-  gene_groups <- cutree(hclust_result, h = 1 - cor_threshold)
+  # =========================================================================
+  # Lasso / Elastic Net (glmnet)
+  # =========================================================================
+  if (method %in% c("lasso", "elastic_net")) {
+    if (method == "lasso") alpha <- 1.0
 
-  return(gene_groups)
-}
+    cv_fit <- glmnet::cv.glmnet(
+      X_train, y_numeric,
+      family = "binomial",
+      alpha = alpha,
+      nfolds = cv_folds,
+      type.measure = "auc"
+    )
 
-# ==============================================================================
-# AUC CALCULATION
-# ==============================================================================
+    coef_vec <- as.vector(glmnet::coef.glmnet(cv_fit, s = "lambda.min"))[-1]
+    selected <- which(coef_vec != 0)
+    coefs <- abs(coef_vec[selected])
+    lambda_opt <- cv_fit$lambda.min
 
-auc_from_probs <- function(y_true, prob_pos, pos_level = NULL) {
-  stopifnot(is.factor(y_true), nlevels(y_true) == 2)
+    # Model-agnostic prediction function (returns probabilities)
+    predict_fn <- function(X_new) {
+      as.numeric(predict(cv_fit, newx = X_new, s = "lambda.min", type = "response"))
+    }
 
-  if (!requireNamespace("pROC", quietly = TRUE)) {
-    stop("Package 'pROC' required")
+    # =========================================================================
+    # Group Lasso (grpreg)
+    # =========================================================================
+  } else if (method == "group_lasso") {
+
+    if (!requireNamespace("grpreg", quietly = TRUE)) {
+      stop("Group lasso requires the 'grpreg' package.\n",
+           "Install with: install.packages('grpreg')")
+    }
+
+    # --- Determine gene groups ---
+    if (is.null(gene_groups)) {
+      # Auto-generate groups via hierarchical clustering on the
+      # correlation matrix. This creates ~sqrt(p) groups where
+      # correlated genes land in the same group.
+      gene_groups <- auto_generate_groups(X_train)
+    }
+
+    # Validate group vector
+    if (length(gene_groups) != n_genes) {
+      stop(sprintf("gene_groups length (%d) must equal ncol(X_train) (%d)",
+                   length(gene_groups), n_genes))
+    }
+
+    # cv.grpreg fits group-penalized logistic regression across a
+    # grid of lambda values and selects the best via CV.
+    # penalty options: "grLasso" (group lasso), "grMCP", "grSCAD"
+    cv_fit <- grpreg::cv.grpreg(
+      X = X_train,
+      y = y_numeric,
+      group = gene_groups,
+      family = "binomial",
+      penalty = group_penalty,
+      nfolds = cv_folds
+    )
+
+    # Extract coefficients at optimal lambda
+    # grpreg returns intercept + p coefficients; drop the intercept [-1]
+    lambda_opt <- cv_fit$lambda.min
+    coef_vec <- as.numeric(coef(cv_fit, lambda = lambda_opt))[-1]
+
+    selected <- which(coef_vec != 0)
+    coefs <- abs(coef_vec[selected])
+
+    # Model-agnostic prediction function
+    predict_fn <- function(X_new) {
+      as.numeric(predict(cv_fit, X = X_new, lambda = lambda_opt, type = "response"))
+    }
+
+  } else {
+    stop("Unknown regularization method: ", method,
+         ". Choose 'lasso', 'elastic_net', or 'group_lasso'.")
   }
 
-  if (is.null(pos_level)) pos_level <- levels(y_true)[2]
+  return(list(
+    selected = selected,          # Integer vector: which gene columns have nonzero coefs
+    coefficients = coefs,         # |beta| for the selected genes
+    lambda = lambda_opt,          # Optimal regularization strength
+    n_selected = length(selected),
+    cv_fit = cv_fit,              # The raw model object (glmnet or grpreg)
+    predict_fn = predict_fn       # Function: X_test -> predicted probabilities
+  ))
+}
 
-  roc_obj <- pROC::roc(
-    response = y_true,
-    predictor = prob_pos,
-    levels = levels(y_true),
-    direction = "<",
-    quiet = TRUE
-  )
 
-  as.numeric(pROC::auc(roc_obj))
+#' Auto-generate Gene Groups from Correlation Clustering
+#'
+#' Uses hierarchical clustering on the gene correlation matrix to assign
+#' each gene to a group. Genes with similar expression patterns (correlated)
+#' end up in the same group. The number of groups is set to approximately
+#' sqrt(p) where p = number of genes, capped at 500 for computational
+#' feasibility.
+#'
+#' @param X Training expression matrix (n_samples x n_genes)
+#' @param max_groups Maximum number of groups (default: 500)
+#' @param cor_method Correlation method: "pearson" or "spearman"
+#' @return Integer vector of group assignments (length = ncol(X))
+#'
+#' @keywords internal
+auto_generate_groups <- function(X, max_groups = 500, cor_method = "pearson") {
+
+  n_genes <- ncol(X)
+
+  # Target number of groups: sqrt(p), capped
+  n_groups <- min(max_groups, max(10, floor(sqrt(n_genes))))
+
+  # For very large gene sets (>5000), computing the full correlation matrix
+  # is expensive. Use a subsample of samples for speed.
+  if (nrow(X) > 200) {
+    set.seed(1)
+    X_sub <- X[sample(nrow(X), 200), ]
+  } else {
+    X_sub <- X
+  }
+
+  # Compute correlation matrix and convert to a distance
+  # cor = 1 → distance = 0 (identical); cor = -1 → distance = 2 (opposite)
+  # For very wide matrices (>10K genes), this is the bottleneck.
+  # We use a chunked approach for memory efficiency.
+  if (n_genes <= 10000) {
+    cor_mat <- cor(X_sub, method = cor_method, use = "pairwise.complete.obs")
+    dist_mat <- as.dist(1 - cor_mat)
+  } else {
+    # For >10K genes, full cor matrix is ~800MB+. Use a fast approximate
+    # approach: random projection to reduce dimensionality, then cluster.
+    set.seed(2)
+    n_proj <- min(500, nrow(X_sub))
+    proj_matrix <- matrix(rnorm(nrow(X_sub) * n_proj), nrow = nrow(X_sub))
+    X_proj <- t(crossprod(proj_matrix, X_sub))  # n_genes x n_proj
+    dist_mat <- dist(X_proj, method = "euclidean")
+  }
+
+  # Hierarchical clustering (Ward's method minimizes within-group variance)
+  hc <- hclust(dist_mat, method = "ward.D2")
+
+  # Cut the dendrogram into n_groups clusters
+  groups <- cutree(hc, k = n_groups)
+
+  return(groups)
+}
+
+
+#' Create Gene Groups from GO Pathway Membership
+#'
+#' Assigns genes to groups based on their Gene Ontology Biological Process
+#' annotations. Genes sharing the same most-specific GO term are grouped
+#' together. Genes with no GO annotation get their own singleton group.
+#'
+#' @param gene_names Character vector of gene symbols
+#' @param go_cache Named list mapping genes to GO term vectors (from load_go_cache)
+#' @param min_group_size Minimum genes per group (smaller groups are merged)
+#' @return Integer vector of group assignments (length = length(gene_names))
+#'
+#' @export
+create_pathway_groups <- function(gene_names, go_cache = NULL, min_group_size = 3) {
+
+  n_genes <- length(gene_names)
+
+  # Load GO annotations if not provided
+  if (is.null(go_cache)) {
+    if (requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+      go_cache <- load_go_cache(organism = "human")
+    } else {
+      warning("No GO data available, falling back to correlation-based groups")
+      return(NULL)
+    }
+  }
+
+  # For each gene, find its most specific (least common) GO term
+  # That term defines its initial group
+  all_terms <- unique(unlist(go_cache[gene_names]))
+  if (length(all_terms) == 0) {
+    warning("No GO annotations found, falling back to correlation-based groups")
+    return(NULL)
+  }
+
+  # Count term frequency to identify the most specific term per gene
+  term_freq <- table(unlist(go_cache[gene_names]))
+
+  # Assign each gene to its rarest GO term (most specific annotation)
+  group_labels <- character(n_genes)
+  for (i in seq_along(gene_names)) {
+    gene <- gene_names[i]
+    terms <- go_cache[[gene]]
+    if (is.null(terms) || length(terms) == 0) {
+      group_labels[i] <- paste0("singleton_", i)
+    } else {
+      # Pick the term with the lowest frequency (most specific)
+      freqs <- term_freq[terms]
+      group_labels[i] <- names(which.min(freqs))
+    }
+  }
+
+  # Convert to integer groups
+  group_factor <- as.factor(group_labels)
+  groups <- as.integer(group_factor)
+
+  # Merge small groups into a catch-all group
+  group_sizes <- table(groups)
+  small_groups <- as.integer(names(group_sizes[group_sizes < min_group_size]))
+  if (length(small_groups) > 0) {
+    catchall_id <- max(groups) + 1L
+    groups[groups %in% small_groups] <- catchall_id
+    # Re-number to be contiguous 1..K
+    groups <- as.integer(as.factor(groups))
+  }
+
+  cat(sprintf("  Pathway groups: %d groups from %d genes (range: %d-%d genes/group)\n",
+              length(unique(groups)), n_genes,
+              min(table(groups)), max(table(groups))))
+
+  return(groups)
+}
+
+#' Aggregate CV Results (Vectorized)
+#'
+#' Aggregates selection frequency, coefficient magnitudes, and MI scores
+#' across all CV folds.
+#'
+#' @param cv_results List of CV fold results
+#' @param n_genes Total number of genes
+#' @return List with pi_exact, u_coef, u_mi
+#' @keywords internal
+aggregate_cv_results <- function(cv_results, n_genes) {
+  n_folds <- length(cv_results)
+
+  selection_matrix <- matrix(FALSE, nrow = n_genes, ncol = n_folds)
+  coef_matrix <- matrix(0, nrow = n_genes, ncol = n_folds)
+
+  # FIX: Also aggregate MI scores computed per-fold on training data only.
+  # This prevents the leakage that occurred when MI was computed once on the
+  # full dataset (including test labels).
+  mi_matrix <- matrix(0, nrow = n_genes, ncol = n_folds)
+
+  for (fold_idx in 1:n_folds) {
+    result <- cv_results[[fold_idx]]
+    selected <- result$selected
+
+    if (length(selected) > 0) {
+      selection_matrix[selected, fold_idx] <- TRUE
+      coef_matrix[selected, fold_idx] <- result$coefficients
+    }
+
+    # MI scores are available for all genes (computed on training fold)
+    if (!is.null(result$mi_scores) && length(result$mi_scores) == n_genes) {
+      mi_matrix[, fold_idx] <- result$mi_scores
+    }
+  }
+
+  # Selection stability: fraction of folds each gene was selected
+  pi_exact <- rowMeans(selection_matrix)
+
+  # Coefficient utility: mean |coef| when selected
+  coef_sums <- rowSums(coef_matrix)
+  coef_counts <- rowSums(selection_matrix)
+  u_coef_raw <- coef_sums / pmax(coef_counts, 1)
+  u_coef <- percentile01(u_coef_raw)
+
+  # MI utility: mean MI across folds (each fold used only training data)
+  u_mi_raw <- rowMeans(mi_matrix)
+  u_mi <- percentile01(u_mi_raw)
+
+  return(list(
+    pi_exact = pi_exact,
+    u_coef = u_coef,
+    u_mi = u_mi,
+    selection_matrix = selection_matrix,
+    coef_matrix = coef_matrix,
+    mi_matrix = mi_matrix
+  ))
+}
+
+#' Compute AUC from Predictions
+#'
+#' @param y_true True labels
+#' @param y_pred Predicted probabilities
+#' @return AUC score
+#'
+#' @importFrom pROC roc auc
+#'
+#' @keywords internal
+compute_auc <- function(y_true, y_pred) {
+  y_numeric <- as.numeric(as.factor(y_true)) - 1
+
+  tryCatch({
+    roc_obj <- pROC::roc(y_numeric, y_pred, quiet = TRUE)
+    return(as.numeric(pROC::auc(roc_obj)))
+  }, error = function(e) {
+    warning("AUC computation failed: ", e$message)
+    return(NA_real_)
+  })
+}
+
+#' Combine Scores into Final Score
+#'
+#' @param pi Stability scores
+#' @param u Utility scores
+#' @param b Biology scores
+#' @param formula Combination formula
+#' @param weights Weights for (pi, u, b)
+#' @return Final combined scores
+#' @keywords internal
+combine_scores <- function(pi, u, b, formula = "geometric", weights = c(1, 1, 1)) {
+  w <- weights / sum(weights)
+  eps <- 1e-10
+
+  if (formula == "geometric") {
+    final <- ((pi + eps)^w[1] * (u + eps)^w[2] * (b + eps)^w[3])^(1/sum(w))
+  } else if (formula == "arithmetic") {
+    final <- w[1] * pi + w[2] * u + w[3] * b
+  } else if (formula == "harmonic") {
+    final <- sum(w) / (w[1]/(pi + eps) + w[2]/(u + eps) + w[3]/(b + eps))
+  } else if (formula == "minimum") {
+    final <- pmin(pi, u, b)
+  } else {
+    stop("Unknown formula: ", formula)
+  }
+
+  return(final)
 }
