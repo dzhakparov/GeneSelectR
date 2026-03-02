@@ -24,7 +24,7 @@ compute_semantic_similarity(
 \item{method}{One of "resnik", "lin", "jiang", "rel"}
 }
 \value{
-Numeric similarity score in \link{0, 1}
+Numeric similarity score between 0 and 1
 }
 \description{
 Dispatcher that calls the appropriate metric function.

@@ -74,7 +74,7 @@
 #' @param organism Organism name.
 #'
 #' @return Numeric vector of biological scores (one per gene, same order as input),
-#'   percentile-normalized to [0, 1].
+#'   percentile-normalized.
 #'
 #' @export
 biological_scorer <- function(
@@ -88,7 +88,7 @@ biological_scorer <- function(
     max_enriched_terms = 100,
     n_top_sims = 5,
     ic_quantile = 0.5,
-    enrichment_genes = NULL,   # <-- NEW
+    enrichment_genes = NULL,
     go_cache = NULL,
     use_cache = TRUE,
     organism = "human"
@@ -103,7 +103,7 @@ biological_scorer <- function(
   stopifnot(is.numeric(max_enriched_terms), max_enriched_terms >= 1)
   if (!is.null(min_term_freq)) stopifnot(is.numeric(min_term_freq), min_term_freq >= 1)
 
-  # NEW: if not provided, discover targets from the same set you score
+  #if not provided, discover targets from the same set you score
   if (is.null(enrichment_genes)) enrichment_genes <- genes
 
   # --- Load GO annotations ---
@@ -173,7 +173,7 @@ biological_scorer <- function(
 
     scores <- compute_data_driven_scores(
       genes = genes,                        # SCORE these
-      enrichment_genes = enrichment_genes,  # DISCOVER targets from these (NEW)
+      enrichment_genes = enrichment_genes,  # DISCOVER targets from these
       go_cache = go_cache_filtered,
       ic_scores = ic_scores,
       similarity_cache = similarity_cache,
@@ -342,7 +342,7 @@ compute_data_driven_scores <- function(genes,
 
   n_genes <- length(genes)
 
-  # Default = old behavior
+  # Default
   if (is.null(enrichment_genes)) enrichment_genes <- genes
 
   # Only annotated enrichment genes can drive enrichment
@@ -370,7 +370,7 @@ compute_data_driven_scores <- function(genes,
     go_cache_specific <- go_cache
   }
 
-  # --- Step 2: Identify candidate enriched terms (USING enrichment_genes) ---
+  # --- Step 2: Identify candidate enriched terms ---
   annotated_enrich <- intersect(enrichment_genes, names(go_cache_specific))
   if (length(annotated_enrich) < 10) {
     warning("Too few annotated enrichment_genes after specificity filter (<10). Setting b = 0.")
@@ -420,7 +420,7 @@ compute_data_driven_scores <- function(genes,
 
   if (length(enriched_terms) == 0) return(rep(0, n_genes))
 
-  # --- Step 3: Score EACH gene in `genes` (SCORE SET) ---
+  # --- Step 3: Score EACH gene in `genes` ---
   scores <- numeric(n_genes)
 
   for (i in seq_len(n_genes)) {
@@ -480,7 +480,7 @@ compute_data_driven_scores <- function(genes,
 #' @param ic_scores Named vector of Information Content scores
 #' @param ancestor_map Named list of GO term -> ancestor vectors
 #' @param method One of "resnik", "lin", "jiang", "rel"
-#' @return Numeric similarity score in [0, 1]
+#' @return Numeric similarity score between 0 and 1
 #' @keywords internal
 compute_semantic_similarity <- function(term1, term2, ic_scores,
                                         ancestor_map = NULL,
@@ -527,7 +527,7 @@ compute_semantic_similarity <- function(term1, term2, ic_scores,
 #' Resnik Similarity (max-normalized)
 #'
 #' sim = IC(MICA) / max(IC(t1), IC(t2))
-#' Range: [0, 1]. Simple, robust.
+#' Range: (0, 1)
 #'
 #' @keywords internal
 sim_resnik <- function(mica_ic, ic1, ic2) {
@@ -539,7 +539,7 @@ sim_resnik <- function(mica_ic, ic1, ic2) {
 #' Lin Similarity
 #'
 #' sim = 2 * IC(MICA) / (IC(t1) + IC(t2))
-#' Range: [0, 1]. Symmetric normalization. Most widely used.
+#' Range: (0, 1)
 #'
 #' @keywords internal
 sim_lin <- function(mica_ic, ic1, ic2) {
@@ -552,7 +552,7 @@ sim_lin <- function(mica_ic, ic1, ic2) {
 #'
 #' distance = IC(t1) + IC(t2) - 2 * IC(MICA)
 #' sim = 1 / (1 + distance)
-#' Range: (0, 1]. Emphasizes differences more strongly.
+#' Range: (0, 1)
 #'
 #' @keywords internal
 sim_jiang <- function(mica_ic, ic1, ic2) {
@@ -565,8 +565,8 @@ sim_jiang <- function(mica_ic, ic1, ic2) {
 #'
 #' sim = Lin(t1, t2) * (1 - p(MICA))
 #' where p(MICA) = exp(-IC(MICA)) is the annotation probability.
-#' Penalizes shallow/broad common ancestors.
-#' Range: [0, 1).
+#' Penalizes broad common ancestors.
+#' Range: (0, 1).
 #'
 #' @keywords internal
 sim_rel <- function(mica_ic, ic1, ic2) {
@@ -739,7 +739,7 @@ compute_information_content <- function(go_cache) {
 #'
 #' @param selected_genes Character vector of selected gene names
 #' @param background_genes Character vector of background gene names
-#' @param go_cache GO annotations (gene -> terms)
+#' @param go_cache GO annotations
 #' @return Data frame with columns: term, p_value, odds_ratio, n_selected,
 #'   n_background, p_adj (BH-adjusted)
 #' @keywords internal

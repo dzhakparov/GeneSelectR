@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{aggregate_cv_results}
 \alias{aggregate_cv_results}
-\title{Aggregate CV Results (Vectorized)}
+\title{Aggregate CV Results}
 \usage{
 aggregate_cv_results(cv_results, n_genes)
 }

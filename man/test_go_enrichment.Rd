@@ -11,7 +11,7 @@ test_go_enrichment(selected_genes, background_genes, go_cache)
 
 \item{background_genes}{Character vector of background gene names}
 
-\item{go_cache}{GO annotations (gene -> terms)}
+\item{go_cache}{GO annotations}
 }
 \value{
 Data frame with columns: term, p_value, odds_ratio, n_selected,

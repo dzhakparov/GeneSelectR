@@ -10,4 +10,11 @@ inst/doc
 R/draft.R
 inst/extras
 /results_realistic 
-/results_realdata
+/results_realdata\ 
+*.csv 
+*.png
+*.pdf 
+depreciated/ 
+data/
+.Rapp.history
+/benchmark

@@ -9,6 +9,6 @@ sim_jiang(mica_ic, ic1, ic2)
 \description{
 distance = IC(t1) + IC(t2) - 2 * IC(MICA)
 sim = 1 / (1 + distance)
-Range: (0, 1]. Emphasizes differences more strongly.
+Range: (0, 1)
 }
 \keyword{internal}

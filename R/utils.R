@@ -31,10 +31,10 @@ validate_inputs <- function(X, y, gene_names = NULL, n_folds = 5) {
 
 #' Percentile Normalization
 #'
-#' Normalizes values to [0,1] range using percentile ranks, handling zeros.
+#' Normalizes values to (0,1) range using percentile ranks, handling zeros.
 #'
 #' @param x Numeric vector
-#' @return Normalized vector in [0,1]
+#' @return Normalized vector in (0,1)
 #'
 #' @examples
 #' x <- c(0, 1, 2, 3, 4, 5)
@@ -461,7 +461,7 @@ create_pathway_groups <- function(gene_names, go_cache = NULL, min_group_size = 
   return(groups)
 }
 
-#' Aggregate CV Results (Vectorized)
+#' Aggregate CV Results
 #'
 #' Aggregates selection frequency, coefficient magnitudes, and MI scores
 #' across all CV folds.

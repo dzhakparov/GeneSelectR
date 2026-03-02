@@ -56,7 +56,7 @@ This lets you learn targets from a candidate subset but score all genes.}
 }
 \value{
 Numeric vector of biological scores (one per gene, same order as input),
-percentile-normalized to \link{0, 1}.
+percentile-normalized.
 }
 \description{
 Scores genes based on GO semantic similarity to target terms (supervised)

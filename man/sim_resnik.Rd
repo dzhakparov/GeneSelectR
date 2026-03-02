@@ -8,6 +8,6 @@ sim_resnik(mica_ic, ic1, ic2)
 }
 \description{
 sim = IC(MICA) / max(IC(t1), IC(t2))
-Range: \link{0, 1}. Simple, robust.
+Range: (0, 1)
 }
 \keyword{internal}

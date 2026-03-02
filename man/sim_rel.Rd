@@ -9,7 +9,7 @@ sim_rel(mica_ic, ic1, ic2)
 \description{
 sim = Lin(t1, t2) * (1 - p(MICA))
 where p(MICA) = exp(-IC(MICA)) is the annotation probability.
-Penalizes shallow/broad common ancestors.
-Range: [0, 1).
+Penalizes broad common ancestors.
+Range: (0, 1).
 }
 \keyword{internal}

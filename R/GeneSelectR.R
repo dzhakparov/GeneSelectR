@@ -125,7 +125,7 @@ geneselectr2_fit <- function(
   if (verbose) {
     cat("\n")
     cat(paste(rep("=", 70), collapse = ""), "\n")
-    cat("GeneSelectR 2.0\n")
+    cat("GeneSelectR\n")
     cat(paste(rep("=", 70), collapse = ""), "\n")
   }
 
@@ -178,7 +178,7 @@ geneselectr2_fit <- function(
   }
 
   # ============================================================================
-  # STEP 1: Cross-Validation (now includes MI computation per fold)
+  # STEP 1: Cross-Validation
   # ============================================================================
 
   if (verbose) cat("Step 1/4: Running cross-validation (with per-fold MI)...\n")
@@ -233,7 +233,7 @@ geneselectr2_fit <- function(
   }
 
   # ============================================================================
-  # STEP 2: Aggregate CV Results (now includes MI aggregation)
+  # STEP 2: Aggregate CV Results
   # ============================================================================
 
   if (verbose) cat("\nStep 2/4: Aggregating CV results...\n")
@@ -267,7 +267,7 @@ geneselectr2_fit <- function(
   u <- percentile01(u)
 
   # ============================================================================
-  # STEP 4: Biological Relevance   <-- FIX IS HERE
+  # STEP 4: Biological Relevance
   # ============================================================================
 
   if (verbose) cat("\nStep 4/4: Computing biological scores...\n")
@@ -298,7 +298,7 @@ geneselectr2_fit <- function(
 
       b <- biological_scorer(
         genes = gene_names,                 # SCORE ALL GENES
-        enrichment_genes = cand_genes,      # DISCOVER TARGETS FROM SUBSET (NEW)
+        enrichment_genes = cand_genes,      # DISCOVER TARGETS FROM CANDIDATE SUBSET
         mode = "data_driven",
         target_terms = NULL,
         ontology = bio_ontology,

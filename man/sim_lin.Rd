@@ -8,6 +8,6 @@ sim_lin(mica_ic, ic1, ic2)
 }
 \description{
 sim = 2 * IC(MICA) / (IC(t1) + IC(t2))
-Range: \link{0, 1}. Symmetric normalization. Most widely used.
+Range: (0, 1)
 }
 \keyword{internal}

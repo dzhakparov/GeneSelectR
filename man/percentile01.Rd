@@ -10,10 +10,10 @@ percentile01(x)
 \item{x}{Numeric vector}
 }
 \value{
-Normalized vector in \link{0,1}
+Normalized vector in (0,1)
 }
 \description{
-Normalizes values to \link{0,1} range using percentile ranks, handling zeros.
+Normalizes values to (0,1) range using percentile ranks, handling zeros.
 }
 \examples{
 x <- c(0, 1, 2, 3, 4, 5)
