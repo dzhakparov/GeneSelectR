@@ -12,6 +12,8 @@
 
 ## Overview
 
+# IMPORTANT: This is a legacy GeneSelectR Implementation and it is no longer maintained. Please refer to v2.0 branch for the current implementation.
+
 <img src="man/figures/GeneSelectR.png" style="float: right; margin: 0px 0px 10px 10px;" width="120px"/>
 
 GeneSelectR is an R package designed to streamline the process of gene
