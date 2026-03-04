@@ -34,6 +34,9 @@
 #' @param n_cores Integer, number of CPU cores for parallel processing (default: 1)
 #' @param random_seed Integer, random seed for reproducibility
 #' @param verbose Logical, print progress messages (default: TRUE)
+#' @importFrom stats sd
+#' @importFrom utils head
+#' @importFrom stats median
 #'
 #' @return List with components:
 #' \describe{

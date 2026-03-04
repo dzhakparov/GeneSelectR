@@ -4,6 +4,7 @@
 #' @param y Outcome vector
 #' @param gene_names Gene names
 #' @param n_folds Number of CV folds
+#' @importFrom stats sd
 #' @keywords internal
 validate_inputs <- function(X, y, gene_names = NULL, n_folds = 5) {
   if (!is.matrix(X)) stop("X must be a matrix")
@@ -69,6 +70,7 @@ adaptive_bin_count <- function(n, default_bins = 5) {
 #' @param x Numeric vector
 #' @param n_bins Number of bins
 #' @param adaptive Use adaptive binning
+#' @importFrom stats quantile
 #' @return Integer vector of bin assignments
 #' @keywords internal
 discretize_continuous <- function(x, n_bins = 5, adaptive = TRUE) {
@@ -230,6 +232,8 @@ create_cv_folds <- function(y, K = 5, R = 20, random_seed = 123) {
 #'   If NULL and method is "group_lasso", groups are auto-generated from
 #'   correlation clustering.
 #' @param group_penalty "grLasso" (default), "grMCP", or "grSCAD" for group_lasso
+#' @importFrom stats coef
+#' @importFrom grpreg cv.grpreg
 #' @return List with: selected (gene indices), coefficients (|beta|), lambda,
 #'   n_selected, cv_fit (model object), predict_fn (function: X_test -> probabilities)
 #'
@@ -343,6 +347,12 @@ fit_regularized_model <- function(X_train, y_train, method = "elastic_net",
 #' @param X Training expression matrix (n_samples x n_genes)
 #' @param max_groups Maximum number of groups (default: 500)
 #' @param cor_method Correlation method: "pearson" or "spearman"
+#' @importFrom stats cor
+#' @importFrom stats as.dist
+#' @importFrom stats hclust
+#' @importFrom stats cutree
+#' @importFrom stats dist
+#' @importFrom stats rnorm
 #' @return Integer vector of group assignments (length = ncol(X))
 #'
 #' @keywords internal

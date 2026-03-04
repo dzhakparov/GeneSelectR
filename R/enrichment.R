@@ -209,6 +209,7 @@ biological_scorer <- function(
 #'
 #' @param go_cache Named list of gene -> GO terms
 #' @param ontology Character vector of ontologies to keep ("BP", "MF", "CC")
+#' @importFrom AnnotationDbi select
 #' @return Filtered go_cache (genes with zero remaining terms are dropped)
 #' @keywords internal
 filter_go_cache_by_ontology <- function(go_cache, ontology = "BP") {
@@ -326,9 +327,28 @@ compute_supervised_scores <- function(genes, target_terms, go_cache, ic_scores,
   return(scores)
 }
 
-
+#' Compute data-driven biological relevance scores from GO annotations
+#'
+#' @param genes Character vector of gene identifiers to score.
+#' @param enrichment_genes Optional character vector of genes used to drive term selection.
+#' @param go_cache Named list mapping gene -> GO terms.
+#' @param ic_scores Named numeric vector of GO term information content.
+#' @param similarity_cache Cache used for semantic similarity computation.
+#' @param ancestor_map Optional GO ancestor mapping.
+#' @param sim_method Semantic similarity method (e.g. "resnik").
+#' @param enrich_fdr Adjusted p-value threshold for enrichment.
+#' @param min_term_freq Minimum term frequency threshold.
+#' @param max_enriched_terms Maximum number of target terms retained.
+#' @param n_top_sims Number of top similarities averaged per gene.
+#' @param ic_quantile IC quantile threshold for specificity filtering.
+#'
+#' @return Numeric vector of biological relevance scores.
+#'
+#' @importFrom stats quantile
+#' @keywords internal
+#'
 compute_data_driven_scores <- function(genes,
-                                       enrichment_genes,   # <-- NEW
+                                       enrichment_genes,
                                        go_cache,
                                        ic_scores,
                                        similarity_cache,
@@ -587,6 +607,11 @@ sim_rel <- function(mica_ic, ic1, ic2) {
 #'
 #' @param term GO term ID (e.g., "GO:0006955")
 #' @param ancestor_map Named list mapping GO terms to their ancestor vectors.
+#' @importFrom AnnotationDbi select
+#' @importFrom AnnotationDbi as.list
+#' @importFrom GO.db GOBPANCESTOR
+#' @importFrom GO.db GOMFANCESTOR
+#' @importFrom GO.db GOCCANCESTOR
 #' @return Character vector of ancestor terms (always includes the term itself)
 #' @keywords internal
 get_go_ancestors <- function(term, ancestor_map = NULL) {
@@ -641,6 +666,7 @@ get_go_ancestors <- function(term, ancestor_map = NULL) {
 #'
 #' @param organism Character, organism name
 #' @param use_cache Logical, use disk caching
+#' @importFrom AnnotationDbi as.list
 #' @return Named list mapping each GO term to its ancestor terms
 #' @keywords internal
 load_ancestor_map <- function(organism = "human", use_cache = TRUE) {
@@ -740,6 +766,8 @@ compute_information_content <- function(go_cache) {
 #' @param selected_genes Character vector of selected gene names
 #' @param background_genes Character vector of background gene names
 #' @param go_cache GO annotations
+#' @importFrom stats fisher.test
+#' @importFrom stats p.adjust
 #' @return Data frame with columns: term, p_value, odds_ratio, n_selected,
 #'   n_background, p_adj (BH-adjusted)
 #' @keywords internal

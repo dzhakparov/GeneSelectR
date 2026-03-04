@@ -1,44 +1,34 @@
-Package: GeneSelectR
-Title: Comprehensive Feature Selection Worfkflow for Bulk RNAseq Datasets
-Version: 0.0.0.9000
-Authors@R: 
-    person("Damir", "Zhakparov", , "dzhakparov@gmail.com", role = c("aut", "cre"),
+Package: GeneSelectR2
+Title: Comprehensive Feature Selection Workflow for Bulk RNA-seq Datasets
+Version: 1.0.0.0
+Authors@R:
+    person("Damir", "Zhakparov", email = "dzhakparov@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7175-0843"))
-Description: GeneSelectR is a versatile R package designed for efficient RNA sequencing data analysis. Its key innovation lies in the seamless integration of the Python sklearn machine learning framework with R-based bioinformatics tools. This integration enables GeneSelectR to perform robust ML-driven feature selection while simultaneously leveraging the power of Gene Ontology (GO) enrichment and semantic similarity analyses. By combining these diverse methodologies, GeneSelectR offers a comprehensive workflow that optimizes both the computational aspects of ML and the biological insights afforded by advanced bioinformatics analyses. Ideal for researchers in bioinformatics, GeneSelectR stands out as a unique tool for analyzing complex RNAseq datasets with enhanced precision and relevance.
+Description: GeneSelectR 2.0 is an R package for RNA-seq analysis integrating stability of the feature set, predictive utility and biological relevance to select gene signature in binary classification problems.
 License: MIT + file LICENSE
 URL: https://github.com/dzhakparov/GeneSelectR
 BugReports: https://github.com/dzhakparov/GeneSelectR/issues
-Imports: 
-    cowplot (>= 1.1.1),
-    dplyr (>= 1.1.0),
-    ggplot2 (>= 3.4.2),
-    glue (>= 1.6.2),
-    magrittr (>= 2.0.3),
-    methods (>= 4.2.2),
-    RColorBrewer (>= 1.1.3),
-    reshape2 (>= 1.4.4),
-    reticulate (>= 1.28), 
-    rlang (>= 1.1.1),
-    testthat (>= 3.0.0),
-    glmnet, 
-    pROC, 
-    tibble (>= 3.2.1),
-    tidyr (>= 1.3.0),
-    tmod (>= 0.50.13),
-biocViews:
-Suggests: 
+Depends:
+    R (>= 3.5.0)
+Imports:
+    stats,
+    glmnet,
+    grpreg,
+    pROC,
+    AnnotationDbi,
+    GO.db (>= 3.17.0)
+Suggests:
     clusterProfiler (>= 4.6.2),
-    GO.db (>= 3.17.0),
     knitr,
+    testthat (>= 3.0.0),
     rmarkdown,
     BiocManager (>= 1.30.21),
     AnnotationHub (>= 3.8.0),
+    withr,
     org.Hs.eg.db (>= 3.17.0)
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 VignetteBuilder: knitr
-Depends: 
-    R (>= 2.10)
 LazyData: true

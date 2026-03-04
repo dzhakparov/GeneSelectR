@@ -110,6 +110,7 @@ load_go_cache <- function(organism = "human", force_reload = FALSE) {
 #' character vector of GO term IDs for that gene.
 #'
 #' @param organism Character, "human" or "mouse"
+#' @importFrom stats median
 #' @return Named list: gene symbol -> character vector of GO term IDs.
 #'   Empty list if the annotation package is not installed.
 #' @keywords internal
