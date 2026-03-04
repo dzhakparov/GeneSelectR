@@ -68,7 +68,7 @@ includes the Best Overall Response (BOR) to atezolizumab treatment.
 ```{r load-data}
 library(SummarizedExperiment)
 library(easierData)
-library(GeneSelectR)
+library(GeneSelectR2)
 
 # Load the IMvigor210 bladder cancer dataset
 se <- easierData::get_Mariathasan2018_PDL1_treatment()

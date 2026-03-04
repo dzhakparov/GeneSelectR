@@ -25,7 +25,9 @@ Suggests:
     BiocManager (>= 1.30.21),
     AnnotationHub (>= 3.8.0),
     withr,
-    org.Hs.eg.db (>= 3.17.0)
+    org.Hs.eg.db (>= 3.17.0),
+    easierData,
+    SummarizedExperiment
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

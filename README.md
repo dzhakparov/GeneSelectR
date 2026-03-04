@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# GeneSelectR
+# GeneSelectR 2.0
 
 <!-- badges: start -->
 
@@ -33,7 +33,7 @@ score:
   embeddings
 
 The final gene score is the geometric mean of these normalised
-components: **S = (π · u · b)<sup>1/3</sup>**. Genes must score well on
+components: **R = (π · u · b)<sup>1/3</sup>**. Genes must score well on
 all three axes to rank highly, filtering out features that are
 predictive but unstable, stable but biologically orphaned, or
 biologically relevant but not individually informative.
