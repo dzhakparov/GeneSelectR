@@ -49,22 +49,6 @@ Install the development version from GitHub:
 devtools::install_github("dzhakparov/GeneSelectR-2.0", ref = "v2.0")
 ```
 
-### Optional dependencies
-
-For biological scoring you will need the following packages:
-
-``` r
-# Ontology-based scoring (Reactome, Disease Ontology)
-BiocManager::install(c("ReactomePA", "DOSE", "clusterProfiler"))
-
-# Literature mining (PubMed co-occurrence)
-install.packages("rentrez")
-
-# LLM-based scoring (BiomedBERT via HuggingFace API)
-install.packages("httr2")
-# Then set: Sys.setenv(HF_TOKEN = "hf_your_token_here")
-```
-
 ## Quick Start
 
 ``` r

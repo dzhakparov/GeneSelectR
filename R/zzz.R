@@ -17,7 +17,7 @@
     "  ?geneselectr2_fit\n",
     "  vignette('introduction', package = 'GeneSelectR')\n",
     "\n",
-    "Caching enabled by default for faster runs!\n",
+    "Caching enabled by default for faster runs\n",
     "  - cache_info() to view cache\n",
     "  - clear_cache() to reset\n",
     "\n"

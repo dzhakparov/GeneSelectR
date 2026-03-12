@@ -1,13 +1,13 @@
 Package: GeneSelectR2
-Title: Comprehensive Feature Selection Workflow for Bulk RNA-seq Datasets
+Title: Comprehensive Feature Selection Workflow for Bulk RNA-Seq Datasets
 Version: 1.0.0.0
 Authors@R:
     person("Damir", "Zhakparov", email = "dzhakparov@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7175-0843"))
 Description: GeneSelectR 2.0 is an R package for RNA-seq analysis integrating stability of the feature set, predictive utility and biological relevance to select gene signature in binary classification problems.
 License: MIT + file LICENSE
-URL: https://github.com/dzhakparov/GeneSelectR
-BugReports: https://github.com/dzhakparov/GeneSelectR/issues
+URL: https://github.com/dzhakparov/GeneSelectR-2.0
+BugReports: https://github.com/dzhakparov/GeneSelectR-2.0/issues
 Depends:
     R (>= 3.5.0)
 Imports:
@@ -15,8 +15,7 @@ Imports:
     glmnet,
     grpreg,
     pROC,
-    AnnotationDbi,
-    GO.db (>= 3.17.0)
+    AnnotationDbi
 Suggests:
     clusterProfiler (>= 4.6.2),
     knitr,
@@ -27,7 +26,8 @@ Suggests:
     withr,
     org.Hs.eg.db (>= 3.17.0),
     easierData,
-    SummarizedExperiment
+    SummarizedExperiment, 
+    GO.db
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

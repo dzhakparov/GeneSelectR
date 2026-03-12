@@ -609,9 +609,6 @@ sim_rel <- function(mica_ic, ic1, ic2) {
 #' @param ancestor_map Named list mapping GO terms to their ancestor vectors.
 #' @importFrom AnnotationDbi select
 #' @importFrom AnnotationDbi as.list
-#' @importFrom GO.db GOBPANCESTOR
-#' @importFrom GO.db GOMFANCESTOR
-#' @importFrom GO.db GOCCANCESTOR
 #' @return Character vector of ancestor terms (always includes the term itself)
 #' @keywords internal
 get_go_ancestors <- function(term, ancestor_map = NULL) {
