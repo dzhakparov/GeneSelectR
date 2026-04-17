@@ -72,7 +72,7 @@ head(fit$gene_scores, 20)
 ## Example
 
 A usage example can be found in this
-[`vignette`](https://github.com/dzhakparov/GeneSelectR-2.0/tree/v2.0/vignettes/GeneSelectR2-IMvigor210.html)
+[`vignette`](https://github.com/dzhakparov/GeneSelectR-2.0/blob/v2.0/vignettes/GeneSelectR2-IMvigor210.Rmd)
 
 **Step 1 — Stability-weighted elastic net.** Gene expression data is
 split into K×R outer cross-validation folds. Within each fold, an
