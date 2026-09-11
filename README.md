@@ -50,8 +50,3 @@ The ranking table reports recurrence, SHAP contribution frequency, mutual
 information, raw predictive contribution, the two shuffled-outcome-adjusted
 measurements, and the final ranking score. Gene Ontology, Hallmark gene sets,
 Open Targets and STRING functions support downstream interpretation.
-
-## Development checks
-
-Source submissions should pass `R CMD build`, `R CMD check`, and
-`BiocCheck::BiocCheck()` under the current Bioconductor development release.
