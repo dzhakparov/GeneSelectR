@@ -2,17 +2,21 @@
 % Please edit documentation in R/utils.R
 \name{percentile01}
 \alias{percentile01}
-\title{Convert positive values to percentile scores}
+\title{Percentile Normalization}
 \usage{
 percentile01(x)
 }
 \arguments{
-\item{x}{Numeric vector.}
+\item{x}{Numeric vector}
 }
 \value{
-Numeric vector between zero and one.
+Normalized vector in (0,1)
 }
 \description{
-Zero values remain zero. Positive values are assigned their fractional rank.
+Normalizes values to (0,1) range using percentile ranks, handling zeros.
 }
-\keyword{internal}
+\examples{
+x <- c(0, 1, 2, 3, 4, 5)
+percentile01(x)
+
+}

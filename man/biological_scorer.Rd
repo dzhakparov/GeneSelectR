@@ -5,20 +5,20 @@
 \title{Compute Biological Relevance Scores}
 \usage{
 biological_scorer(
-    genes,
-    mode = "supervised",
-    target_terms = NULL,
-    ontology = "BP",
-    sim_method = "resnik",
-    enrich_fdr = 0.05,
-    min_term_freq = NULL,
-    max_enriched_terms = 100,
-    n_top_sims = 5,
-    ic_quantile = 0.5,
-    enrichment_genes = NULL,
-    go_cache = NULL,
-    use_cache = TRUE,
-    organism = "human"
+  genes,
+  mode = "supervised",
+  target_terms = NULL,
+  ontology = "BP",
+  sim_method = "resnik",
+  enrich_fdr = 0.05,
+  min_term_freq = NULL,
+  max_enriched_terms = 100,
+  n_top_sims = 5,
+  ic_quantile = 0.5,
+  enrichment_genes = NULL,
+  go_cache = NULL,
+  use_cache = TRUE,
+  organism = "human"
 )
 }
 \arguments{
@@ -45,7 +45,7 @@ c("BP", "MF", "CC"). Default: "BP".}
 \item{ic_quantile}{Specificity filter quantile for IC.}
 
 \item{enrichment_genes}{Character vector of gene symbols used ONLY to
-discover enriched GO terms in data-driven mode. The default is \code{genes}.
+discover enriched GO terms in data-driven mode. If NULL, defaults to \code{genes}.
 This lets you learn targets from a candidate subset but score all genes.}
 
 \item{go_cache}{Pre-loaded GO cache (gene -> GO terms). If NULL, loaded.}
@@ -55,22 +55,11 @@ This lets you learn targets from a candidate subset but score all genes.}
 \item{organism}{Organism name.}
 }
 \value{
-Numeric vector of biological scores (one per gene, same order as
-input), percentile-normalized. A vector of zeros indicates that the
-requested genes have no annotation evidence.
+Numeric vector of biological scores (one per gene, same order as input),
+percentile-normalized.
 }
 \description{
 Scores genes based on GO semantic similarity to target terms (supervised)
 or auto-detected enriched terms (data-driven). Fully customizable: ontology
 selection, similarity metric, enrichment parameters, and aggregation.
-}
-\examples{
-if (interactive() && requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
-    biological_scorer(
-        c("TP53", "BRCA1"),
-        mode = "supervised",
-        target_terms = "GO:0006915"
-    )
-}
-
 }

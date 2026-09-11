@@ -5,12 +5,12 @@
 \title{Get or Compute GO Similarity with Caching}
 \usage{
 get_or_compute_similarity(
-    term1,
-    term2,
-    ic_scores,
-    cache,
-    ancestor_map = NULL,
-    sim_method = "resnik"
+  term1,
+  term2,
+  ic_scores,
+  cache,
+  ancestor_map = NULL,
+  sim_method = "resnik"
 )
 }
 \arguments{
@@ -24,8 +24,7 @@ get_or_compute_similarity(
 
 \item{ancestor_map}{Named list mapping GO terms to their ancestors}
 
-\item{sim_method}{Character, similarity metric: "resnik", "lin", "jiang"
-or "rel".}
+\item{sim_method}{Character, similarity metric: "resnik", "lin", "jiang", "rel"}
 }
 \value{
 Numeric similarity score

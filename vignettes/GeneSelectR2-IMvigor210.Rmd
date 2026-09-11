@@ -1,0 +1,498 @@
+---
+title: "GeneSelectR 2.0: Gene Selection for Immunotherapy Response in Bladder Cancer"
+author: "Damir Zhakparov"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+vignette: >
+  %\VignetteIndexEntry{GeneSelectR 2.0: Gene Selection for Immunotherapy Response in Bladder Cancer}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+## Introduction
+
+GeneSelectR 2.0 identifies biologically relevant gene signatures by integrating
+three complementary pillars:
+
+- **Selection stability** ($\pi$): How consistently a gene is selected across
+  repeated cross-validation folds using regularised regression.
+- **Predictive utility** ($u$): A blend of regularised coefficient magnitude
+  and mutual information with the outcome.
+- **Biological relevance** ($b$): Gene Ontology semantic similarity to
+  user-specified or data-driven target processes.
+
+This vignette demonstrates the full workflow on the **IMvigor210** bladder
+cancer cohort from the `easierData` Bioconductor package — a dataset of 192
+patients treated with anti-PD-L1 (atezolizumab) immunotherapy, with RNA-seq
+expression and clinical response annotations.
+
+## Installation
+
+```{r install, eval = FALSE}
+# Install Bioconductor dependencies (one-time)
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install(c(
+  "easierData",
+  "SummarizedExperiment",
+  "org.Hs.eg.db",
+  "GO.db",
+  "AnnotationDbi"
+))
+
+# Install GeneSelectR (from GitHub or local)
+# devtools::install_github("your-org/GeneSelectR")
+```
+
+## Load the IMvigor210 Dataset
+
+The `easierData` package provides the Mariathasan et al. (2018) dataset as a
+`SummarizedExperiment` with 31,087 genes across 192 patients. The `colData`
+includes the Best Overall Response (BOR) to atezolizumab treatment.
+
+```{r load-data}
+library(SummarizedExperiment)
+library(easierData)
+library(GeneSelectR2)
+
+# Load the IMvigor210 bladder cancer dataset
+se <- easierData::get_Mariathasan2018_PDL1_treatment()
+se
+```
+
+```{r inspect-coldata}
+# Inspect clinical annotations
+table(se$BOR)
+```
+
+The BOR column encodes response categories: R - responders, NR - non-responders and NE (not
+evaluable).
+
+## Preprocessing
+
+GeneSelectR expects a numeric matrix `X` (samples x genes) and a binary factor
+`y`. We need to:
+
+1. Create a binary response label (responder vs non-responder).
+2. Filter to protein-coding genes with sufficient expression and variance.
+3. Extract a log-TPM matrix.
+
+```{r preprocess}
+# --- Step 1: Binary response ---
+# Responders: CR + PR; Non-responders: SD + PD
+# Remove NE (not evaluable) patients
+response_map <- c(R = "Responder", NR = "NonResponder")
+
+keep_patients <- se$BOR %in% names(response_map)
+se <- se[, keep_patients]
+response <- factor(response_map[se$BOR], levels = c("NonResponder", "Responder"))
+table(response)
+```
+
+```{r filter-genes}
+# --- Step 2: Gene filtering ---
+tpm <- assay(se, "tpm")
+
+# Keep genes expressed in at least 10% of samples (TPM > 1)
+expressed <- rowSums(tpm > 1) >= ncol(tpm) * 0.10
+tpm_filt <- tpm[expressed, ]
+
+# Remove low-variance genes (bottom 50% by variance)
+gene_vars <- apply(log1p(tpm_filt), 1, var)
+high_var <- gene_vars >= median(gene_vars)
+tpm_filt <- tpm_filt[high_var, ]
+
+cat(sprintf("Genes after filtering: %d (from %d)\n", nrow(tpm_filt), nrow(tpm)))
+```
+
+```{r prepare-matrix}
+# --- Step 3: Log-TPM matrix (samples x genes) ---
+X <- t(log1p(tpm_filt))   # samples in rows, genes in columns
+y <- response
+
+cat(sprintf("X dimensions: %d samples x %d genes\n", nrow(X), ncol(X)))
+cat(sprintf("Class balance: %s\n",
+            paste(names(table(y)), table(y), sep = "=", collapse = ", ")))
+```
+
+## Run GeneSelectR 2.0
+
+### Baseline: No biological scoring
+
+First, we run GeneSelectR using only the statistical pillars ($\pi$ and $u$),
+without GO-based biology scoring. This serves as a baseline.
+
+```{r fit-none, cache = TRUE}
+result_none <- geneselectr2_fit(
+  X = X,
+  y = y,
+  bio_mode = "none",
+  regularization_method = "elastic_net",
+  alpha = 0.5,
+  K = 5,
+  R = 10,
+  random_seed = 42,
+  verbose = TRUE
+)
+```
+
+```{r results-none}
+# Cross-validation performance
+cat(sprintf("Mean AUC: %.4f +/- %.4f\n",
+            result_none$cv_summary$mean,
+            result_none$cv_summary$sd))
+
+# Top 20 genes (ranked by pi x u)
+head(result_none$gene_scores[, c("gene", "final_score", "pi_exact", "u")], 20)
+```
+
+### Supervised mode: immune-related GO terms
+
+In supervised mode, we provide specific GO terms that encode our biological
+hypothesis — here, that response to immunotherapy is driven by immune processes.
+
+```{r fit-supervised, cache = TRUE}
+# Key immune-related GO terms
+immune_terms <- c(
+  "GO:0006955",  # immune response
+  "GO:0006954",  # inflammatory response
+  "GO:0042110",  # T cell activation
+  "GO:0002250",  # adaptive immune response
+  "GO:0019882",  # antigen processing and presentation
+  "GO:0002407"   # dendritic cell chemotaxis
+)
+
+result_sup <- geneselectr2_fit(
+  X = X,
+  y = y,
+  bio_mode = "supervised",
+  target_terms = immune_terms,
+  bio_ontology = "BP",
+  bio_sim_method = "resnik",
+  regularization_method = "elastic_net",
+  alpha = 0.5,
+  K = 5,
+  R = 10,
+  random_seed = 42,
+  verbose = TRUE
+)
+```
+
+```{r results-supervised}
+head(result_sup$gene_scores[, c("gene", "final_score", "pi_exact", "u", "b")], 20)
+```
+
+### Data-driven mode: auto-detect relevant biology
+
+In data-driven mode, GeneSelectR first identifies a candidate gene set from the
+CV results, runs GO enrichment on it, and uses the enriched terms as targets
+for biological scoring. This is useful when you don't have a strong prior
+hypothesis.
+
+```{r fit-datadriven, cache = TRUE}
+result_dd <- geneselectr2_fit(
+  X = X,
+  y = y,
+  bio_mode = "data_driven",
+  bio_ontology = "BP",
+  bio_sim_method = "lin",
+  bio_enrich_fdr = 0.05,
+  bio_ic_quantile = 0.5,
+  bio_max_enriched = 100,
+  bio_n_top_sims = 5,
+  regularization_method = "elastic_net",
+  alpha = 0.5,
+  K = 5,
+  R = 10,
+  random_seed = 42,
+  verbose = TRUE
+)
+```
+
+```{r results-datadriven}
+head(result_dd$gene_scores[, c("gene", "final_score", "pi_exact", "u", "b")], 20)
+```
+
+## Comparing Results Across Modes
+
+```{r compare-modes}
+# Extract top-50 gene sets from each mode
+top_n <- 50
+top_none <- head(result_none$gene_scores$gene, top_n)
+top_sup  <- head(result_sup$gene_scores$gene, top_n)
+top_dd   <- head(result_dd$gene_scores$gene, top_n)
+
+# Overlap summary
+cat("=== Top-50 gene overlap ===\n")
+cat(sprintf("none & supervised:  %d\n", length(intersect(top_none, top_sup))))
+cat(sprintf("none & data-driven: %d\n", length(intersect(top_none, top_dd))))
+cat(sprintf("supervised & data-driven: %d\n", length(intersect(top_sup, top_dd))))
+cat(sprintf("All three: %d\n", length(Reduce(intersect, list(top_none, top_sup, top_dd)))))
+```
+
+```{r common-genes}
+# Genes selected by all three modes
+common_all <- Reduce(intersect, list(top_none, top_sup, top_dd))
+cat("\nGenes in top 50 across ALL three modes:\n")
+print(common_all)
+```
+
+## Understanding the Score Components
+
+Each gene receives three normalised scores that are combined into a final
+ranking. Let's visualise how these components relate to each other in the
+supervised run.
+
+```{r score-components, fig.width = 8, fig.height = 6, echo=TRUE}
+gs <- result_sup$gene_scores
+
+par(mfrow = c(2, 2), mar = c(4, 4, 2, 1))
+
+# Stability vs Utility
+plot(gs$pi_exact, gs$u, pch = 16, cex = 0.4, col = "#00000040",
+     xlab = expression(pi ~ "(selection stability)"),
+     ylab = "u (predictive utility)",
+     main = "Stability vs Utility")
+
+# Stability vs Biology
+plot(gs$pi_exact, gs$b, pch = 16, cex = 0.4, col = "#00000040",
+     xlab = expression(pi ~ "(selection stability)"),
+     ylab = "b (biological relevance)",
+     main = "Stability vs Biology")
+
+# Utility vs Biology
+plot(gs$u, gs$b, pch = 16, cex = 0.4, col = "#00000040",
+     xlab = "u (predictive utility)",
+     ylab = "b (biological relevance)",
+     main = "Utility vs Biology")
+
+# Final score distribution
+hist(gs$final_score, breaks = 50, col = "steelblue",
+     border = "white", main = "Final score distribution",
+     xlab = "Final score")
+```
+
+## Comparing Score Formulas
+
+GeneSelectR supports three combination formulas. The geometric mean (default)
+provides a good balance; the harmonic mean strongly penalises genes with any
+weak component; the arithmetic mean is lenient.
+
+```{r compare-formulas, cache = TRUE}
+formulas <- c("geometric", "arithmetic", "harmonic")
+
+formula_results <- lapply(formulas, function(f) {
+  geneselectr2_fit(
+    X = X, y = y,
+    bio_mode = "supervised",
+    target_terms = immune_terms,
+    score_formula = f,
+    K = 5, R = 5,
+    verbose = FALSE,
+    random_seed = 42
+  )
+})
+names(formula_results) <- formulas
+
+# Compare top-20 overlap across formulas
+top20_per_formula <- lapply(formula_results, function(r) head(r$gene_scores$gene, 20))
+
+cat("Top-20 overlap matrix:\n")
+n_formulas <- length(formulas)
+overlap_mat <- matrix(0, n_formulas, n_formulas,
+                       dimnames = list(formulas, formulas))
+for (i in seq_len(n_formulas)) {
+  for (j in seq_len(n_formulas)) {
+    overlap_mat[i, j] <- length(intersect(top20_per_formula[[i]],
+                                            top20_per_formula[[j]]))
+  }
+}
+print(overlap_mat)
+```
+
+## Effect of Custom Weights
+
+You can weight the three pillars differently to emphasise stability,
+predictive power, or biological relevance.
+
+```{r custom-weights, cache = TRUE}
+# Emphasise biology
+result_bio_heavy <- geneselectr2_fit(
+  X = X, y = y,
+  bio_mode = "supervised",
+  target_terms = immune_terms,
+  score_weights = c(1, 1, 3),  # triple weight on biology
+  K = 5, R = 5,
+  verbose = FALSE,
+  random_seed = 42
+)
+
+# Emphasise stability
+result_pi_heavy <- geneselectr2_fit(
+  X = X, y = y,
+  bio_mode = "supervised",
+  target_terms = immune_terms,
+  score_weights = c(3, 1, 1),  # triple weight on stability
+  K = 5, R = 5,
+  verbose = FALSE,
+  random_seed = 42
+)
+
+cat("Top 10 (biology-heavy):\n")
+print(head(result_bio_heavy$gene_scores[, c("gene", "final_score", "pi_exact", "b")], 10))
+
+cat("\nTop 10 (stability-heavy):\n")
+print(head(result_pi_heavy$gene_scores[, c("gene", "final_score", "pi_exact", "b")], 10))
+```
+
+## Using Lasso and Group Lasso
+
+GeneSelectR supports three regularisation strategies. Group lasso encourages
+selection of entire gene groups (e.g., correlated clusters) rather than
+individual genes.
+
+```{r regularization, cache = TRUE}
+# Standard lasso
+result_lasso <- geneselectr2_fit(
+  X = X, y = y,
+  bio_mode = "none",
+  regularization_method = "lasso",
+  K = 5, R = 5,
+  verbose = FALSE,
+  random_seed = 42
+)
+
+# Group lasso with auto-generated correlation-based groups
+result_grp <- geneselectr2_fit(
+  X = X, y = y,
+  bio_mode = "none",
+  regularization_method = "group_lasso",
+  K = 5, R = 5,
+  verbose = FALSE,
+  random_seed = 42
+)
+
+cat(sprintf("Lasso - genes with pi > 0.5: %d\n",
+            sum(result_lasso$gene_scores$pi_exact > 0.5)))
+cat(sprintf("Group lasso - genes with pi > 0.5: %d\n",
+            sum(result_grp$gene_scores$pi_exact > 0.5)))
+```
+
+## Working with Biology Parameters
+
+The biology scoring system is highly configurable. Here we demonstrate
+key parameters using the supervised mode.
+
+### Ontology selection
+
+By default only Biological Process (BP) is used. You can include Molecular
+Function and Cellular Component:
+
+```{r ontology-all, cache = TRUE}
+result_all_ont <- geneselectr2_fit(
+  X = X, y = y,
+  bio_mode = "supervised",
+  target_terms = immune_terms,
+  bio_ontology = c("BP", "MF", "CC"),
+  bio_sim_method = "resnik",
+  K = 5, R = 5,
+  verbose = FALSE,
+  random_seed = 42
+)
+
+# Compare biology scores: BP-only vs all ontologies
+b_bp  <- result_sup$gene_scores$b
+b_all <- result_all_ont$gene_scores$b
+cat(sprintf("Correlation between BP-only and all-ontology b scores: %.3f\n",
+            cor(b_bp, b_all, use = "complete.obs")))
+```
+
+### Similarity metrics
+
+Four semantic similarity metrics are available. Relevance (Schlicker) penalises
+shallow common ancestors most aggressively:
+
+```{r sim-methods, cache = TRUE}
+methods <- c("resnik", "lin", "jiang", "rel")
+
+sim_results <- lapply(methods, function(m) {
+  geneselectr2_fit(
+    X = X, y = y,
+    bio_mode = "supervised",
+    target_terms = immune_terms,
+    bio_sim_method = m,
+    K = 5, R = 3,
+    verbose = FALSE,
+    random_seed = 42
+  )
+})
+names(sim_results) <- methods
+
+# Extract biology scores and correlate
+b_matrix <- sapply(sim_results, function(r) r$gene_scores$b)
+colnames(b_matrix) <- methods
+cat("Biology score correlations across similarity metrics:\n")
+print(round(cor(b_matrix, use = "complete.obs"), 3))
+```
+
+## Cache Management
+
+GeneSelectR caches GO annotations and ancestor maps to disk for fast reuse.
+
+```{r cache-management, eval = FALSE}
+# View cache statistics
+cache_info()
+
+# Clear all cached data (e.g., after updating GO.db)
+clear_cache(confirm = FALSE)
+```
+
+## Extracting a Gene Signature
+
+A practical use case is to extract a compact gene signature for downstream
+use (e.g., building a classifier or scoring new samples).
+
+```{r extract-signature}
+gs <- result_sup$gene_scores
+
+# Strategy 1: genes with high stability (pi > 0.5)
+sig_stable <- gs$gene[gs$pi_exact > 0.5]
+cat(sprintf("Stable signature (pi > 0.5): %d genes\n", length(sig_stable)))
+
+# Strategy 2: top N by final score
+sig_top50 <- head(gs$gene, 50)
+
+# Strategy 3: genes in top quartile of all three components
+q75_pi <- quantile(gs$pi_exact, 0.75)
+q75_u  <- quantile(gs$u, 0.75)
+q75_b  <- quantile(gs$b, 0.75)
+
+sig_triple <- gs$gene[gs$pi_exact >= q75_pi & gs$u >= q75_u & gs$b >= q75_b]
+cat(sprintf("Triple-quartile signature: %d genes\n", length(sig_triple)))
+
+# Preview the triple-quartile signature
+if (length(sig_triple) > 0) {
+  print(gs[gs$gene %in% sig_triple, c("gene", "final_score", "pi_exact", "u", "b")])
+}
+```
+
+## Session Info
+
+```{r sessioninfo}
+sessionInfo()
+```
