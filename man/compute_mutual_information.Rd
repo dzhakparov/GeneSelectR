@@ -2,26 +2,38 @@
 % Please edit documentation in R/utils.R
 \name{compute_mutual_information}
 \alias{compute_mutual_information}
-\title{Compute mutual information with a binary outcome}
+\title{Compute Mutual Information}
 \usage{
-compute_mutual_information(x, y, n_bins = 5L)
+compute_mutual_information(
+  x,
+  y,
+  method = "discrete",
+  n_bins = 5,
+  adaptive = TRUE
+)
 }
 \arguments{
-\item{x}{Numeric expression vector.}
+\item{x}{Numeric vector (gene expression)}
 
-\item{y}{Two-level factor.}
+\item{y}{Factor or integer (binary outcome)}
 
-\item{n_bins}{Maximum number of intervals.}
+\item{method}{"discrete" or "continuous"}
+
+\item{n_bins}{Number of bins for discrete method}
+
+\item{adaptive}{Use adaptive binning}
 }
 \value{
-Mutual information in nats.
+Mutual information in nats
 }
 \description{
-Expression values are divided into quantile-based intervals. The returned
-value is measured in nats.
+Computes mutual information between continuous x and binary y.
 }
 \examples{
-x <- c(0, 0, 1, 1, 2, 2)
-y <- factor(c("a", "a", "a", "b", "b", "b"))
-compute_mutual_information(x, y)
+\dontrun{
+x <- rnorm(100)
+y <- factor(rep(c(0, 1), each = 50))
+mi <- compute_mutual_information(x, y)
+}
+
 }

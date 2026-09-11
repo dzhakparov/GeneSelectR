@@ -2,17 +2,10 @@
 % Please edit documentation in R/cache.R
 \name{cache_info}
 \alias{cache_info}
-\title{Inspect cached annotation data}
+\title{Show Cache Statistics}
 \usage{
 cache_info()
 }
-\value{
-A list containing the cache directory, disk files, total disk size,
-and memory-cache keys.
-}
 \description{
-Inspect cached annotation data
-}
-\examples{
-cache_info()
+Display information about cached data
 }

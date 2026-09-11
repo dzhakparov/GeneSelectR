@@ -2,23 +2,20 @@
 % Please edit documentation in R/utils.R
 \name{validate_inputs}
 \alias{validate_inputs}
-\title{Validate GeneSelectR inputs}
+\title{Validate GeneSelectR Inputs}
 \usage{
-validate_inputs(X, y, gene_names = NULL, min_per_class = 5L)
+validate_inputs(X, y, gene_names = NULL, n_folds = 5)
 }
 \arguments{
-\item{X}{Numeric expression matrix with samples in rows.}
+\item{X}{Expression matrix}
 
-\item{y}{Two-level factor.}
+\item{y}{Outcome vector}
 
-\item{gene_names}{Gene names.}
+\item{gene_names}{Gene names}
 
-\item{min_per_class}{Minimum observations per outcome level.}
-}
-\value{
-\code{TRUE}, invisibly.
+\item{n_folds}{Number of CV folds}
 }
 \description{
-Validate GeneSelectR inputs
+Validate GeneSelectR Inputs
 }
 \keyword{internal}

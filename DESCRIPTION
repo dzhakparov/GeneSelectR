@@ -1,50 +1,36 @@
 Package: GeneSelectR2
-Type: Package
-Title: Predictive Gene Selection and Biological Interpretation
-Version: 0.99.3
+Title: Comprehensive Feature Selection Workflow for Bulk RNA-Seq Datasets
+Version: 1.0.0.0
 Authors@R:
-    person(given = "Damir", family = "Zhakparov",
-           email = "dzhakparov@gmail.com",
-           role = c("aut", "cre"),
+    person("Damir", "Zhakparov", email = "dzhakparov@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7175-0843"))
-Description: Provides a transcriptomics workflow for predictive gene ranking,
-    repeated-selection information and biological interpretation. Elastic-net
-    models are fitted across repeated stratified folds. Recurrence and
-    excluded-sample contribution are compared with shuffled-outcome references
-    and combined into a gene ranking. Gene Ontology, Hallmark gene sets, Open
-    Targets disease associations and STRING interactions support downstream
-    interpretation in binary-outcome studies.
+Description: GeneSelectR 2.0 is an R package for RNA-seq analysis integrating stability of the feature set, predictive utility and biological relevance to select gene signature in binary classification problems.
 License: MIT + file LICENSE
 URL: https://github.com/dzhakparov/GeneSelectR-2.0
 BugReports: https://github.com/dzhakparov/GeneSelectR-2.0/issues
 Depends:
-    R (>= 4.5.0)
+    R (>= 3.5.0)
 Imports:
-    methods,
-    SummarizedExperiment,
-    AnnotationDbi,
+    stats,
     glmnet,
-    parallel,
+    grpreg,
     pROC,
-    withr
+    AnnotationDbi
 Suggests:
-    BiocStyle,
-    digest,
-    GO.db,
-    httr,
-    igraph,
-    jsonlite,
+    clusterProfiler (>= 4.6.2),
     knitr,
-    msigdbr,
-    org.Hs.eg.db,
-    org.Mm.eg.db,
+    testthat (>= 3.0.0),
     rmarkdown,
-    STRINGdb,
-    testthat (>= 3.0.0)
-biocViews: Classification, FeatureExtraction, GeneExpression, Transcriptomics,
-    GeneSetEnrichment, GraphAndNetwork
+    BiocManager (>= 1.30.21),
+    AnnotationHub (>= 3.8.0),
+    withr,
+    org.Hs.eg.db (>= 3.17.0),
+    easierData,
+    SummarizedExperiment, 
+    GO.db
+Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-Config/testthat/edition: 3
+RoxygenNote: 7.3.3
 VignetteBuilder: knitr
-Config/roxygen2/version: 8.0.0
+LazyData: true
