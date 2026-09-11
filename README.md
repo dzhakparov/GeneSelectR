@@ -1,4 +1,4 @@
-# GeneSelectR
+# GeneSelectR-2.0
 
 GeneSelectR is an R workflow for predictive gene selection in binary-outcome
 transcriptomic studies. `select_genes()` combines repeated elastic-net
