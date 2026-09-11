@@ -16,7 +16,6 @@ Filtered go_cache (genes with zero remaining terms are dropped)
 }
 \description{
 Removes GO terms that don't belong to the specified ontologies.
-Requires GO.db package. If unavailable, returns the cache unmodified
-with a warning.
+Requires GO.db and terminates if the requested ontology cannot be resolved.
 }
 \keyword{internal}

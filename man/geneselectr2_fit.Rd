@@ -2,129 +2,92 @@
 % Please edit documentation in R/GeneSelectR.R
 \name{geneselectr2_fit}
 \alias{geneselectr2_fit}
-\title{Fit GeneSelectR 2.0}
+\title{Fit the GeneSelectR ranking model}
 \usage{
 geneselectr2_fit(
-  X,
-  y,
-  gene_names = NULL,
-  bio_mode = "supervised",
-  target_terms = NULL,
-  bio_ontology = "BP",
-  bio_sim_method = "resnik",
-  bio_enrich_fdr = 0.05,
-  bio_min_term_freq = NULL,
-  bio_max_enriched = 100,
-  bio_n_top_sims = 5,
-  bio_ic_quantile = 0.5,
-  score_formula = "geometric",
-  score_weights = c(1, 1, 1),
-  regularization_method = "elastic_net",
-  alpha = 0.5,
-  gene_groups = NULL,
-  group_penalty = "grLasso",
-  mi_method = "discrete",
-  mi_bins = 5,
-  K = 5,
-  R = 20,
-  use_cache = TRUE,
-  n_cores = 1,
-  random_seed = 123,
-  verbose = TRUE
+    X,
+    y,
+    gene_names = NULL,
+    B = 50L,
+    alpha = 0.5,
+    k_folds = 5L,
+    permutations = 20L,
+    null_B = 20L,
+    recurrence_epsilon = 0.01,
+    contribution_epsilon = NULL,
+    ratio_limit = 4,
+    workers = 1L,
+    random_seed = 123L,
+    max_failed_fraction = 0.1,
+    verbose = TRUE
 )
 }
 \arguments{
-\item{X}{Numeric matrix of expression values (samples x genes)}
+\item{X}{Numeric matrix with samples in rows and named genes in columns.}
 
-\item{y}{Factor with two levels indicating binary outcome}
+\item{y}{Two-level factor. The second level is the modelled class.}
 
-\item{gene_names}{Character vector of gene symbols (optional, uses colnames(X) if NULL)}
+\item{gene_names}{Optional gene names. Column names of \code{X} are used by
+default.}
 
-\item{bio_mode}{Character, one of "supervised", "data_driven", or "none"}
+\item{B}{Number of repeated model fits.}
 
-\item{target_terms}{Character vector of GO term IDs for supervised mode}
+\item{alpha}{Elastic-net mixing parameter between zero and one.}
 
-\item{bio_ontology}{Character vector of GO ontologies to use for biology scoring.
-Any subset of c("BP", "MF", "CC"). Default: "BP" (Biological Process only).
-Use c("BP", "MF", "CC") for all ontologies.}
+\item{k_folds}{Number of stratified folds. The benchmark used five.}
 
-\item{bio_sim_method}{Semantic similarity metric for biology scoring. One of:
-"resnik" (default), "lin", "jiang", "rel" (Schlicker relevance).}
+\item{permutations}{Number of shuffled-outcome references.}
 
-\item{bio_enrich_fdr}{FDR threshold for data-driven enrichment. Default: 0.05.}
+\item{null_B}{Number of repeated fits for each shuffled outcome.}
 
-\item{bio_min_term_freq}{Minimum annotation frequency for candidate terms.
-NULL = auto-calculate. Default: NULL.}
+\item{recurrence_epsilon}{Smoothing constant for the recurrence ratio.}
 
-\item{bio_max_enriched}{Maximum enriched terms for scoring. Default: 100.}
+\item{contribution_epsilon}{Optional smoothing constant for the predictive
+contribution ratio. The 95th percentile of positive observed values is
+used by default.}
 
-\item{bio_n_top_sims}{Top-k similarities to average per gene. Default: 5.}
+\item{ratio_limit}{Maximum absolute log2 ratio. The benchmark used four.}
 
-\item{bio_ic_quantile}{IC specificity filter quantile. Default: 0.5.}
+\item{workers}{Number of parallel fitting workers.}
 
-\item{score_formula}{Character, one of "geometric", "arithmetic", "harmonic", "minimum"}
+\item{random_seed}{Random seed, restored when the function returns.}
 
-\item{score_weights}{Numeric vector of length 3, weights for (pi, u, b)}
+\item{max_failed_fraction}{Maximum permitted fraction of failed fits or
+excluded-sample evaluations.}
 
-\item{regularization_method}{Character, "lasso", "elastic_net", or "group_lasso"}
-
-\item{alpha}{Numeric, elastic net mixing parameter (1=lasso, 0=ridge)}
-
-\item{gene_groups}{Named vector of group assignments for group lasso (optional)}
-
-\item{group_penalty}{Penalty type for group lasso (default: "grLasso")}
-
-\item{mi_method}{Character, "discrete" or "continuous"}
-
-\item{mi_bins}{Integer, number of bins for discrete MI}
-
-\item{K}{Integer, number of cross-validation folds (default: 5)}
-
-\item{R}{Integer, number of CV repeats (default: 20)}
-
-\item{use_cache}{Logical, whether to use GO annotation caching (default: TRUE)}
-
-\item{n_cores}{Integer, number of CPU cores for parallel processing (default: 1)}
-
-\item{random_seed}{Integer, random seed for reproducibility}
-
-\item{verbose}{Logical, print progress messages (default: TRUE)}
+\item{verbose}{Logical value controlling progress messages.}
 }
 \value{
-List with components:
-\describe{
-\item{gene_scores}{Data frame of genes ranked by final score}
-\item{cv_results}{List of cross-validation metrics}
-\item{cv_summary}{Summary statistics of CV performance}
-\item{parameters}{List of input parameters used}
-\item{timing}{Timing information for each step}
-}
+A \code{geneselectr_result} list. \code{gene_scores} contains the complete
+ranking and the separate gene-level measurements. Ratios are ranking
+quantities; they are not probabilities, p-values, or false-discovery-rate
+estimates.
 }
 \description{
-Integrates selection stability (pi), predictive utility (u), and biological
-relevance (b) to rank genes. Uses repeated cross-validation with regularized
-regression and optional GO enrichment.
+Repeated five-fold elastic-net models provide two gene-level measurements.
+Recurrence is the fraction of models with a non-zero coefficient. Predictive
+contribution combines exact linear SHAP measurements on excluded samples
+with mutual information. Both measurements are compared with values from
+models fitted after shuffling the outcome. Their adjusted values receive
+equal weight in a geometric mean.
+}
+\details{
+Biological annotation is performed after ranking with the package's
+biological interpretation functions.
 }
 \examples{
-\dontrun{
-# Default: BP ontology, Resnik similarity
-result <- geneselectr2_fit(X, y, bio_mode = "data_driven")
-
-# Custom: all ontologies, Lin similarity, strict enrichment
-result <- geneselectr2_fit(X, y,
-  bio_mode = "data_driven",
-  bio_ontology = c("BP", "MF", "CC"),
-  bio_sim_method = "lin",
-  bio_enrich_fdr = 0.01,
-  bio_ic_quantile = 0.7
+set.seed(1)
+X <- matrix(rnorm(40 * 12), nrow = 40)
+colnames(X) <- paste0("gene", seq_len(ncol(X)))
+y <- factor(
+    rep(c("control", "case"), each = 20),
+    levels = c("control", "case")
 )
-
-# Supervised with specific GO terms
-result <- geneselectr2_fit(X, y,
-  bio_mode = "supervised",
-  target_terms = c("GO:0006955", "GO:0006954"),
-  bio_sim_method = "rel"
+signal_columns <- seq_len(2L)
+X[y == "case", signal_columns] <- X[y == "case", signal_columns] + 1
+fit <- geneselectr2_fit(
+    X, y,
+    B = 2, permutations = 1, null_B = 2, verbose = FALSE
 )
-}
-
+head(fit$gene_scores)
 }

@@ -4,13 +4,18 @@
 \alias{set_cache_options}
 \title{Set Cache Options}
 \usage{
-set_cache_options(verbose = TRUE, max_cache_size = NULL)
+set_cache_options(verbose = TRUE)
 }
 \arguments{
 \item{verbose}{Logical, print cache messages}
-
-\item{max_cache_size}{Numeric, max cache size in MB (not implemented yet)}
+}
+\value{
+\code{NULL}, invisibly.
 }
 \description{
 Configure caching behavior
+}
+\examples{
+set_cache_options(verbose = FALSE)
+
 }

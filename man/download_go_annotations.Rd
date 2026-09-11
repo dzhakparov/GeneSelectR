@@ -11,11 +11,14 @@ download_go_annotations(organism = "human")
 }
 \value{
 Named list: gene symbol -> character vector of GO term IDs.
-Empty list if the annotation package is not installed.
 }
 \description{
 Extracts gene symbol -> GO term mappings from org.Hs.eg.db (human) or
 org.Mm.eg.db (mouse). Returns a named list where each element is a
 character vector of GO term IDs for that gene.
+}
+\details{
+Missing annotation packages and extraction failures terminate with
+an error so that an operational failure cannot enter a biological score.
 }
 \keyword{internal}

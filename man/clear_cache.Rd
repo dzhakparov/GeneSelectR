@@ -9,13 +9,15 @@ clear_cache(confirm = TRUE)
 \arguments{
 \item{confirm}{Logical, require confirmation (default: TRUE)}
 }
+\value{
+\code{NULL}, invisibly.
+}
 \description{
 Removes both memory and disk caches.
 Use this if you want to force fresh downloads.
 }
 \examples{
-\dontrun{
-clear_cache(confirm = FALSE)
+if (interactive()) {
+    clear_cache(confirm = FALSE)
 }
-
 }
