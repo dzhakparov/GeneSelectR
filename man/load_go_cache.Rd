@@ -24,9 +24,9 @@ download failed and saved an empty list to disk, the stale file is
 removed and the download is retried.
 }
 \examples{
-\dontrun{
-go_cache <- load_go_cache("human")
-go_cache[["TP53"]]  # Returns c("GO:0006915", "GO:0008283", ...)
+if (interactive() && requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+    go_cache <- load_go_cache("human")
+    go_cache[["TP53"]]
 }
 
 }

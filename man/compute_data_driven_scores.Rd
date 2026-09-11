@@ -5,24 +5,24 @@
 \title{Compute data-driven biological relevance scores from GO annotations}
 \usage{
 compute_data_driven_scores(
-  genes,
-  enrichment_genes,
-  go_cache,
-  ic_scores,
-  similarity_cache,
-  ancestor_map = NULL,
-  sim_method = "resnik",
-  enrich_fdr = 0.05,
-  min_term_freq = NULL,
-  max_enriched_terms = 100,
-  n_top_sims = 5,
-  ic_quantile = 0.5
+    genes,
+    enrichment_genes,
+    go_cache,
+    ic_scores,
+    similarity_cache,
+    ancestor_map = NULL,
+    sim_method = "resnik",
+    enrich_fdr = 0.05,
+    min_term_freq = NULL,
+    max_enriched_terms = 100,
+    n_top_sims = 5,
+    ic_quantile = 0.5
 )
 }
 \arguments{
 \item{genes}{Character vector of gene identifiers to score.}
 
-\item{enrichment_genes}{Optional character vector of genes used to drive term selection.}
+\item{enrichment_genes}{Genes used to select enriched terms.}
 
 \item{go_cache}{Named list mapping gene -> GO terms.}
 
